@@ -6,6 +6,8 @@ import Canvas from './Canvas';
 import {heightHeader} from "../common";
 
 // widget for displaying a full-page data preview
+// Handle all logic for loading and preparing the data from within your app. 
+// There is code at the bottom of this file that belongs in the app you're implementing the preview for.
 
 // localstorage entries:
 
@@ -80,21 +82,18 @@ let onStorageEvent = (peek, e) => {
 let peekBatchSize = 100;
 let peekSkip = 0;
 let peekData = [];
-
 let peekAllDataReceived = false;
 let peekIsGetting = false;
-
-let onStorageEvent = (e) => {
+function onStorageEvent(e) {
     if (e.key !== 'peekMore' || peekIsGetting) return;
-
     if (localStorage.getItem('peekMore') === 'true' && !peekAllDataReceived) {
         localStorage.setItem('peekMore', 'false');
         peekIsGetting = true;
         updatePeek();
     }
-};
-
-let updatePeek = () => {
+}
+window.addEventListener('storage', onStorageEvent);
+function updatePeek() {
     m.request({
         method: 'POST',
         url: data_url,
@@ -105,28 +104,21 @@ let updatePeek = () => {
     }).then((response) => {
         // stop blocking new requests
         peekIsGetting = false;
-
         let newData = response['data'];
-
         // start blocking new requests until peekReset() is called
         if (newData.length === 0) peekAllDataReceived = true;
-
-        peekData.concat(newData);
+        peekData = peekData.concat(newData);
         peekSkip += newData.length;
-
         localStorage.setItem('peekTableHeaders', JSON.stringify(headers));
         localStorage.setItem('peekTableData', JSON.stringify(peekData));
     });
-};
-
-let resetPeek = () => {
+}
+function resetPeek() {
     peekSkip = 0;
     peekData = [];
-
     peekAllDataReceived = false;
     peekIsGetting = false;
-
     // provoke a redraw from the peek menu
     localStorage.removeItem('peekTableData');
-};
+}
 */

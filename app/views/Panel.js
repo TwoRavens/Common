@@ -22,7 +22,7 @@ import {
 //     label: 'text at top of header',
 //     hover: Bool
 //     contents: m(...),
-//     width: int pixels,
+//     width: css string width,
 //     attrsAll: { apply attributes to the outer div }
 //     })
 // ```

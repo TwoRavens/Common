@@ -2,6 +2,15 @@ import TRImage from '../../../static/images/TwoRavens-sm.png';
 import m from 'mithril';
 import {ABOUT, heightHeader, mergeAttributes} from '../common';
 
+// ```
+// m(Header, m(...))
+// ```
+
+// Creates a header bar at the top of the screen
+// The TwoRavens logo and hover are baked in
+// Resizes automatically for mobile formatting
+
+
 export default class Header {
     oninit() {
         this.about = false;

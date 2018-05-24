@@ -1,6 +1,27 @@
 import m from 'mithril'
 import *  as common from '../common'
 
+
+// ```
+// m(DropdownPopup, {
+//     header: "my header",
+//     sections: [
+//         {
+//             name: "option 1",
+//             content: m(...)
+//         },
+//         {
+//             name: "option 2",
+//             content: m(...)
+//         }
+//     ],
+//     callback: (value) => console.log(value + " was selected.")
+//     attrsAll: {} (optional)
+//     })
+// ```
+
+// When clicked, a menu pops up with a list of buttons. Click a button to enter a sub-menu.
+
 export default class DropdownPopup {
     oninit() {
         this.selectedSection = undefined;
