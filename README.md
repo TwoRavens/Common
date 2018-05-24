@@ -246,6 +246,9 @@ m(TextField, {
 ```
 
 # TextFieldSuggestion
+NOTE this requires js-levenshtein to be installed from npm. Tested with version 1.1.3.
+Install with: `npm install --save js-levenshtein`
+
 ```
 m(TextField, {
     id: string,

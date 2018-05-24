@@ -1,6 +1,9 @@
-import m from 'mithril'
+import m from 'mithril';
 import {mergeAttributes} from "../common";
 import levenshtein from 'js-levenshtein'
+
+// NOTE this requires js-levenshtein to be installed from npm. Tested with version 1.1.3.
+// npm install --save js-levenshtein
 
 // ```
 // m(TextField, {

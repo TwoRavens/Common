@@ -44,7 +44,7 @@ export default class Panel {
         scrollBarChanged();
 
         if (!hover) {
-            setPanelOcclusion(side, `calc(${panelOpen[side] ? width : '16px'} + ${2 * panelMargin}px)`);
+            setPanelOcclusion(side, `calc(${panelMargin} + ${panelOpen[side] ? width : '16px'} + ${panelMargin})`);
         }
 
         return m(`#${side}panel.container.sidepanel.clearfix`, mergeAttributes({
@@ -52,10 +52,10 @@ export default class Panel {
                 background: menuColor,
                 border: borderColor,
                 width: panelOpen[side] ? width : 0,
-                height: `calc(100% - ${heightHeader + heightFooter}px - ${2 * panelMargin}px - ${canvasScroll['horizontal'] ? scrollbarWidth : 0}px)`,
+                height: `calc(100% - ${panelMargin} - ${heightHeader + heightFooter}px - ${panelMargin} - ${canvasScroll['horizontal'] ? scrollbarWidth : 0}px)`,
                 position: 'fixed',
-                top: heightHeader + panelMargin + 'px',
-                [side]: (side === 'right' && canvasScroll['vertical'] ? scrollbarWidth : 0) + panelMargin + 'px',
+                top: `calc(${heightHeader} + ${panelMargin})`,
+                [side]: `calc(${(side === 'right' && canvasScroll['vertical'] ? scrollbarWidth : '0px')} + ${panelMargin})`,
                 // ['padding-' + side]: '1px',
                 'z-index': 100
             }

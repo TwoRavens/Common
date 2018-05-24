@@ -1,4 +1,4 @@
-import m from 'mithril'
+import m from 'mithril';
 import {mergeAttributes, borderColor} from "../common";
 
 // a menu with left and right components.

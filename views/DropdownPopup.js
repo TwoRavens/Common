@@ -1,5 +1,5 @@
-import m from 'mithril'
-import *  as common from '../common'
+import m from 'mithril';
+import *  as common from '../common';
 
 
 // ```
