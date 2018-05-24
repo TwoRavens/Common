@@ -1,6 +1,6 @@
 ## How to use the Mithril Common library
 Each component is a self-contained menu element. To use one of these components in your menu:
-1. import the component `import Classname from "./common/Classname";`
+1. import the component `import Classname from "./common/views/Classname";`
 2. create a new instance `m(Classname, {interface options}, children)`
 
 ...where 'Classname' refers to the name of the component and {interface options} are specified below (and in the class' .js file).
