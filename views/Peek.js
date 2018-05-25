@@ -9,6 +9,10 @@ import {heightHeader} from "../common";
 // Handle all logic for loading and preparing the data from within your app. 
 // There is code at the bottom of this file that belongs in the app you're implementing the preview for.
 
+// ```
+// m(Peek, {image: src image for header})
+// ```
+
 // localstorage entries:
 
 // READ FIELDS
@@ -37,9 +41,11 @@ export default class Peek {
         }
     }
 
-    view() {
+    view(vnode) {
+        let {image} = vnode.attrs;
+
         return [
-            m(Header, [
+            m(Header, {image}, [
                 m('div', {style: {'flex-grow': 1}}),
                 m("h4", m("span#headerLabel.label.label-default", this.header)),
                 m('div', {style: {'flex-grow': 1}}),

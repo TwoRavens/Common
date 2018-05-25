@@ -23,7 +23,7 @@ export default class Header {
     view(vnode) {
         let {image, attrsInterface} = vnode.attrs;
 
-        return m('nav.navbar.navbar-expand-lg.fixed-top.bg-light', mergeAttributes(
+        return m('nav.navbar.navbar-expand-lg.fixed-top.bg-light.navbar-default', mergeAttributes(
             {style: {'min-height': heightHeader, 'box-shadow': '0 0 4px #888'}}, attrsInterface), [
             m("a.navbar-brand",
                 m("img[alt=TwoRavens][width=100][style=margin-left: 1em]", {
