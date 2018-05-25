@@ -106,7 +106,11 @@ Takes on the display settings defined in common.js.
 
 ## Header
 ```
-m(Header, m(...))
+m(Header, {
+        image: src image,
+        attrsInterface: {optional object of attributes}
+    },
+    m(...))
 ```
 
 Creates a header bar at the top of the screen

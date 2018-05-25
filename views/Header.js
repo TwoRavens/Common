@@ -3,7 +3,11 @@ import m from 'mithril';
 import {ABOUT, heightHeader, mergeAttributes} from '../common';
 
 // ```
-// m(Header, m(...))
+// m(Header, {
+//         image: src image,
+//         attrsInterface: {optional object of attributes}
+//     },
+//     m(...))
 // ```
 
 // Creates a header bar at the top of the screen
