@@ -1,4 +1,3 @@
-import TRImage from '../../../static/images/TwoRavens-sm.png';
 import m from 'mithril';
 import {ABOUT, heightHeader, mergeAttributes} from '../common';
 
@@ -22,7 +21,7 @@ export default class Header {
     }
 
     view(vnode) {
-        let {attrsInterface} = vnode.attrs;
+        let {image, attrsInterface} = vnode.attrs;
 
         return m('nav.navbar.navbar-expand-lg.fixed-top.bg-light', mergeAttributes(
             {style: {'min-height': heightHeader, 'box-shadow': '0 0 4px #888'}}, attrsInterface), [
@@ -30,7 +29,7 @@ export default class Header {
                 m("img[alt=TwoRavens][width=100][style=margin-left: 1em]", {
                     onmouseover: _ => this.about = true,
                     onmouseout: _ => this.about = false,
-                    src: TRImage
+                    src: image
                 })),
             m(`#about.card[style=display: ${this.about ? 'block' : 'none'}; top: 10px; left: 140px; position: absolute; width: 500px; z-index: 50]`,
                 m('.card-body', ABOUT)),
@@ -56,8 +55,8 @@ export default class Header {
                             'align-items': 'center'
                         }
                     },
-                vnode.children
-            ))
+                    vnode.children
+                ))
         ]);
     }
 }
