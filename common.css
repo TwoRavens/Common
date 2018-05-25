@@ -1,5 +1,12 @@
-.navbar-default {
-    height: 62px;
+/* styling for header about */
+.about {
+    position: relative;
+    background: white;
+    z-index: 100;
+    display: -ms-flexbox;
+    padding: .5em;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: .5rem;
 }
 
 div.sidepanel div.panelbar {
@@ -38,6 +45,14 @@ div.sidepanel div.panelbar span {
 
     .show-mobile {
         display: block !important;
+    }
+
+    /* force header styling */
+    #headerMenu {
+        top: 0 !important;
+        transform: translateY(0) !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
     }
 
     #headerContent {
