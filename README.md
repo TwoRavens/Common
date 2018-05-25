@@ -100,9 +100,7 @@ When clicked, a menu pops up with a list of buttons. Click a button to enter a s
 
 ## Footer
 ```
-m(Footer, {
-    contents: m(...)
-    })
+m(Footer, m(...))
 ```
 Takes on the display settings defined in common.js.
 
