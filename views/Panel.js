@@ -51,7 +51,7 @@ export default class Panel {
                 background: menuColor,
                 border: borderColor,
                 width: panelOpen[side] ? width : 0,
-                height: `calc(100% - ${panelMargin} - ${heightHeader + heightFooter}px - ${panelMargin} - ${canvasScroll['horizontal'] ? scrollbarWidth : 0}px)`,
+                height: `calc(100% - 2*${panelMargin} - ${heightHeader} - ${heightFooter} - ${canvasScroll['horizontal'] ? scrollbarWidth : 0}px)`,
                 position: 'fixed',
                 top: `calc(${heightHeader} + ${panelMargin})`,
                 [side]: `calc(${(side === 'right' && canvasScroll['vertical'] ? scrollbarWidth : '0px')} + ${panelMargin})`,
