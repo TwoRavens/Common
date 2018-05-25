@@ -1,11 +1,18 @@
-## How to use the Mithril Common library
+# How to use the Mithril Common library
 Each component is a self-contained menu element. To use one of these components in your menu:
 1. import the component `import Classname from "./common/views/Classname";`
 2. create a new instance `m(Classname, {interface options}, children)`
 
 ...where 'Classname' refers to the name of the component and {interface options} are specified below (and in the class' .js file).
 
-# Button
+# Git management
+To add common to a new project:
+```git submodule add -b master https://github.com/TwoRavens/common.git assets/common```
+To update common in an existing project:
+```git submodule update --remote```
+
+
+## Button
 Arbitrary attributes may be passed. This is more of a proof of concept
 ```
 m(Button, {
@@ -15,7 +22,7 @@ m(Button, {
     })
 ```
 
-# ButtonRadio
+## ButtonRadio
 
 ```
 m(ButtonRadio, {
@@ -47,7 +54,7 @@ Both hoverBonus and selectWidth may be used together. On both, don't pass a stri
 defaultSection sets which element is selected on page load
 activeSelection forces the selected element. This is for convenience when external events change the selected button
 
-# Canvas
+## Canvas
 ```
 m(Canvas, {
     attrsAll: { additional attributes to apply to the outer div }
@@ -58,7 +65,7 @@ Purpose:
 1. if a left or right panel is not permitted to occlude the content on the canvas, this class resizes the contents to maintain a margin away from the panels
 2. if the contents of the canvas overflow and cause a scroll bar, the left and right panel are shifted to maintain a margin
  
-# Dropdown
+## Dropdown
 ```
 m(Dropdown, {
     id: 'dropdownID' (applied to button and selectors)
@@ -69,7 +76,7 @@ m(Dropdown, {
     })
  ```
 
-# DropdownPopup
+## DropdownPopup
 
 ```
 m(DropdownPopup, {
@@ -91,7 +98,7 @@ m(DropdownPopup, {
 
 When clicked, a menu pops up with a list of buttons. Click a button to enter a sub-menu.
 
-# Footer
+## Footer
 ```
 m(Footer, {
     contents: m(...)
@@ -99,7 +106,7 @@ m(Footer, {
 ```
 Takes on the display settings defined in common.js.
 
-# Header
+## Header
 ```
 m(Header, m(...))
 ```
@@ -108,7 +115,7 @@ Creates a header bar at the top of the screen
 The TwoRavens logo and hover are baked in
 Resizes automatically for mobile formatting
 
-# ListTags
+## ListTags
 ```
 m(ListTags, {
     tags: ['value 1', 'value 2', 'value 3'],
@@ -122,7 +129,7 @@ Returns an inline array of elements with bubbles around them
 Each bubble contains the tag and a cancel button (if not readonly)
 
 
-# MenuHeaders
+## MenuHeaders
 Separate a list of elements with headers. Interchangeable with MenuTabbed.
 ```
 m(MenuHeaders, {
@@ -136,7 +143,7 @@ m(MenuHeaders, {
     })
 ```
 
-# MenuTabbed
+## MenuTabbed
 Separate a list of elements with tabs. Interchangeable with MenuHeaders.
 ```
 m(MenuTabbed, {
@@ -156,7 +163,7 @@ m(MenuTabbed, {
 The ids for the generated buttons and content areas are generated via 'idSuffix' passed into sections.
 For example if idSuffix is 'Type', then there will be html objects with 'btnType' and 'tabType' ids.
 
-# Panel
+## Panel
 ```
 m(Panel, {
     side: 'left' || 'right',
@@ -178,7 +185,7 @@ If headers are set, the width of the panel is set globally.
 Sometimes the contents of a panel should not be accessible via the tab bar.
 Setting the toggle 'visible' prevents it from appearing in the tab bar.
 
-# PanelList
+## PanelList
 ```
 m(PanelList, {
         id: 'id of container',
@@ -199,10 +206,10 @@ colors is an object that maps a color to a list or set of items with that color.
 classes acts similarly, but one item may have several classes. Standard css rules apply for stacking css classes.
 popup returns the popup contents when called with the item. If not set, then popup is not drawn
 
-# Peek
+## Peek
 Widget for displaying a full-page data preview. Handle all logic for loading and preparing the data from within your app. There is code within Peek.js that belongs in the app you're implementing the preview for.
 
-# Table
+## Table
 ```
 m(Table, {
     id: id (String),
@@ -234,7 +241,7 @@ Table tags allows passing colgroups, captions, etc. into the table manually. Can
 When abbreviation is set, strings are shortened to int number of characters
 
 
-# TextField
+## TextField
 ```
 m(TextField, {
     id: string,
@@ -245,7 +252,7 @@ m(TextField, {
     })
 ```
 
-# TextFieldSuggestion
+## TextFieldSuggestion
 NOTE this requires js-levenshtein to be installed from npm. Tested with version 1.1.3.
 Install with: `npm install --save js-levenshtein`
 
@@ -263,7 +270,7 @@ suggestions are shown below the text box.
 if enforce is true, then the value must be one of the suggestions
 Can pass attributes directly, for example 'placeholder' or 'oninput'
 
-# TwoPanel
+## TwoPanel
 a menu with left and right components.
 On desktop, the center is draggable
 On mobile, can switch between left and right menus on click
