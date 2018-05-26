@@ -40,7 +40,8 @@ m(ButtonRadio, {
     attrsAll: {optional object of attributes to apply to the bar}
     attrsButtons: {optional object of attributes to apply to all buttons}
     selectWidth: 20 (optional int),
-    hoverBonus: 10 (optional int)
+    hoverBonus: 10 (optional int),
+    vertical: boolean (optional)
     })
 ```
 

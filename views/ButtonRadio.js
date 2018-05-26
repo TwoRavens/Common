@@ -20,7 +20,8 @@ import {mergeAttributes} from '../common';
 //     attrsAll: {optional object of attributes to apply to the bar}
 //     attrsButtons: {optional object of attributes to apply to all buttons}
 //     selectWidth: 20 (optional int),
-//     hoverBonus: 10 (optional int)
+//     hoverBonus: 10 (optional int),
+//     vertical: boolean (optional)
 //     })
 // ```
 
@@ -42,10 +43,18 @@ export default class ButtonRadio {
     }
 
     view(vnode) {
-        let {id, sections, onclick, selectWidth, hoverBonus, attrsAll, attrsButtons, activeSection} = vnode.attrs;
+        let {id, sections, onclick, activeSection} = vnode.attrs;
+
+        // optional features
+        let {selectWidth, hoverBonus, vertical} = vnode.attrs;
+
+        // additional styling
+        let {attrsAll, attrsButtons} = vnode.attrs;
 
         // Sorry about the complexity here. Got stuck with a lot of cases
         let getWidth = (value) => {
+            if (vertical) return '100%';
+
             // Evenly spaced
             if (selectWidth === undefined && (hoverBonus === undefined || this.hovered === undefined)) {
                 return 100. / sections.length + '%';
@@ -75,7 +84,8 @@ export default class ButtonRadio {
         this.active = activeSection || this.active;
 
         // Button bar
-        return m(`div#${id}.btn-group[role=group][data-toggle=buttons]`, mergeAttributes({style: {'width': '100%'}}, attrsAll),
+        return m(`div#${id}.btn-group${vertical ? '-vertical' : ''}[role=group][data-toggle=buttons]`,
+            mergeAttributes({style: {'width': '100%'}}, attrsAll),
             sections.map(section =>
                 // Individual buttons
                 m(`#${section.id || 'btn' + section.value}.btn.btn-outline-secondary.btn-default
