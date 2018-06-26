@@ -56,6 +56,7 @@ export default class Peek {
                     id: 'peekTable',
                     headers: this.tableHeaders,
                     data: this.tableData,
+                    abbreviation: 25,
                     attrsAll: {style: {overflow: 'auto'}}
                 })
             )
