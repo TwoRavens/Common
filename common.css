@@ -19,24 +19,42 @@ div.sidepanel div.panelbar span {
     display: flex;
     width: 16px;
     height: 100%;
-    position:relative;
-    justify-content:center;
-    align-items:center;
+    position: relative;
+    justify-content: center;
+    align-items: center;
     font-size: .75em;
     color: #ADADAD;
     background: #eee;
 }
 
+/* used for ModalVanilla */
+@keyframes opacity {
+    from {
+        opacity: 0
+    }
+    to {
+        opacity: 1
+    }
+}
+
 @media screen and (max-width: 800px) {
 
     @keyframes twopanel-right {
-        0% {transform: translateX(100%);}
-        100% {transform: translateX(0);}
+        0% {
+            transform: translateX(100%);
+        }
+        100% {
+            transform: translateX(0);
+        }
     }
 
     @keyframes twopanel-left {
-        0% {transform: translateX(-40%);}
-        100% {transform: translateX(0);}
+        0% {
+            transform: translateX(-40%);
+        }
+        100% {
+            transform: translateX(0);
+        }
     }
 
     .hide-mobile {
@@ -65,6 +83,7 @@ div.sidepanel div.panelbar span {
     .focused-left {
         width: 90%;
     }
+
     .unfocused-right {
         position: fixed;
         left: 90%;
@@ -75,6 +94,7 @@ div.sidepanel div.panelbar span {
         margin-left: -40%;
         right: 90% !important;
     }
+
     .focused-right {
         width: 90% !important;
     }
