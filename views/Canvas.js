@@ -23,8 +23,9 @@ export default class Canvas {
 
     view(vnode) {
         let {attrsAll} = vnode.attrs;
-        return m('div#canvas', mergeAttributes({
+        return m('div', mergeAttributes({
             style: {
+                id: 'canvas',
                 width: '100%',
                 height: `calc(100% - ${heightHeader} - ${heightFooter})`,
                 'padding-left': panelOcclusion['left'],
