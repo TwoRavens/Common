@@ -14,9 +14,9 @@ import * as common from '../common';
 
 export default class ModalVanilla {
     view(vnode) {
-        let {id, display, setDisplay, contents} = vnode.attrs;
+        let {id, setDisplay, contents} = vnode.attrs;
 
-        return display && m(`div#modalBackground${id}`, {
+        return m(`div#modalBackground${id}`, {
             style: {
                 animation: 'opacity 0.5s',
                 position: 'fixed',
