@@ -47,7 +47,7 @@ export default class Table {
         // deduce headers if passed an array of objects
         if (headers === undefined && data.some(row => !Array.isArray(row))) {
             let headersTemp = new Set();
-            data.forEach(row => Object.keys(row).forEach(key => headersTemp.add(key)))
+            data.forEach(row => Object.keys(row).forEach(key => headersTemp.add(key)));
             headers = [...headersTemp];
         }
 
@@ -64,9 +64,9 @@ export default class Table {
 
         return m(`table.table#${id}`, mergeAttributes({style: {width: '100%'}}, attrsAll), [
             tableTags,
-            headers ? m('tr', {style: {width: '100%', background: menuColor}}, [
+            headers && m('tr', {style: {width: '100%', background: menuColor, position: 'sticky', top: 0}}, [
                 ...(showUID ? headers : headers.slice(1)).map((header) => m('th', abbreviate(header)))
-            ]) : undefined,
+            ]),
 
             ...data.map((row, i) => {
                 // if a row is an Object of "header": "value" items, then convert to array with proper spacing
