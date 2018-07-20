@@ -11,8 +11,7 @@ import {
     canvasScroll,
     scrollbarWidth,
     setPanelOcclusion,
-    scrollBarChanged,
-    mergeAttributes
+    mergeAttributes, scrollBarChanged
 } from "../common";
 
 // ```
@@ -40,11 +39,12 @@ export default class Panel {
 
     view(vnode) {
         let {side, hover, label, contents, width, attrsAll} = vnode.attrs;
-        scrollBarChanged();
 
-        if (!hover) {
-            setPanelOcclusion(side, `calc(${panelMargin} + ${panelOpen[side] ? width : '16px'} + ${panelMargin})`);
-        }
+        let scroll = side === 'right' && canvasScroll['vertical'] ? scrollbarWidth : 0;
+        if (hover)
+            setPanelOcclusion(side, `calc(${panelMargin} + 16px + ${panelMargin} + ${scroll}px)`);
+        else
+            setPanelOcclusion(side, `calc(${panelMargin} + ${panelOpen[side] ? width : '16px'} + ${panelMargin} + ${scroll}px)`);
 
         return m(`#${side}panel.container.sidepanel.clearfix`, mergeAttributes({
             style: {
@@ -54,8 +54,7 @@ export default class Panel {
                 height: `calc(100% - 2*${panelMargin} - ${heightHeader} - ${heightFooter} - ${canvasScroll['horizontal'] ? scrollbarWidth : 0}px)`,
                 position: 'fixed',
                 top: `calc(${heightHeader} + ${panelMargin})`,
-                [side]: `calc(${(side === 'right' && canvasScroll['vertical'] ? scrollbarWidth : '0px')} + ${panelMargin})`,
-                // ['padding-' + side]: '1px',
+                [side]: `calc(${(side === 'right' && canvasScroll['vertical'] ? scrollbarWidth : 0)}px + ${panelMargin})`,
                 'z-index': 100
             }
         }, attrsAll), [
