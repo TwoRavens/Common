@@ -6,10 +6,14 @@ Each component is a self-contained menu element. To use one of these components 
 ...where 'Classname' refers to the name of the component and {interface options} are specified below (and in the class' .js file).
 
 # Git management
-To add common to a new project:
-```git submodule add -b master https://github.com/TwoRavens/common.git assets/common```
-To update common in an existing project:
-```git submodule update --remote```
+To add common to a new project:  
+```git submodule add -b master https://github.com/TwoRavens/common.git assets/common```  
+
+To clone an existing repository that uses common, init submodule after clone:  
+```git submodule init```  
+
+To update common in an existing project:  
+```git submodule update --remote```  
 
 
 ## Button
