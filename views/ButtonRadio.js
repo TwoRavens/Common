@@ -1,5 +1,4 @@
 import m from 'mithril';
-
 import {mergeAttributes} from '../common';
 
 // Interface specification
@@ -82,7 +81,6 @@ export default class ButtonRadio {
         };
 
         this.active = activeSection || this.active;
-
         // Button bar
         return m(`div#${id}.btn-group${vertical ? '-vertical' : ''}[role=group][data-toggle=buttons]`,
             mergeAttributes({style: {'width': '100%'}}, attrsAll),

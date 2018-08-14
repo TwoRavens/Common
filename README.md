@@ -13,11 +13,9 @@ To update common in an existing project:
 
 
 ## Button
-Arbitrary attributes may be passed. This is more of a proof of concept
+Arbitrary attributes may be passed.
 ```
 m(Button, {
-    id: 'buttonID',
-    text: 'Click Me!',
     onclick: () => console.log("buttonID was clicked"),
     })
 ```

@@ -4,7 +4,6 @@ import {mergeAttributes} from "../common";
 // ```
 // m(TextField, {
 //     id: string,
-//     cancellable: Bool NOT IMPLEMENTED
 //     oninput: called with value of field
 //     *: any attribute may be passed
 //     })
