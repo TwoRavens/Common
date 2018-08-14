@@ -172,21 +172,13 @@ m(Panel, {
     side: 'left' || 'right',
     label: 'text at top of header',
     hover: Bool
-    contents: m(...),
     width: css string width,
     attrsAll: { apply attributes to the outer div }
-})
+    }, contents)
 ```
 
 If hover is true, then the canvas is occluded by the panels.
 If hover is false, then the canvas is resized to maintain a margin as panels are opened/closed or canvas contents overflow.
-
-Contents for each partition are described in the sections list.
-If tabs are set, then the width of the panel may be set in the section options.
-If headers are set, the width of the panel is set globally.
-
-Sometimes the contents of a panel should not be accessible via the tab bar.
-Setting the toggle 'visible' prevents it from appearing in the tab bar.
 
 ## PanelList
 ```
