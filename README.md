@@ -215,9 +215,9 @@ Widget for displaying a full-page data preview. Handle all logic for loading and
 ## Table
 ```
 m(Table, {
-    id: id (String),
+    id: id (string),
     headers: ['col1Header', 'col2Header'],
-    data: [['row1col1', 'row1col2'], ['row2col1', 'row2col2']] or function
+    data: [['row1col1', 'row1col2'], ['row2col1', 'row2col2']], or function
     activeRow: 'row1col1', (optional)
     onclick: (uid, colID) => console.log(uid + " row was clicked, column number " + colID + " was clicked"), (optional)
     showUID: true | false, (optional)
@@ -226,7 +226,8 @@ m(Table, {
     attrsRows: { apply attributes to each row }, (optional)
     attrsCells: { apply attributes to each cell } (optional)
     tableTags: [ m('colgroup', ...), m('caption', ...), m('tfoot', ...)]
-    abbreviation: int
+    abbreviation: (int),
+    nest: (boolean)
     })
 ```
 
@@ -242,6 +243,9 @@ The data parameter attempts to render anything it gets. Feel free to pass Arrays
 Table tags allows passing colgroups, captions, etc. into the table manually. Can be a single element or list
 
 When abbreviation is set, strings are shortened to int number of characters
+
+When nest is true, can pass json objects.
+NOTE: do not pass mithril amongst the data argument when nest is true. m(...) are objects, so this component will attempt to tabularize them (and fail)
 
 
 ## TextField
