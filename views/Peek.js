@@ -54,7 +54,12 @@ export default class Peek {
             m(Canvas, {
                     attrsAll: {
                         id: 'canvas' + id,
-                        style: {'margin-top': heightHeader + 'px', height: `calc(100% - ${heightHeader})`}
+                        style: {
+                            'padding-left': 0,
+                            'padding-right': 0,
+                            'margin-top': heightHeader + 'px',
+                            height: `calc(100% - ${heightHeader})`
+                        }
                     }
                 }, m(Table, {
                     id: 'peekTable' + id,
