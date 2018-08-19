@@ -1,3 +1,9 @@
+.table-header-sticky {
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+}
+
 /* styling for header about */
 .about {
     position: relative;
