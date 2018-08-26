@@ -112,7 +112,7 @@ export default class Table {
 
                     return m('tr', mergeAttributes(
                         i % 2 === 1 ? {style: {background: 'rgba(0,0,0,.02)'}} : {},
-                        row[0] === activeRow ? {style: {'background': selVarColor}} : {}, attrsRows),
+                        row[0] === activeRow && activeRow ? {style: {'background': selVarColor}} : {}, attrsRows),
                         row.filter((item, j) => j !== 0 || showUID).map((item, j) =>
                             m('td', mergeAttributes(onclick ? {onclick: () => onclick(row[0], j)} : {}, attrsCells), value(item)))
                     )
