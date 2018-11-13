@@ -206,6 +206,18 @@ popup returns the popup contents when called with the item. If not set, then pop
 ## Peek
 Widget for displaying a full-page data preview. Handle all logic for loading and preparing the data from within your app. There is code within Peek.js that belongs in the app you're implementing the preview for.
 
+## Subpanel
+```
+m(Subpanel, {
+    id: 'string',
+    header: 'string'
+    attrsAll: {any attribute may be passed}
+}, contents)
+```
+
+A box with a header. The header has a glyphicon chevron that shows/hides the contents. Bootstrap required.
+
+
 ## Table
 ```
 m(Table, {
