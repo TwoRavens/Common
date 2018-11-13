@@ -24,10 +24,17 @@ export default class Header {
         let {image, aboutText, attrsInterface} = vnode.attrs;
 
         // navbar-default is for bootstrap 3 compatibility
-        return m('nav.navbar.navbar-expand-lg.fixed-top.bg-light.navbar-default', mergeAttributes(
-            {style: {'min-height': heightHeader, 'box-shadow': '0 0 4px #888', 'z-index': 1000, 'height': 'auto'}}, attrsInterface), [
+        return m('nav.navbar.navbar-expand-lg.fixed-top.bg-light.navbar-default', mergeAttributes({
+            style: {
+                'min-height': heightHeader,
+                'box-shadow': '0 0 4px #888',
+                'z-index': 1000,
+                'height': 'auto',
+                'margin-bottom': '0px'
+            }
+        }, attrsInterface), [
             m("img.navbar-brand[alt=TwoRavens]", {
-                style: {height:'100%', 'max-height': heightHeader, 'max-width': '140px'},
+                style: {height: '100%', 'max-height': heightHeader, 'max-width': '140px'},
                 onmouseover: _ => this.about = true,
                 onmouseout: _ => this.about = false,
                 src: image
@@ -43,7 +50,10 @@ export default class Header {
                     float: 'right',
                     'margin-top': `calc(${heightHeader} / 2)`,
                     'margin-bottom': `calc(-${heightHeader} / 2)`,
-                    transform: 'translateY(-50%)'
+                    'margin-right': '1em',
+                    transform: 'translateY(-50%)',
+                    position: 'relative',
+                    'z-index': 100
                 }
             }, m('div.header-icon', {
                 style: {
