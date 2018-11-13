@@ -1,16 +1,16 @@
 import m from 'mithril';
-import {ABOUT, heightHeader, mergeAttributes} from '../common';
+import {heightHeader, mergeAttributes} from '../common';
 
 // ```
 // m(Header, {
 //         image: src image,
+//         aboutText: 'string',
 //         attrsInterface: {optional object of attributes}
-//     },
-//     m(...))
+//     }, content)
 // ```
 
 // Creates a header bar at the top of the screen
-// The TwoRavens logo and hover are baked in
+// The TwoRavens logo and about text must be passed in
 // Resizes automatically for mobile formatting
 
 
@@ -21,7 +21,7 @@ export default class Header {
     }
 
     view(vnode) {
-        let {image, attrsInterface} = vnode.attrs;
+        let {image, aboutText, attrsInterface} = vnode.attrs;
 
         // navbar-default is for bootstrap 3 compatibility
         return m('nav.navbar.navbar-expand-lg.fixed-top.bg-light.navbar-default', mergeAttributes(
@@ -33,7 +33,7 @@ export default class Header {
                 src: image
             }),
             m(`#about.about[style=display: ${this.about ? 'block' : 'none'}; top: 10px; left: 140px; position: absolute; width: 500px; z-index: 50]`,
-                ABOUT),
+                aboutText),
 
             // This styling is partially and conditionally overwritten via common.css @media queries for mobile formatting
             m('div#hamburger.show-mobile', {

@@ -111,13 +111,13 @@ Takes on the display settings defined in common.js.
 ```
 m(Header, {
         image: src image,
+        aboutText: 'string',
         attrsInterface: {optional object of attributes}
-    },
-    m(...))
+    }, content)
 ```
 
 Creates a header bar at the top of the screen
-The TwoRavens logo and hover are baked in
+The TwoRavens logo and about text must be passed in
 Resizes automatically for mobile formatting
 
 ## ListTags
