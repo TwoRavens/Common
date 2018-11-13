@@ -19,7 +19,7 @@ export default class ListTags {
     view(vnode) {
         let {tags, attrsTags, ondelete, readonly} = vnode.attrs;
 
-        return tags.map((tag) => m('div', mergeAttributes({
+        return tags.map(tag => m('div', mergeAttributes({
                 style: {
                     display: 'inline-block',
                     margin: '5px',

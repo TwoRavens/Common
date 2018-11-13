@@ -2,11 +2,12 @@ import m from 'mithril'
 
 // Specification
 
-// Arbitrary attributes may be passed
+
 // ```
 // m(Button, {
 //     onclick: () => console.log("buttonID was clicked"),
-//     })
+//     *: any attribute may be passed
+//     }, contents)
 // ```
 
 export default class Button {

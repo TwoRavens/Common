@@ -26,11 +26,13 @@ export default class PanelList {
         let {id, items, colors, classes, callback, popup, attrsAll, attrsItems} = vnode.attrs;
 
         // set alternate background-color if defined
-        let viewColor = {};
-        for (let color in colors || []) for (let item of colors[color]) viewColor[item] = color;
+        let viewColor = Object.create(null); // need object without default prototypal inheritance (avoids collisions)
+        for (let color in colors || [])
+            for (let item of colors[color])
+                viewColor[item] = color;
 
         // invert the class -> item object
-        let viewClass = {};
+        let viewClass = Object.create(null); // need object without default prototypal inheritance
         for (let css in classes || [])
             for (let item of classes[css])
                 viewClass[item] ? viewClass[item].push(css) : viewClass[item] = [css];
@@ -42,7 +44,7 @@ export default class PanelList {
                         'text-align': "center",
                         'background-color': viewColor[item] || varColor
                     },
-                    'class': viewClass[item],
+                    'class': (viewClass[item] || []).join(' '),
                     onclick: () => (callback || Function)(item)
                 },
 

@@ -31,13 +31,13 @@ export default class MenuTabbed {
         let visibleButtons = [];
         let invisibleButtons = [];
         for (let section of sections) {
+            if (!section) continue;
             if (section['display'] === 'none') invisibleButtons.push(section);
             else {
                 section['onclick'] = () => callback(section['value']);
                 visibleButtons.push(section);
             }
             // Automatically build the id
-
             section['id'] = 'btn' + (section['idSuffix'] || section['value']);
         }
 
@@ -60,13 +60,15 @@ export default class MenuTabbed {
                 hoverBonus: hoverBonus,
                 selectWidth: selectWidth
             }),
-            sections.map((section) => m(`div#tab${section['idSuffix'] || section['value']}`, {
-                style: {
-                    display: section['value'] === currentTab ? 'block' : 'none',
-                    height: 'calc(100% - 39px)',
-                    overflow: 'auto'
-                }
-            }, section.contents))
+            sections
+                .filter(section => section) // ignore undefined sections
+                .map(section => m(`div#tab${section['idSuffix'] || section['value']}`, {
+                    style: {
+                        display: section['value'] === currentTab ? 'block' : 'none',
+                        height: 'calc(100% - 39px)',
+                        overflow: 'auto'
+                    }
+                }, section.contents))
         ]);
     }
 }

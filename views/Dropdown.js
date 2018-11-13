@@ -11,6 +11,7 @@ import {mergeAttributes} from "../common";
 //     activeItem: 'Item 1', (optional)
 //     onclickChild: (value) => console.log(value + " was clicked.")
 //     dropWidth: 100px (sets the width of the dropdown)
+//     *: any attribute may be passed
 //     })
 //  ```
 
@@ -26,7 +27,7 @@ export default class Dropdown {
         this.activeItem = activeItem || this.activeItem;
 
         return m('.dropdown[style=display: block]', [
-            m('button.btn.btn-outline-secondary.dropdown-toggle',
+            m('button.btn.btn-default.btn-outline-secondary.dropdown-toggle',
                 mergeAttributes(vnode.attrs, {
                     onclick: () => {
                         this.isDropped = !this.isDropped;

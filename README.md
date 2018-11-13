@@ -17,11 +17,11 @@ To update common in an existing project:
 
 
 ## Button
-Arbitrary attributes may be passed.
 ```
 m(Button, {
     onclick: () => console.log("buttonID was clicked"),
-    })
+    *: any attribute may be passed
+    }, contents)
 ```
 
 ## ButtonRadio
@@ -76,6 +76,7 @@ m(Dropdown, {
     activeItem: 'Item 1', (optional)
     onclickChild: (value) => console.log(value + " was clicked.")
     dropWidth: 100px (sets the width of the dropdown)
+    *: any attribute may be passed
     })
  ```
 
@@ -103,7 +104,9 @@ When clicked, a menu pops up with a list of buttons. Click a button to enter a s
 
 ## Footer
 ```
-m(Footer, m(...))
+m(Footer, {
+    *: any attribute may be passed
+    }, contents)
 ```
 Takes on the display settings defined in common.js.
 
@@ -138,12 +141,13 @@ Each bubble contains the tag and a cancel button (if not readonly)
 Separate a list of elements with headers. Interchangeable with MenuTabbed.
 ```
 m(MenuHeaders, {
-    sections: [..., 
+    id: id,
+    sections: [...,
         {
-            value: string
-            idSuffix: suffix to add to generated id strings
-            contents: m(...)
-            display: if 'none', then the section will be hidden
+            value: 'string',
+            contents: m(...),
+            idSuffix: (optional) suffix to add to generated id strings
+            attrsAll: {optional object of attributes}
         }]
     })
 ```

@@ -1,13 +1,15 @@
 import m from 'mithril';
-import {heightFooter, menuColor, borderColor} from '../common';
+import {heightFooter, menuColor, borderColor, mergeAttributes} from '../common';
 
 // ```
-// m(Footer, vnode.children)
+// m(Footer, {
+//     *: any attribute may be passed
+// }, contents)
 // ```
 
 export default class Footer {
     view(vnode) {
-        return m('#footer', {
+        return m('#footer', mergeAttributes({
             style: {
                 background: menuColor,
                 'border-top': borderColor,
@@ -16,6 +18,6 @@ export default class Footer {
                 position: 'fixed',
                 width: '100%'
             }
-        }, vnode.children);
+        }, vnode.attrs), vnode.children);
     }
 }
