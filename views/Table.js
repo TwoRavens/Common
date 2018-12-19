@@ -115,6 +115,7 @@ export default class Table {
                 return m('div', {'data-toggle': 'tooltip', title: item},
                     item.substring(0, abbreviation - 3).trim() + '...')
             }
+            if (Array.isArray(item)) console.warn(`An array is being normalized by Mithril, which will mutate the array. Please stringify the array [${item}] before passing it into the table component.`);
             else return item;
         };
 
