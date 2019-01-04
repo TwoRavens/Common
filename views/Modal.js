@@ -4,9 +4,13 @@ let text = "Default modal text";
 let header = "Default modal header";
 let btnDisplay = 'block';
 let close = false;
-let func = _ => {};
+let modal_func = _ => {};
 let btnText = "Close";
 let vis = false;
+
+export function locationReload(){
+  location.reload();
+}
 
 // text and header are text
 // show is boolean
@@ -22,7 +26,9 @@ export function setModal(text_, header_, show, btnText_, close_, func_) {
     } else {
         btnDisplay = 'none';
     };
-    if (func_) func = func_;
+    // Update the modal function call
+    if (func_) modal_func = func_;
+
     m.redraw();
     show ? $('#modal').modal({show, backdrop: 'static', keyboard: false}) : $('#modal').modal("hide");
 }
@@ -39,17 +45,18 @@ export default class Modal {
                   m(".modal-footer",
                     m("button.btn.btn-default[type=button]",
                       {style: {display: btnDisplay, float: 'right'},
-                       onclick: _ => {
+                        onclick: _ => {
                            if (close) {
                                close = false;
                                $('#modal').modal('hide');
                                return;
                            }
-                           func();
-                       }},
+                           modal_func();
+
+                        }
+                      },
                       btnText))
               ]))
         ]);
     }
 }
-
