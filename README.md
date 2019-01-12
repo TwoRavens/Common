@@ -119,6 +119,17 @@ m(Header, {
     }, content)
 ```
 
+## JSONSchema
+Generic component that constructs menus that mutate an instance of a JSON schema
+There are a number of features in the JSON schema spec that aren't supported... but this is a good start
+
+```
+m(JSONSchema, {
+    schema: JSON object
+    data: JSON object
+    })
+ ```
+
 Creates a header bar at the top of the screen
 The TwoRavens logo and about text must be passed in
 Resizes automatically for mobile formatting

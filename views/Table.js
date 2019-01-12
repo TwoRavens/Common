@@ -58,6 +58,10 @@ export default class Table {
 
         // optionally evaluate function to get data
         if (typeof data === 'function') data = data();
+
+        // ignore if invalid
+        if (data === undefined || data === null) return;
+
         // optionally render Objects as tables of key and value columns
         if (!Array.isArray(data)) data = Object.keys(data).map(key => [key, data[key]]);
 
