@@ -510,7 +510,7 @@ export default class Datamart {
                         m('label[style=width:100%]', 'Score: ' + result.score),
                         m(Table, {
                             data: {
-                                description: result.dataset_metadata.title,
+                                description: result.dataset_metadata.description,
                                 keywords: m(ListTags, {
                                     tags: result.dataset_metadata.keywords,
                                     readonly: true
