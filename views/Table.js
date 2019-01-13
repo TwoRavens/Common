@@ -18,7 +18,6 @@ import {selVarColor, mergeAttributes} from "../common";
 //     attrsCells: { apply attributes to each cell } (optional)
 //     tableTags: [ m('colgroup', ...), m('caption', ...), m('tfoot', ...)]
 //     abbreviation: (int),
-//     nest: (boolean),
 //     sortable: (boolean)
 //     })
 // ```
@@ -36,9 +35,6 @@ import {selVarColor, mergeAttributes} from "../common";
 
 // When abbreviation is set, strings are shortened to int number of characters
 
-// When nest is true, can pass json objects.
-// NOTE: do not pass mithril amongst the data argument when nest is true. m(...) are objects, so this component will attempt to tabularize them (and fail)
-
 // When sortable is true, clicking on a header will sort the data by that column
 
 let natives = new Set(['number', 'string', 'boolean']);
@@ -52,7 +48,7 @@ let nestedStyle = {
 
 export default class Table {
     view(vnode) {
-        let {id, data, headers, activeRow, onclick, showUID, abbreviation, nest, sortable} = vnode.attrs;
+        let {id, data, headers, activeRow, onclick, showUID, abbreviation, sortable} = vnode.attrs;
         // Interface custom attributes
         let {attrsAll, attrsRows, attrsCells, tableTags} = vnode.attrs;
 
@@ -97,29 +93,31 @@ export default class Table {
         }, sortIcon(value(header)));
 
         let value = item => {
-            if (nest && Array.isArray(item)) {
+            if (item === null) return null;
+
+            if (Array.isArray(item))
                 return m(Table, {
-                    data: item.map((elem, i) => {
-                        if (natives.has(typeof elem)) return {"index": i, "value": elem};
-                        return elem;
-                    }),
+                    data: item.map(elem => natives.has(typeof elem) ? [elem] : elem),
                     attrsAll: nestedStyle,
-                    abbreviation, attrsRows, attrsCells, nest, sortable
-                })
-            }
-            if (nest && typeof item === 'object')
+                    abbreviation, attrsRows, attrsCells, sortable
+                });
+
+            if (typeof item === 'object') {
+                // detect if already a vnode
+                if (Object.keys(m('')).every(virtual => virtual in item)) return item;
+
                 return m(Table, {
                     data: item,
                     attrsAll: nestedStyle,
-                    abbreviation, attrsRows, attrsCells, nest, sortable
+                    abbreviation, attrsRows, attrsCells, sortable
                 });
+            }
 
             // if abbreviation is not undefined, and string is too long, then shorten the string and add a tooltip
             if (typeof(item) === 'string' && item.length > abbreviation) {
                 return m('div', {'data-toggle': 'tooltip', title: item},
                     item.substring(0, abbreviation - 3).trim() + '...')
             }
-            if (Array.isArray(item)) console.warn(`An array is being normalized by Mithril, which will mutate the array. Please stringify the array [${item}] before passing it into the table component.`);
             else return item;
         };
 

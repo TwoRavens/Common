@@ -248,7 +248,6 @@ m(Table, {
     attrsCells: { apply attributes to each cell } (optional)
     tableTags: [ m('colgroup', ...), m('caption', ...), m('tfoot', ...)]
     abbreviation: (int),
-    nest: (boolean),
     sortable: (boolean)
     })
 ```
@@ -265,9 +264,6 @@ The data parameter attempts to render anything it gets. Feel free to pass Arrays
 Table tags allows passing colgroups, captions, etc. into the table manually. Can be a single element or list
 
 When abbreviation is set, strings are shortened to int number of characters
-
-When nest is true, can pass json objects.
-NOTE: do not pass mithril amongst the data argument when nest is true. m(...) are objects, so this component will attempt to tabularize them (and fail)
 
 When sortable is true, clicking on a header will sort the data by that column
 
