@@ -21,6 +21,24 @@ export let timeColor = '#2d6ca2';
 export let d3Color = '#1f77b4'; // d3's default blue
 export let selVarColor = '#fa8072'; // d3.rgb("salmon");
 
+export let warnColor = '#ffd442';
+export let errorColor = '#fa8072';
+
+export let colorPalette = [
+    "#3cb44b",
+    "#4363d8",
+    "#f58231",
+    "#e6194B",
+    "#911eb4",
+    "#42d4f4",
+    "#9A6324",
+    "#ffe119",
+    "#f032e6",
+    "#469990",
+    "#fabebe",
+    "#bfef45"
+];
+
 // Global features
 
 export let panelOpen = {

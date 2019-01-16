@@ -4,17 +4,15 @@ import * as common from '../common';
 // ```
 // m(ModalVanilla, {
 //     id: string,
-//     display: boolean, (is active)
 //     setDisplay: (state) => display = state, (called when × or background clicked)
-//     contents: m(...)
-// })
+// }, content)
 // ```
 
 // I wrote this because I wanted a non-jquery alternative with a less-specific specification -Shoeboxam
 
 export default class ModalVanilla {
     view(vnode) {
-        let {id, setDisplay, contents} = vnode.attrs;
+        let {id, setDisplay} = vnode.attrs;
 
         return m(`div#modalBackground${id}`, {
             style: {
@@ -49,6 +47,6 @@ export default class ModalVanilla {
                 'font-weight': 'bold',
                 'line-height': '14px'
             }
-        }, '×'), contents));
+        }, '×'), vnode.children));
     }
 }

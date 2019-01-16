@@ -4,7 +4,8 @@ import {mergeAttributes} from "../common";
 // ```
 // m(TextField, {
 //     id: string,
-//     oninput: called with value of field
+//     oninput: value => console.log(value),
+//     textarea: (optional boolean),
 //     *: any attribute may be passed
 //     })
 // ```
@@ -13,7 +14,7 @@ import {mergeAttributes} from "../common";
 
 export default class TextField {
     view(vnode) {
-        return m(`input.form-control`, mergeAttributes({
+        return m(`${vnode.attrs.textarea ? 'textarea' : 'input'}.form-control`, mergeAttributes({
                 style: {'margin': '5px 0', 'width': '100%'}
             },
             vnode.attrs,

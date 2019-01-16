@@ -119,6 +119,10 @@ m(Header, {
     }, content)
 ```
 
+Creates a header bar at the top of the screen
+The TwoRavens logo and about text must be passed in
+Resizes automatically for mobile formatting
+
 ## JSONSchema
 Generic component that constructs menus that mutate an instance of a JSON schema
 There are a number of features in the JSON schema spec that aren't supported... but this is a good start
@@ -129,10 +133,6 @@ m(JSONSchema, {
     data: JSON object
     })
  ```
-
-Creates a header bar at the top of the screen
-The TwoRavens logo and about text must be passed in
-Resizes automatically for mobile formatting
 
 ## ListTags
 ```
@@ -182,6 +182,17 @@ m(MenuTabbed, {
 ```
 The ids for the generated buttons and content areas are generated via 'idSuffix' passed into sections.
 For example if idSuffix is 'Type', then there will be html objects with 'btnType' and 'tabType' ids.
+
+
+## ModalVanilla
+Pop-up modal window that covers the entire page.
+```
+m(ModalVanilla, {
+    id: string,
+    setDisplay: (state) => display = state, (called when × or background clicked)
+}, content)
+```
+
 
 ## Panel
 ```
@@ -271,12 +282,13 @@ When sortable is true, clicking on a header will sort the data by that column
 ```
 m(TextField, {
     id: string,
-    cancellable: Bool NOT IMPLEMENTED
-    oninput: (value) => console.log(value), called with value of field
-    onblur: (value) => console.log(value),
+    oninput: value => console.log(value),
+    textarea: (optional boolean),
     *: any attribute may be passed
     })
 ```
+
+Can pass attributes directly, for example 'placeholder' or 'oninput'
 
 ## TextFieldSuggestion
 NOTE this requires js-levenshtein to be installed from npm. Tested with version 1.1.3.
