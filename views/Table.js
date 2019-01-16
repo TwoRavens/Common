@@ -9,7 +9,7 @@ import {selVarColor, mergeAttributes} from "../common";
 //     id: id (string),
 //     headers: ['col1Header', 'col2Header'],
 //     data: [['row1col1', 'row1col2'], ['row2col1', 'row2col2']], or function
-//     activeRow: 'row1col1', (optional)
+//     activeRow: 'row1col1', (optional, may also be a set)
 //     onclick: (uid, colID) => console.log(uid + " row was clicked, column number " + colID + " was clicked"), (optional)
 //     showUID: true | false, (optional)
 
@@ -48,9 +48,14 @@ let nestedStyle = {
 
 export default class Table {
     view(vnode) {
-        let {id, data, headers, activeRow, onclick, showUID, abbreviation, sortable} = vnode.attrs;
+        let {id, data, headers, activeRow, onclick, showUID, abbreviation} = vnode.attrs;
+
         // Interface custom attributes
         let {attrsAll, attrsRows, attrsCells, tableTags} = vnode.attrs;
+
+        // sorting
+        let {sortable, sortHeader, sortDescending, sortFunction} = vnode.attrs;
+        sortFunction = sortFunction || omniSort;
 
         // optionally evaluate function to get data
         if (typeof data === 'function') data = data();
@@ -71,9 +76,9 @@ export default class Table {
         showUID = showUID !== false; // Default is 'true'
 
         let sortIcon = header => {
-            if (!sortable || header !== this.sortHeader) return header;
+            if (header !== sortHeader) return header;
             return m('[style=text-align:center]', header, m('br'),
-                m(`span.glyphicon.glyphicon-chevron-${this.sortDescending ? 'up' : 'down'}[style=color: #818181; font-size: 1em; pointer-events: none]`));
+                m(`span.glyphicon.glyphicon-chevron-${sortDescending ? 'up' : 'down'}[style=color: #818181; font-size: 1em; pointer-events: none]`));
         };
 
         let valueHeader = header => m('th.table-header-sticky', {
@@ -81,14 +86,14 @@ export default class Table {
             style: {'font-weight': 'bold', 'z-index': 5, background: 'rgba(173,173,173,0.8)', padding: '0 .5em'},
             onclick: () => {
                 if (!sortable) return;
-                if (header === this.sortHeader) {
-                    if (!this.sortDescending) this.sortDescending = true;
+                if (header === sortHeader) {
+                    if (!sortDescending) sortDescending = true;
                     else {
-                        this.sortDescending = undefined;
-                        this.sortHeader = undefined;
+                        sortDescending = undefined;
+                        sortHeader = undefined;
                     }
                 }
-                else this.sortHeader = header
+                else sortHeader = header
             }
         }, sortIcon(value(header)));
 
@@ -121,13 +126,13 @@ export default class Table {
             else return item;
         };
 
-        if (this.sortHeader) {
-            let index = data.some(row => !Array.isArray(row)) ? this.sortHeader : headers.indexOf(this.sortHeader);
-            data = data.sort((a, b) => omniSort(a[index], b[index]));
-            if (this.sortDescending) data = data.reverse();
+        if (sortHeader) {
+            let index = data.some(row => !Array.isArray(row)) ? sortHeader : headers.indexOf(sortHeader);
+            data = data.sort((a, b) => sortFunction(a[index], b[index]));
+            if (sortDescending) data = data.slice().reverse();
         }
 
-        return m(`table.table#${id}`, mergeAttributes({style: {width: '100%'}}, attrsAll), [
+        return m(`table.table${id ? '#' + id : ''}`, mergeAttributes({style: {width: '100%'}}, attrsAll), [
             tableTags,
             headers && m('thead', {style: {width: '100%'}}, [
                 ...(showUID ? headers : headers.slice(1)).map(valueHeader)
@@ -139,9 +144,12 @@ export default class Table {
                     // if a row is an Object of "header": "value" items, then convert to array with proper spacing
                     if (headers && !Array.isArray(row)) row = headers.map(header => row[header]);
 
+                    // permit selecting multiple rows
+                    let isActive = activeRow instanceof Set ? activeRow.has(row[0]) : row[0] === activeRow;
+
                     return m('tr', mergeAttributes(
                         i % 2 === 1 ? {style: {background: 'rgba(0,0,0,.02)'}} : {},
-                        row[0] === activeRow ? {style: {'background': selVarColor}} : {}, attrsRows),
+                        isActive ? {style: {'background': selVarColor}} : {}, attrsRows),
                         row.filter((item, j) => j !== 0 || showUID).map((item, j) =>
                             m('td', mergeAttributes(onclick ? {onclick: () => onclick(row[0], j)} : {}, attrsCells), value(item)))
                     )
