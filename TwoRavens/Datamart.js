@@ -355,88 +355,11 @@ let inputSchema = {
     }
 };
 
-let outputExample = [
-    {
-        "score": 0.8532,
-        "dataset_metadata": {
-            "title": "ACMC",
-            "description": "Average cloudiness midnight to midnight from 30-second ceilometer data (percent)",
-            "url": "https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/readme.txt",
-            "keywords": [
-                "Average",
-                "cloudiness",
-                "midnight",
-                "to",
-                "midnight",
-                "from",
-                "30-second",
-                "ceilometer",
-                "data"
-            ],
-            "provenance": {
-                "source": "noaa.org"
-            },
-            "materialization": {
-                "python_path": "noaa_materializer",
-                "arguments": {
-                    "type": "ACMC",
-                    "token": "QoCwZxSlvRuUHcKhflbujnBSOFhHvZoS"
-                }
-            },
-            "variables": [
-                {
-                    "name": "date",
-                    "description": "the date of data",
-                    "semantic_type": [
-                        "https://metadata.datadrivendiscovery.org/types/Time"
-                    ],
-                    "temporal_coverage": {
-                        "start": "1994-03-19T00:00:00",
-                        "end": "1996-05-28T00:00:00",
-                        "need_profile": false
-                    }
-                },
-                {
-                    "name": "stationId",
-                    "description": "the id of station which has this data",
-                    "semantic_type": [
-                        "https://metadata.datadrivendiscovery.org/types/CategoricalData"
-                    ]
-                },
-                {
-                    "name": "city",
-                    "description": "the city data belongs to",
-                    "semantic_type": [
-                        "https://metadata.datadrivendiscovery.org/types/Location"
-                    ],
-                    "named_entity": null
-                },
-                {
-                    "name": "ACMC",
-                    "description": "Average cloudiness midnight to midnight from 30-second ceilometer data (percent)",
-                    "semantic_type": [
-                        "http://schema.org/Float"
-                    ]
-                }
-            ]
-        },
-        "required_variables": [
-            "date",
-            "city",
-            "state"
-        ],
-        "desired_variables": [
-            "ACMC"
-        ],
-        "other_variables": [
-            "stationId"
-        ]
-    }
-];
+let warn = (text) => m('[style=color:#dc3545;display:inline-block;margin-left:1em;]', text);
 
 export default class Datamart {
     view(vnode) {
-        let {augmentState, augmentResults, labelWidth} = vnode.attrs;
+        let {augmentState, augmentResults, labelWidth, endpoint} = vnode.attrs;
 
         let bold = (value) => m('div', {style: {'font-weight': 'bold', display: 'inline'}}, value);
 
@@ -467,6 +390,20 @@ export default class Datamart {
             )
         );
 
+        let buttonMaterialize = (i, datamart_id) => m(Button, {
+            onclick: async (e) => {
+                e.stopPropagation();
+
+                let response = await m.request(endpoint + 'materialize', {
+                    method: 'POST',
+                    data: {index: i, datamart_id}
+                });
+
+                console.warn("#debug response");
+                console.log(response);
+            }
+        }, 'Download');
+
         return m('div', {style: {width: '100%'}},
             m('div#buttonBar', {
                     style: {
@@ -477,16 +414,33 @@ export default class Datamart {
                     }
                 },
                 m(Button, {
-                    onclick: () => {
-                        // TODO: tie into datamart API using augmentState as the query
+                    onclick: async () => {
+                        // attempt to search data directly, without Django. The certificate error was giving me troubles
+                        // let data = new FormData();
+                        // data.append('query', augmentState);
+                        // console.warn("#debug m.request('https://localhost:9001/new/search_data', {data})");
+                        // console.log(await m.request('https://localhost:9001/new/search_data', {data, rejectUnauthorized: false}));;
 
                         augmentResults.length = 0;
-                        augmentResults.push(...outputExample);
+
+                        let response = await m.request(endpoint + 'search', {
+                            method: 'POST',
+                            data: {
+                                query: JSON.stringify(augmentState)
+                            }
+                        });
+
+                        if (response.success) {
+                            augmentResults.push(...response.data);
+                            delete this.error
+                        }
+                        else this.error = response.data;
                     }
                 }, 'Find Data'),
+                this.error && warn(this.error),
                 m(Button, {
                     onclick: () => {
-                        console.log(augmentResults)
+
                     }
                 }, 'Index Data')),
             m(`div[style=background:${common.menuColor}]`, m(JSONSchema, {
@@ -494,25 +448,26 @@ export default class Datamart {
                 schema: inputSchema
             })),
 
-
             m('div#datamartResults', augmentResults
-                .sort(result => result.score)
-                .map(result => makeCard({
-                    key: result.dataset_metadata.title,
-                    color: this.key === result.dataset_metadata.title ? common.selVarColor : common.grayColor,
+                .sort(result => result._score)
+                .map((result, i) => makeCard({
+                    key: result._source.title,
+                    color: this.key === result._source.title ? common.selVarColor : common.grayColor,
                     content: m('div',
-                        m('label[style=width:100%]', 'Score: ' + result.score),
+                        m('label[style=width:100%]', 'Score: ' + result._score),
+                        buttonMaterialize(i, result._source.datamart_id),
                         m(Table, {
-                            data: result.dataset_metadata,
+                            data: result._source,
                             nest: true
                         })),
                     summary: m('div',
-                        m('label[style=width:100%]', 'Score: ' + result.score),
+                        m('label[style=width:100%]', 'Score: ' + result._score),
+                        buttonMaterialize(i, result._source.datamart_id),
                         m(Table, {
                             data: {
-                                description: result.dataset_metadata.description,
+                                description: result._source.description,
                                 keywords: m(ListTags, {
-                                    tags: result.dataset_metadata.keywords,
+                                    tags: result._source.keywords,
                                     readonly: true
                                 })
                             }
