@@ -5,6 +5,7 @@ import Button from "../views/Button";
 import * as common from "../common";
 import Table from "../views/Table";
 import ListTags from "../views/ListTags";
+import ButtonRadio from "../views/ButtonRadio";
 
 let inputSchema = {
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -355,17 +356,309 @@ let inputSchema = {
     }
 };
 
+
+let indexSchema = {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://datamart.datadrivendiscovery.org/dataset.schema.json",
+    "definitions": {
+        "materialization": {
+            "description": "Method to retrieve the dataset or parts of the dataset",
+            "type": "object",
+            "properties": {
+                "python_path": {
+                    "description": "The python class to materialize the dataset",
+                    "type": "string"
+                },
+                "arguments": {
+                    "description": "keyword arguments to the python __init__ method",
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "python_path"
+            ]
+        },
+        "implicit_variable": {
+            "description": "implicit variables about the whole dataset, like the time coverage and entity coverage of the entire dataset. eg. A dataset from trading economics is about certain stocktickers, cannot be known from the dataset, should put it here",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "name of the variable",
+                    "type": "string"
+                },
+                "value": {
+                    "description": "value of the variable",
+                    "type": "string"
+                },
+                "semantic_type": {
+                    "description": "List of D3M semantic types",
+                    "type": [
+                        "array",
+                        "null"
+                    ],
+                    "items": {
+                        "type": "string",
+                        "format": "uri"
+                    }
+                }
+            }
+        },
+        "variable_metadata": {
+            "description": "Metadata describing a variable/column",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "The name given in the original dataset",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "semantic_type": {
+                    "description": "List of D3M semantic types",
+                    "type": [
+                        "array",
+                        "null"
+                    ],
+                    "items": {
+                        "type": "string",
+                        "format": "uri"
+                    }
+                },
+                "named_entity": {
+                    "description": "List of named entities referenced in column values",
+                    "type": [
+                        "array",
+                        "null"
+                    ],
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "temporal_coverage": {
+                    "description": "Temporal extent",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "properties": {
+                        "start": {
+                            "description": "Start of temporal coverage",
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        },
+                        "end": {
+                            "description": "End of temporal coverage",
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "spatial_coverage": {
+                    "description": "Spatial extent",
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                },
+                "variable_materialization": {
+                    "$ref": "#/definitions/materialization"
+                }
+            }
+        }
+    },
+    "title": "dataset",
+    "description": "Metadata describing an entire dataset",
+    "type": "object",
+    "properties": {
+        "title": {
+            "description": "A short description of the dataset",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "description": {
+            "description": "A long description of the dataset",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "url": {
+            "description": "A url on the web where users can find more info if applicable",
+            "type": [
+                "string",
+                "null"
+            ],
+            "format": "uri"
+        },
+        "keywords": {
+            "description": "Any keywords or text useful for indexing and retrieval",
+            "type": [
+                "array",
+                "null"
+            ],
+            "items": {
+                "type": "string"
+            }
+        },
+        "date_published": {
+            "description": "Original publication date",
+            "anyOf": [
+                {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                {
+                    "type": "string",
+                    "format": "date"
+                },
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "date_updated": {
+            "description": "Last updated date",
+            "anyOf": [
+                {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                {
+                    "type": "string",
+                    "format": "date"
+                },
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "license": {
+            "description": "License under which the dataset is released (TBD)",
+            "type": [
+                "object",
+                "null"
+            ]
+        },
+        "provenance": {
+            "description": "Provenance of the dataset (TBD)",
+            "type": [
+                "null",
+                "object"
+            ]
+        },
+        "original_identifier": {
+            "description": "Original global unique id associate with the dataset if applicable, like id in wikidata",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "implicit_variables": {
+            "description": "Description of each implicit variable of the dataset",
+            "anyOf": [
+                {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/implicit_variable"
+                    }
+                },
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "variables": {
+            "description": "Description of each variable/column of the dataset",
+            "anyOf": [
+                {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/variable_metadata"
+                    }
+                },
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "additional_info": {
+            "description": "Any other information which is useful",
+            "type": [
+                "object",
+                "null"
+            ]
+        },
+        "materialization": {
+            "description": "Method to retrieve the dataset or parts of the dataset",
+            "type": "object",
+            "properties": {
+                "python_path": {
+                    "description": "The python class to materialize the dataset",
+                    "type": "string"
+                },
+                "arguments": {
+                    "description": "keyword arguments to the python __init__ method",
+                    "type": [
+                        "object",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "python_path"
+            ]
+        }
+    },
+    "required": [
+        "materialization"
+    ]
+};
+
 let warn = (text) => m('[style=color:#dc3545;display:inline-block;margin-left:1em;]', text);
 
 export default class Datamart {
-    view(vnode) {
-        let {augmentState, augmentResults, labelWidth, endpoint} = vnode.attrs;
+    oninit() {
+        // stores temporary title, description, url, file type
+        this.indexData = {};
+        this.datamartMode = 'Search';
+        this.isSearching = false;
+    }
 
-        let bold = (value) => m('div', {style: {'font-weight': 'bold', display: 'inline'}}, value);
+    view(vnode) {
+        let {augmentState, augmentResults, indexState, dataPath, labelWidth, endpoint} = vnode.attrs;
+
+        let bold = value => m('div', {style: {'font-weight': 'bold', display: 'inline'}}, value);
 
         let makeCard = ({key, color, content, summary}) => m('table', {
-                onclick: () => this.key = key,
-                ondblclick: () => this.key = undefined,
+                ondblclick: () => this.key = this.key ? undefined : key,
                 style: {
                     'background': common.menuColor,
                     'border': common.borderColor,
@@ -390,7 +683,7 @@ export default class Datamart {
             )
         );
 
-        let buttonMaterialize = (i, datamart_id) => m(Button, {
+        let buttonMaterialize = (datamart_id, i) => m(Button, {
             onclick: async (e) => {
                 e.stopPropagation();
 
@@ -404,49 +697,90 @@ export default class Datamart {
             }
         }, 'Download');
 
+        let buttonAugment = i => m(Button, {
+            style: {'margin-left': '1em'},
+            onclick: async () => console.log(await m.request(endpoint + 'augment', {
+                method: 'POST',
+                data: {index: i}
+            }))
+        }, 'Augment');
+
         return m('div', {style: {width: '100%'}},
-            m('div#buttonBar', {
-                    style: {
-                        margin: '.5em',
-                        width: 'calc(100% - 1em)',
-                        display: 'flex',
-                        'justify-content': 'space-between'
-                    }
-                },
+            m(ButtonRadio, {
+                id: 'datamartButtonBar',
+                onclick: state => this.datamartMode = state,
+                activeSection: this.datamartMode,
+                sections: [{value: 'Search'}, {value: 'Index'}]
+            }),
+            this.error && warn(this.error),
+
+            this.datamartMode === 'Index' && [
+                m(`div[style=background:${common.menuColor}]`, m(JSONSchema, {
+                    data: indexState,
+                    schema: indexSchema
+                })),
                 m(Button, {
+                    style: {float: 'right'},
                     onclick: async () => {
-                        // attempt to search data directly, without Django. The certificate error was giving me troubles
-                        // let data = new FormData();
-                        // data.append('query', augmentState);
-                        // console.warn("#debug m.request('https://localhost:9001/new/search_data', {data})");
-                        // console.log(await m.request('https://localhost:9001/new/search_data', {data, rejectUnauthorized: false}));;
-
-                        augmentResults.length = 0;
-
-                        let response = await m.request(endpoint + 'search', {
+                        let response = await m.request(endpoint + 'upload', {
                             method: 'POST',
                             data: {
-                                query: JSON.stringify(augmentState)
+                                state: JSON.stringify(augmentState)
                             }
                         });
 
                         if (response.success) {
+                            console.log('success');
+                            delete this.error
+                        } else this.error = response.data;
+                    }
+                }, 'Submit'),
+
+                // m(Button, {
+                //     onclick: () => console.log(JSON.stringify(indexState))
+                // }, 'debug')
+            ],
+
+            this.datamartMode === 'Search' && [
+                m(`div[style=background:${common.menuColor}]`, m(JSONSchema, {
+                    data: augmentState,
+                    schema: inputSchema
+                })),
+                m(Button, {
+                    style: {float: 'right'},
+                    onclick: async () => {
+                        augmentResults.length = 0;
+
+                        // enable spinner
+                        this.isSearching = true;
+                        m.redraw();
+
+                        let response = await m.request(endpoint + 'search', {
+                            method: 'POST',
+                            data: {
+                                data_path: dataPath,
+                                query: JSON.stringify(augmentState)
+                            }
+                        });
+
+                        this.isSearching = false;
+
+                        if (response.success) {
                             augmentResults.push(...response.data);
                             delete this.error
-                        }
-                        else this.error = response.data;
+                        } else this.error = response.data;
                     }
-                }, 'Find Data'),
-                this.error && warn(this.error),
-                m(Button, {
-                    onclick: () => {
+                }, 'Submit'),
 
+                this.isSearching && m('#loading.loader', {
+                    style: {
+                        margin: 'auto',
+                        position: 'relative',
+                        top: '40%',
+                        transform: 'translateY(-50%)'
                     }
-                }, 'Index Data')),
-            m(`div[style=background:${common.menuColor}]`, m(JSONSchema, {
-                data: augmentState,
-                schema: inputSchema
-            })),
+                })
+            ],
 
             m('div#datamartResults', augmentResults
                 .sort(result => result._score)
@@ -455,14 +789,16 @@ export default class Datamart {
                     color: this.key === result._source.title ? common.selVarColor : common.grayColor,
                     content: m('div',
                         m('label[style=width:100%]', 'Score: ' + result._score),
-                        buttonMaterialize(i, result._source.datamart_id),
+                        buttonAugment(i),
+                        buttonMaterialize(result._source.datamart_id, i),
                         m(Table, {
                             data: result._source,
                             nest: true
                         })),
                     summary: m('div',
                         m('label[style=width:100%]', 'Score: ' + result._score),
-                        buttonMaterialize(i, result._source.datamart_id),
+                        buttonAugment(i),
+                        buttonMaterialize(result._source.datamart_id, i),
                         m(Table, {
                             data: {
                                 description: result._source.description,

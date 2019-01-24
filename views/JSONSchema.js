@@ -42,8 +42,12 @@ export default class Schema {
         let value = key => {
             if (typeof data[key] === 'object' && 'type' in data[key] && data[key].type in this.schema.definitions)
                 return this.recurse(this.schema.definitions[data[key].type].properties, data[key]);
-            if (schema[key].type === 'string') {
-                if ('enum' in schema[key]){
+
+            // sometimes the type is a list, support the most general form
+            let types = Array.isArray(schema[key].type) ? schema[key].type : [schema[key].type];
+
+            if (types.includes('string')) {
+                if ('enum' in schema[key]) {
                     if (schema[key].enum.length === 1) data[key] = schema[key].enum[0];
                     return m(TextFieldSuggestion, {
                         value: data[key],
@@ -58,14 +62,14 @@ export default class Schema {
                     onblur: val => data[key] = val
                 });
             }
-            if (schema[key].type === 'number') return m(TextField, {
+            if (types.includes('number')) return m(TextField, {
                 value: data[key],
                 class: typeof data[key] !== 'number' && 'is-invalid',
                 oninput: val => data[key] = parseFloat(val) || val,
                 onblur: val => data[key] = parseFloat(val) || val
             });
-            if (schema[key].type === 'array') return this.recurse(schema[key], data[key]);
-            if (schema[key].type === 'object') return this.recurse(schema[key].properties, data[key]);
+            if (types.includes('array')) return this.recurse(schema[key], data[key]);
+            if (types.includes('object')) return this.recurse(schema[key].properties, data[key]);
         };
 
         if (Array.isArray(data)) return m(Table, {
@@ -75,17 +79,26 @@ export default class Schema {
                     value(i),
                     m('div', {onclick: () => data.splice(i, 1)}, glyph('remove'))
                 ]),
-                [m(Dropdown, {
-                    style: {float: 'left'},
-                    items: ['Add', ...schema.items.oneOf.map(item => item.$ref.split('/').slice(-1)[0])],
-                    activeItem: 'Add',
-                    onclickChild: child => {
-                        if (child === 'Add') return;
-                        data.push({
-                            type: child
-                        })
-                    }
-                }), undefined]
+                [
+                    m(Dropdown, {
+                        style: {float: 'left'},
+                        items: [
+                            'Add',
+                            ...(schema.items.oneOf || [])
+                                .map(item => item.$ref.split('/').slice(-1)[0]),
+                            ...(schema.items.anyOf || [])
+                                .map(item => item.$ref.split('/').slice(-1)[0])
+                        ],
+                        activeItem: 'Add',
+                        onclickChild: child => {
+                            if (child === 'Add') return;
+                            data.push({
+                                type: child
+                            })
+                        }
+                    }),
+                    undefined
+                ]
             ] : [
                 ...data.map((elem, i) => [
                     m(TextField, {value: elem, oninput: val => data[i] = val}),
