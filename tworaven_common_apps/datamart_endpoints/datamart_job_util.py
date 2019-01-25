@@ -1,7 +1,7 @@
 from tworaven_apps.configurations.utils import get_latest_d3m_config
 from tworaven_apps.utils.basic_response import (ok_resp,
                                                 err_resp)
-from tworaven_apps.datamart_endpoints.models import DATAMART_URL
+from tworaven_common_apps.datamart_endpoints.models import DATAMART_URL
 
 import requests
 import logging

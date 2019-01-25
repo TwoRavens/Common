@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from tworaven_apps.datamart_endpoints import views
+from tworaven_common_apps.datamart_endpoints import views
 
 urlpatterns = (
     url(r'^api/upload',

@@ -6,8 +6,8 @@ from tworaven_apps.utils.view_helper import \
      get_json_error,
      get_json_success,
      get_common_view_info)
-from tworaven_apps.datamart_endpoints.datamart_job_util import DatamartJobUtil
-from tworaven_apps.datamart_endpoints.forms import (DatamartSearchForm,
+from tworaven_common_apps.datamart_endpoints.datamart_job_util import DatamartJobUtil
+from tworaven_common_apps.datamart_endpoints.forms import (DatamartSearchForm,
                                                     DatamartAugmentForm,
                                                     DatamartMaterializeForm,
                                                     DatamartUploadForm)
