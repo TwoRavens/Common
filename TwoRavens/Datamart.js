@@ -6,6 +6,7 @@ import * as common from "../common";
 import Table from "../views/Table";
 import ListTags from "../views/ListTags";
 import ButtonRadio from "../views/ButtonRadio";
+import {glyph} from "../common";
 
 let inputSchema = {
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -642,12 +643,10 @@ let indexSchema = {
     ]
 };
 
-let warn = (text) => m('[style=color:#dc3545;display:inline-block;margin-left:1em;]', text);
+let warn = (text) => m('[style=color:#dc3545;display:inline-block;margin-right:1em;]', text);
 
 export default class Datamart {
     oninit() {
-        // stores temporary title, description, url, file type
-        this.indexData = {};
         this.datamartMode = 'Search';
         this.isSearching = false;
     }
@@ -674,6 +673,8 @@ export default class Datamart {
                         height: '100%',
                         padding: '1em',
                         width: labelWidth || 0, // by default, 0 makes div width wrap content
+                        'max-width': labelWidth || 0,
+                        'word-break': 'break-word',
                         'border-right': common.borderColor
                     }
                 }, bold(key)),
@@ -712,7 +713,21 @@ export default class Datamart {
                 activeSection: this.datamartMode,
                 sections: [{value: 'Search'}, {value: 'Index'}]
             }),
-            this.error && warn(this.error),
+
+            this.error && m('div#errorMessage', {
+                style: {
+                    background: 'rgba(0,0,0,.05)',
+                    'border-radius': '.5em',
+                    'box-shadow': '0px 5px 10px rgba(0, 0, 0, .1)',
+                    margin: '10px 0'
+                }
+            }, [
+                m('div', {
+                    style: {display: 'inline-block'},
+                    onclick: () => delete this.error
+                }, glyph('remove', {style: {margin: '1em'}})),
+                warn('Error:'), 'bla bla'
+            ]),
 
             this.datamartMode === 'Index' && [
                 m(`div[style=background:${common.menuColor}]`, m(JSONSchema, {
@@ -720,7 +735,7 @@ export default class Datamart {
                     schema: indexSchema
                 })),
                 m(Button, {
-                    style: {float: 'right'},
+                    style: {float: 'right', margin: '1em'},
                     onclick: async () => {
                         let response = await m.request(endpoint + 'upload', {
                             method: 'POST',
@@ -747,7 +762,7 @@ export default class Datamart {
                     schema: inputSchema
                 })),
                 m(Button, {
-                    style: {float: 'right'},
+                    style: {float: 'right', margin: '1em'},
                     onclick: async () => {
                         augmentResults.length = 0;
 
@@ -775,6 +790,7 @@ export default class Datamart {
                 this.isSearching && m('#loading.loader', {
                     style: {
                         margin: 'auto',
+                        'margin-top': '5em',
                         position: 'relative',
                         top: '40%',
                         transform: 'translateY(-50%)'

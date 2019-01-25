@@ -1,5 +1,7 @@
 // Global configuration
 
+import m from "mithril";
+
 export let panelMargin = '10px';
 export let heightHeader = '72px';
 export let heightFooter = '40px';
@@ -76,6 +78,11 @@ export let canvasScroll = {
     vertical: false,
     horizontal: false
 };
+
+export let glyph = (icon, attrs) => m(`span.glyphicon.glyphicon-${icon}`, mergeAttributes({
+    style: {color: '#818181', 'font-size': '1em', 'pointer-events': 'none'}
+}, attrs));
+
 
 // If scroll bar has been added or removed from canvas, update state and return true.
 export function scrollBarChanged() {
