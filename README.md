@@ -6,7 +6,7 @@ Each component is a self-contained menu element. To use one of these components 
 ...where 'Classname' refers to the name of the component and {interface options} are specified below (and in the class' .js file).
 
 # Git management
-To add common to a new project:  
+To add common to a parent project:  
 ```git submodule add -b master https://github.com/TwoRavens/common.git assets/common```  
 
 To clone an existing repository that uses common, init submodule after clone:  
@@ -14,6 +14,20 @@ To clone an existing repository that uses common, init submodule after clone:
 
 To update common in an existing project:  
 ```git submodule update --remote```  
+
+If git warns about "detached head" when inside submodule, then:  
+- from the submodule root:  
+    ```git checkout master```  
+- from the parent project root:  
+    ```git config -f .gitmodules submodule.<submodule-path>.branch master```  
+
+To commit changes to Common from the parent project, then:  
+1. from the submodule, `commit` and `push`  
+2. from the parent project, `commit` and `push`  
+
+Note that the .gitmodule is configured to use https, which prompts for passwords every time.  
+To switch to ssh key authentication, then from the submodule root:  
+```git remote set-url origin git@github.com:TwoRavens/common.git```  
 
 
 ## Button
