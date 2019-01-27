@@ -1,7 +1,8 @@
 from tworaven_apps.configurations.utils import get_latest_d3m_config
 from tworaven_apps.utils.basic_response import (ok_resp,
                                                 err_resp)
-from tworaven_common_apps.datamart_endpoints.models import DATAMART_URL
+from tworaven_common_apps.datamart_endpoints.models import (DATAMART_ISI_URL,
+                                                            DATAMART_NYU_URL)
 
 import requests
 import logging
@@ -15,7 +16,7 @@ class DatamartJobUtil(object):
     @staticmethod
     def datamart_upload(data):
         response = requests.post(
-            DATAMART_URL + '/new/upload_data',
+            DATAMART_ISI_URL + '/new/upload_data',
             files={
                 'file': ('config.json', data)
             }, verify=False).json()
@@ -34,7 +35,7 @@ class DatamartJobUtil(object):
             payload['file'] = open(data_path, 'r')
 
         response = requests.post(
-            DATAMART_URL + '/new/search_data',
+            DATAMART_ISI_URL + '/new/search_data',
             files=payload, verify=False).json()
 
         if response['code'] != "0000":
@@ -51,7 +52,7 @@ class DatamartJobUtil(object):
             LOGGER.error(user_msg)
             return err_resp(user_msg)
 
-        response = requests.get(DATAMART_URL + '/new/materialize_data',
+        response = requests.get(DATAMART_ISI_URL + '/new/materialize_data',
                                 params={'index': index},
                                 verify=False).json()
 
@@ -79,7 +80,7 @@ class DatamartJobUtil(object):
     @staticmethod
     def datamart_augment(index):
 
-        response = requests.get(DATAMART_URL + '/new/augment_data', params={
+        response = requests.get(DATAMART_ISI_URL + '/new/augment_data', params={
             'index': index
         }, verify=False).json()
 

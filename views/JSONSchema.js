@@ -46,7 +46,7 @@ export default class Schema {
             if (typeof data[key] === 'object' && 'type' in data[key] && data[key].type in this.schema.definitions)
                 return this.recurse(this.schema.definitions[data[key].type].properties, data[key]);
 
-            // sometimes the type is a list, support the most general form
+            // sometimes the type is a list, support either case
             let types = Array.isArray(schema[key].type) ? schema[key].type : [schema[key].type];
 
             if (types.includes('string')) {
@@ -67,7 +67,7 @@ export default class Schema {
                         'date': 'YYYY-MM-DD',
                         'time': 'hh:mm:ss',
                         'utc-millisec': 'milliseconds since epoch'
-                    }[schema[key]] || '',
+                    }[schema[key].format] || '',
                     oninput: val => data[key] = val,
                     onblur: val => data[key] = val
                 });
@@ -79,54 +79,68 @@ export default class Schema {
                 onblur: val => data[key] = parseFloat(val) || val
             });
             if (types.includes('array')) return this.recurse(schema[key], data[key]);
-            if (types.includes('object')) return this.recurse(schema[key].properties, data[key]);
+            if (types.includes('object')) {
+                // when the json schema is underspecified for objects, default to a string
+                if (!('properties' in schema[key])){
+                    schema[key].type = 'string';
+                    data[key] = '';
+                    return value(key)
+                }
+                return this.recurse(schema[key].properties, data[key]);
+            }
         };
 
         // construct keys for the current tree
-        if (Array.isArray(data)) return m(Table, {
-            attrsCells: {valign: "top"},
-            attrsAll: nestedStyle,
-            data: 'items' in schema ? [
-                ...data.map((elem, i) => [
-                    value(i),
-                    m('div', {onclick: () => data.splice(i, 1)}, glyph('remove', {style: {margin: '1em 1em 1em 0em'}}))
-                ]),
-                [
-                    m(Dropdown, {
-                        style: {float: 'left'},
-                        items: [
-                            'Add',
-                            ...(schema.items.oneOf || [])
-                                .map(item => item.$ref.split('/').slice(-1)[0]),
-                            ...(schema.items.anyOf || [])
-                                .map(item => item.$ref.split('/').slice(-1)[0])
-                        ],
-                        activeItem: 'Add',
-                        onclickChild: child => {
-                            if (child === 'Add') return;
-                            data.push({
-                                type: child
-                            })
-                        }
-                    }),
-                    undefined
+        if (Array.isArray(data)) {
+
+            return m(Table, {
+                attrsCells: {valign: "top"},
+                attrsAll: nestedStyle,
+                data: schema.type === 'array' && 'items' in schema ? [
+                    ...data.map((elem, i) => [
+                        value(i),
+                        m('div', {onclick: () => data.splice(i, 1)}, glyph('remove', {style: {margin: '1em 1em 1em 0em'}}))
+                    ]),
+                    [
+                        m(Dropdown, {
+                            style: {float: 'left'},
+                            items: [
+                                'Add',
+                                ...(schema.items.oneOf || [])
+                                    .map(item => item.$ref.split('/').slice(-1)[0]),
+                                ...(schema.items.anyOf || [])
+                                    .map(item => item.$ref.split('/').slice(-1)[0])
+                            ],
+                            activeItem: 'Add',
+                            onclickChild: child => {
+                                if (child === 'Add') return;
+                                data.push({
+                                    type: child
+                                })
+                            }
+                        }),
+                        undefined
+                    ]
+                ] : [
+                    ...data.map((elem, i) => [
+                        m(TextField, {value: elem, oninput: val => data[i] = val}),
+                        m('div', {onclick: () => data.splice(i, 1)}, glyph('remove', {style: {margin: '1em 1em 1em 0em'}}))
+                    ]),
+                    [m(TextField, {value: '', oninput: val => data.push(val)}), undefined]
                 ]
-            ] : [
-                ...data.map((elem, i) => [
-                    m(TextField, {value: elem, oninput: val => data[i] = val}),
-                    m('div', {onclick: () => data.splice(i, 1)}, glyph('remove', {style: {margin: '1em 0px'}}))
-                ]),
-                [m(TextField, {value: '', oninput: val => data.push(val)}), undefined]
-            ]
-        });
+            });
+        }
 
         if (typeof data === 'object') return m(Table, {
             attrsAll: nestedStyle,
             attrsCells: {valign: "top"},
             data: Object.keys(data).map(key => [
-                m('div', {title: schema[key].description || '', style: {'margin-top': '1em', 'font-weight': 'bold'}}, prettifyText(key)),
+                m('div', {
+                    title: schema[key].description || '',
+                    style: {'margin-top': '1em', 'font-weight': 'bold'}
+                }, prettifyText(key)),
                 value(key),
-                m('div', {onclick: () => delete data[key]}, glyph('remove', {style: {margin: '1em 0px'}}))
+                m('div', {onclick: () => delete data[key]}, glyph('remove', {style: {margin: '1em 1em 1em 0em'}}))
             ]).concat(Object.keys(data).length === Object.keys(schema).length ? [] : [[
                 m(Dropdown, {
                     style: {float: 'left'},
@@ -134,12 +148,23 @@ export default class Schema {
                     activeItem: 'Add',
                     onclickChild: child => {
                         if (!(child in schema)) return;
+
+                        // TODO: better handling of multiple potential schemas. In this case, only the first non-null is used
+                        if (!schema[child].type && 'anyOf' in schema[child]) {
+                            Object.assign(schema[child], schema[child].anyOf.find(childOpt => childOpt.type !== 'null'))
+                            delete schema[child].anyOf
+                        }
+                        // sometimes the type is a list, support the most general form
+                        let type = Array.isArray(schema[child].type)
+                            ? schema[child].type.find(elem => elem !== 'null')
+                            : schema[child].type;
+
                         data[child] = {
                             'string': '',
                             'object': {},
                             'array': [],
                             'number': ''
-                        }[schema[child].type]
+                        }[type]
                     }
                 }), undefined, undefined
             ]])

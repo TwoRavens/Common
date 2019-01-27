@@ -678,10 +678,8 @@ export default class Datamart {
                         'border-right': common.borderColor
                     }
                 }, bold(key)),
-                m('td', {
-                    style: {width: 'calc(100% - 2em)'}
-                }, (this.key === key || !summary) ? content : summary)
-            )
+                m('td', {style: {width: 'calc(100% - 2em)'}},
+                    (this.key === key || !summary) ? content : summary))
         );
 
         let buttonMaterialize = (datamart_id, i) => m(Button, {
@@ -726,7 +724,22 @@ export default class Datamart {
                     style: {display: 'inline-block'},
                     onclick: () => delete this.error
                 }, glyph('remove', {style: {margin: '1em'}})),
-                warn('Error:'), 'bla bla'
+                warn('Error:'), this.error
+            ]),
+
+            this.success && m('div#successMessage', {
+                style: {
+                    background: 'rgba(0,0,0,.05)',
+                    'border-radius': '.5em',
+                    'box-shadow': '0px 5px 10px rgba(0, 0, 0, .1)',
+                    margin: '10px 0'
+                }
+            }, [
+                m('div', {
+                    style: {display: 'inline-block'},
+                    onclick: () => delete this.success
+                }, glyph('remove', {style: {margin: '1em'}})),
+                this.success
             ]),
 
             this.datamartMode === 'Index' && [
@@ -746,7 +759,15 @@ export default class Datamart {
 
                         if (response.success) {
                             console.log('success');
-                            delete this.error
+                            delete this.error;
+                            Object.keys(indexState).forEach(key => delete indexState[key])
+                            Object.assign(indexState, {
+                                title: '',
+                                description: '',
+                                url: '',
+                                keywords: []
+                            });
+                            this.success = 'Data successfully indexed.'
                         } else this.error = response.data;
                     }
                 }, 'Submit'),
@@ -795,37 +816,37 @@ export default class Datamart {
                         top: '40%',
                         transform: 'translateY(-50%)'
                     }
-                })
-            ],
+                }),
 
-            m('div#datamartResults', augmentResults
-                .sort(result => result._score)
-                .map((result, i) => makeCard({
-                    key: result._source.title,
-                    color: this.key === result._source.title ? common.selVarColor : common.grayColor,
-                    content: m('div',
-                        m('label[style=width:100%]', 'Score: ' + result._score),
-                        buttonAugment(i),
-                        buttonMaterialize(result._source.datamart_id, i),
-                        m(Table, {
-                            data: result._source,
-                            nest: true
-                        })),
-                    summary: m('div',
-                        m('label[style=width:100%]', 'Score: ' + result._score),
-                        buttonAugment(i),
-                        buttonMaterialize(result._source.datamart_id, i),
-                        m(Table, {
-                            data: {
-                                description: result._source.description,
-                                keywords: m(ListTags, {
-                                    tags: result._source.keywords,
-                                    readonly: true
-                                })
-                            }
-                        }))
-                }))
-            )
+                m('div#datamartResults', augmentResults
+                    .sort(result => result._score)
+                    .map((result, i) => makeCard({
+                        key: result._source.title,
+                        color: this.key === result._source.title ? common.selVarColor : common.grayColor,
+                        content: m('div',
+                            m('label[style=width:100%]', 'Score: ' + result._score),
+                            buttonAugment(i),
+                            buttonMaterialize(result._source.datamart_id, i),
+                            m(Table, {
+                                data: result._source,
+                                nest: true
+                            })),
+                        summary: m('div',
+                            m('label[style=width:100%]', 'Score: ' + result._score),
+                            buttonAugment(i),
+                            buttonMaterialize(result._source.datamart_id, i),
+                            m(Table, {
+                                data: {
+                                    description: result._source.description,
+                                    keywords: m(ListTags, {
+                                        tags: result._source.keywords,
+                                        readonly: true
+                                    })
+                                }
+                            }))
+                    }))
+                )
+            ]
         )
     }
 }
