@@ -8,6 +8,32 @@ import ListTags from "../views/ListTags";
 import ButtonRadio from "../views/ButtonRadio";
 import {glyph} from "../common";
 
+
+let infoPaths = {
+    'ISI': {
+        'id': ['_source', 'datamart_id'],
+        'name': ['_source', 'title'],
+        'score': ['_score'],
+        'description': ['_source', 'description'],
+        'keywords': ['_source', 'keywords'],
+        'data': ['_source'],
+        'join_columns': ['join_columns'],
+        'union_columns': ['union_columns']
+    },
+    'NYU': {
+        'id': ['id'],
+        'name': ['metadata', 'name'],
+        'score': ['score'],
+        'keywords': undefined,
+        'data': ['metadata'],
+        'description': ['metadata', 'description'],
+        'join_columns': ['join_columns'],
+        'union_columns': ['union_columns']
+    }
+};
+
+let getPath = (obj, path) => path && path.reduce((out, term) => term in out && out[term], obj);
+
 let inputSchema = {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "htty://www.isi.edu/datamart-query.schema.json",
@@ -648,16 +674,38 @@ let warn = (text) => m('[style=color:#dc3545;display:inline-block;margin-right:1
 export default class Datamart {
     oninit() {
         this.datamartMode = 'Search';
-        this.isSearching = false;
+        this.isSearching = {
+            ISI: false,
+            NYU: false
+        };
+        this.error = {
+            ISI: undefined,
+            NYU: undefined
+        };
+        this.success = {
+            ISI: undefined,
+            NYU: undefined
+        };
+        this.sourceMode = 'ISI';
     }
 
     view(vnode) {
-        let {augmentState, augmentResults, indexState, dataPath, labelWidth, endpoint} = vnode.attrs;
+        let {
+            datamartQuery, // https://datadrivendiscovery.org/wiki/display/work/Datamart+Query+API
+            datamartResults, // list of matched metadata
+            datamartIndex, // data to be attached to the upload
+            datamartDatasets, // summary info and paths related to materialized datasets
+
+            dataPath, // where to load data from, to augment with
+            labelWidth, // width of titles on left side of cards
+            endpoint, // Django app url
+            visualizeData // function called with data to be visualized
+        } = vnode.attrs;
 
         let bold = value => m('div', {style: {'font-weight': 'bold', display: 'inline'}}, value);
 
-        let makeCard = ({key, color, content, summary}) => m('table', {
-                ondblclick: () => this.key = this.key ? undefined : key,
+        let makeCard = ({key, color, summary}) => m('table', {
+                ondblclick: () => this.key = this.key === key ? undefined : key,
                 style: {
                     'background': common.menuColor,
                     'border': common.borderColor,
@@ -678,31 +726,97 @@ export default class Datamart {
                         'border-right': common.borderColor
                     }
                 }, bold(key)),
-                m('td', {style: {width: 'calc(100% - 2em)'}},
-                    (this.key === key || !summary) ? content : summary))
+                m('td', {style: {width: 'calc(100% - 2em)'}}, summary))
         );
 
-        let buttonMaterialize = (datamart_id, i) => m(Button, {
-            onclick: async (e) => {
-                e.stopPropagation();
+        let materializeData = async i => {
+            let id = getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].id);
+            this.key = id;
+
+            if (!(id in datamartDatasets)) {
+                let sourceMode = this.sourceMode;
 
                 let response = await m.request(endpoint + 'materialize', {
                     method: 'POST',
-                    data: {index: i, datamart_id}
+                    data: {search_result: JSON.stringify(datamartResults[this.sourceMode][i])},
+                    source: this.sourceMode
                 });
+                if (response.success) {
+                    datamartDatasets[id] = response.data;
+                    this.success[sourceMode] = 'Download initiated';
+                    delete this.error[sourceMode];
+                } else {
+                    delete this.success[sourceMode];
+                    this.error[sourceMode] = response.data;
+                }
+            }
+        };
 
-                console.warn("#debug response");
-                console.log(response);
+        let buttonDownload = i => m(Button, {
+            style: {'margin': '0em 0.25em'},
+            onclick: async () => {
+                let id = getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].id);
+                this.key = id;
+
+                await materializeData(i);
+
+                // download the file
+                let link = document.createElement('a');
+                document.body.appendChild(link);
+                link.href = datamartDatasets[id].data_path;
+                link.click();
+
             }
         }, 'Download');
 
+        // TODO
         let buttonAugment = i => m(Button, {
-            style: {'margin-left': '1em'},
-            onclick: async () => console.log(await m.request(endpoint + 'augment', {
-                method: 'POST',
-                data: {index: i}
-            }))
+            style: {'margin': '0em 0.25em'},
+            onclick: async () => {
+                this.key = this.key = getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].id);;
+                await m.request(endpoint + 'augment', {
+                    method: 'POST',
+                    data: {
+                        data_path: dataPath,
+                        search_result: JSON.stringify(datamartResults[this.sourceMode][i]),
+                        source: this.sourceMode
+                    },
+                })
+            }
         }, 'Augment');
+
+        let buttonMetadata = i => m(Button, {
+            style: {'margin': '0em 0.25em'},
+            onclick: () => {
+                this.key = getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].id);
+
+                visualizeData([
+                        m('h4', (getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].name) || '') + ' Metadata'),
+                        m('label[style=width:100%]', 'Score: ' + getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].score) || 0),
+                        m(Table, {
+                            data: {
+                                'Join Columns': getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].join_columns),
+                                'Union Columns': getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].union_columns)
+                            }
+                        }),
+                        m('div[style=width:100%;overflow:auto]', m(Table, {data: getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].data)}))
+                    ])
+            }
+        }, 'Metadata');
+
+        let buttonPreview = i => m(Button, {
+            style: {'margin': '0em 0.25em'},
+            onclick: async () => {
+                let id = getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].id);
+                this.key = id;
+                await materializeData(i);
+
+                if (id in datamartDatasets) visualizeData([
+                    m('h4', (getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].name) || '') + ' Preview'),
+                    m(Table, {data: datamartDatasets[id].data_preview})
+                ])
+            }
+        }, 'Preview');
 
         return m('div', {style: {width: '100%'}},
             m(ButtonRadio, {
@@ -712,7 +826,7 @@ export default class Datamart {
                 sections: [{value: 'Search'}, {value: 'Index'}]
             }),
 
-            this.error && m('div#errorMessage', {
+            this.error[this.sourceMode] && m('div#errorMessage', {
                 style: {
                     background: 'rgba(0,0,0,.05)',
                     'border-radius': '.5em',
@@ -722,12 +836,12 @@ export default class Datamart {
             }, [
                 m('div', {
                     style: {display: 'inline-block'},
-                    onclick: () => delete this.error
+                    onclick: () => delete this.error[this.sourceMode]
                 }, glyph('remove', {style: {margin: '1em'}})),
-                warn('Error:'), this.error
+                warn('Error:'), this.error[this.sourceMode]
             ]),
 
-            this.success && m('div#successMessage', {
+            this.success[this.sourceMode] && m('div#successMessage', {
                 style: {
                     background: 'rgba(0,0,0,.05)',
                     'border-radius': '.5em',
@@ -737,78 +851,103 @@ export default class Datamart {
             }, [
                 m('div', {
                     style: {display: 'inline-block'},
-                    onclick: () => delete this.success
+                    onclick: () => delete this.success[this.sourceMode]
                 }, glyph('remove', {style: {margin: '1em'}})),
-                this.success
+                this.success[this.sourceMode]
             ]),
 
             this.datamartMode === 'Index' && [
                 m(`div[style=background:${common.menuColor}]`, m(JSONSchema, {
-                    data: indexState,
+                    data: datamartIndex,
                     schema: indexSchema
                 })),
                 m(Button, {
                     style: {float: 'right', margin: '1em'},
                     onclick: async () => {
+                        console.log('Datamart Index', JSON.stringify(datamartIndex));
+
+                        // preserve state after async is awaited
+                        let sourceMode = this.sourceMode;
+
                         let response = await m.request(endpoint + 'upload', {
                             method: 'POST',
                             data: {
-                                state: JSON.stringify(augmentState)
+                                state: JSON.stringify(datamartQuery)
                             }
                         });
 
                         if (response.success) {
-                            console.log('success');
-                            delete this.error;
-                            Object.keys(indexState).forEach(key => delete indexState[key])
-                            Object.assign(indexState, {
+                            delete this.error[sourceMode];
+                            Object.keys(datamartIndex).forEach(key => delete datamartIndex[key])
+                            Object.assign(datamartIndex, {
                                 title: '',
                                 description: '',
                                 url: '',
                                 keywords: []
                             });
-                            this.success = 'Data successfully indexed.'
-                        } else this.error = response.data;
+                            this.success[sourceMode] = 'Data successfully indexed.'
+                        } else this.error[sourceMode] = response.data;
                     }
                 }, 'Submit'),
-
-                // m(Button, {
-                //     onclick: () => console.log(JSON.stringify(indexState))
-                // }, 'debug')
             ],
 
             this.datamartMode === 'Search' && [
                 m(`div[style=background:${common.menuColor}]`, m(JSONSchema, {
-                    data: augmentState,
+                    data: datamartQuery,
                     schema: inputSchema
                 })),
+
+                m(ButtonRadio, {
+                    id: 'dataSourceButtonBar',
+                    onclick: state => this.sourceMode = state,
+                    activeSection: this.sourceMode,
+                    sections: [{value: 'ISI'}, {value: 'NYU'}],
+                    attrsAll: {style: {margin: '1em', width: 'auto'}}
+                }),
                 m(Button, {
                     style: {float: 'right', margin: '1em'},
+                    disabled: this.isSearching[this.sourceMode],
                     onclick: async () => {
-                        augmentResults.length = 0;
+                        console.log('Datamart Query', JSON.stringify(datamartQuery));
+
+                        // preserve state after async is awaited
+                        let sourceMode = this.sourceMode;
+                        datamartResults[sourceMode].length = 0;
 
                         // enable spinner
-                        this.isSearching = true;
+                        this.isSearching[sourceMode] = true;
                         m.redraw();
 
                         let response = await m.request(endpoint + 'search', {
                             method: 'POST',
                             data: {
                                 data_path: dataPath,
-                                query: JSON.stringify(augmentState)
+                                query: JSON.stringify(datamartQuery),
+                                source: this.sourceMode
                             }
                         });
 
-                        this.isSearching = false;
+                        this.isSearching[sourceMode] = false;
 
                         if (response.success) {
-                            augmentResults.push(...response.data);
-                            delete this.error
-                        } else this.error = response.data;
+                            response.data.sort((a, b) =>
+                                getPath(b, infoPaths[sourceMode].score || 0) -
+                                getPath(a, infoPaths[sourceMode].score || 0));
+                            datamartResults[sourceMode].length = 0;
+                            datamartResults[sourceMode].push(...response.data);
+
+                            if (datamartResults[sourceMode].length === 0) {
+                                delete this.success[sourceMode];
+                                this.error[sourceMode] = 'No results found.';
+                            } else {
+                                delete this.error[sourceMode];
+                                this.success[sourceMode] = `${datamartResults[sourceMode].length} results found.`;
+                            }
+                        } else this.error[sourceMode] = response.data;
                     }
                 }, 'Submit'),
 
-                this.isSearching && m('#loading.loader', {
+                this.isSearching[this.sourceMode] && m('#loading.loader', {
                     style: {
                         margin: 'auto',
                         'margin-top': '5em',
@@ -818,28 +957,21 @@ export default class Datamart {
                     }
                 }),
 
-                m('div#datamartResults', augmentResults
-                    .sort(result => result._score)
+                m('div#datamartResults', datamartResults[this.sourceMode]
                     .map((result, i) => makeCard({
-                        key: result._source.title,
-                        color: this.key === result._source.title ? common.selVarColor : common.grayColor,
-                        content: m('div',
-                            m('label[style=width:100%]', 'Score: ' + result._score),
-                            buttonAugment(i),
-                            buttonMaterialize(result._source.datamart_id, i),
-                            m(Table, {
-                                data: result._source,
-                                nest: true
-                            })),
+                        key: getPath(result, infoPaths[this.sourceMode].name) || '',
+                        color: this.key === getPath(result, infoPaths[this.sourceMode].id) || '' ? common.selVarColor : common.grayColor,
                         summary: m('div',
-                            m('label[style=width:100%]', 'Score: ' + result._score),
+                            m('label[style=width:100%]', 'Score: ' + getPath(result, infoPaths[this.sourceMode].score)),
+                            buttonPreview(i),
+                            buttonDownload(i),
                             buttonAugment(i),
-                            buttonMaterialize(result._source.datamart_id, i),
+                            buttonMetadata(i),
                             m(Table, {
                                 data: {
-                                    description: result._source.description,
-                                    keywords: m(ListTags, {
-                                        tags: result._source.keywords,
+                                    description: getPath(result, infoPaths[this.sourceMode].description),
+                                    keywords: getPath(result, infoPaths[this.sourceMode].keywords) && m(ListTags, {
+                                        tags: getPath(result, infoPaths[this.sourceMode].keywords),
                                         readonly: true
                                     })
                                 }
