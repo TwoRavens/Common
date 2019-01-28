@@ -83,7 +83,7 @@ export default class Schema {
                 // when the json schema is underspecified for objects, default to a string
                 if (!('properties' in schema[key])){
                     schema[key].type = 'string';
-                    data[key] = '';
+                    data[key] = typeof data[key] !== 'string' ? '' : data[key];
                     return value(key)
                 }
                 return this.recurse(schema[key].properties, data[key]);

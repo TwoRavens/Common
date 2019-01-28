@@ -7,32 +7,10 @@ import Table from "../views/Table";
 import ListTags from "../views/ListTags";
 import ButtonRadio from "../views/ButtonRadio";
 import {glyph} from "../common";
+import * as app from "../../app/app";
+import ModalVanilla from "../views/ModalVanilla";
+import PanelList from "../views/PanelList";
 
-
-let infoPaths = {
-    'ISI': {
-        'id': ['_source', 'datamart_id'],
-        'name': ['_source', 'title'],
-        'score': ['_score'],
-        'description': ['_source', 'description'],
-        'keywords': ['_source', 'keywords'],
-        'data': ['_source'],
-        'join_columns': ['join_columns'],
-        'union_columns': ['union_columns']
-    },
-    'NYU': {
-        'id': ['id'],
-        'name': ['metadata', 'name'],
-        'score': ['score'],
-        'keywords': undefined,
-        'data': ['metadata'],
-        'description': ['metadata', 'description'],
-        'join_columns': ['join_columns'],
-        'union_columns': ['union_columns']
-    }
-};
-
-let getPath = (obj, path) => path && path.reduce((out, term) => term in out && out[term], obj);
 
 let inputSchema = {
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -669,43 +647,73 @@ let indexSchema = {
     ]
 };
 
+let setDefault = (obj, id, value) => obj[id] = id in obj ? obj[id] : value;
 let warn = (text) => m('[style=color:#dc3545;display:inline-block;margin-right:1em;]', text);
 
 export default class Datamart {
-    oninit() {
-        this.datamartMode = 'Search';
-        this.isSearching = {
-            ISI: false,
-            NYU: false
-        };
-        this.error = {
-            ISI: undefined,
-            NYU: undefined
-        };
-        this.success = {
-            ISI: undefined,
-            NYU: undefined
-        };
-        this.sourceMode = 'ISI';
+    oninit(vnode) {
+        // all menu state is held in preferences
+        let {preferences} = vnode.attrs;
+
+        // access information from NYU/ISI responses along these paths
+        setDefault(preferences, 'infoPaths', {
+            'ISI': {
+                'id': ['datamart_id'],
+                'name': ['metadata', 'title'],
+                'score': ['score'],
+                'description': ['metadata', 'description'],
+                'keywords': ['metadata', 'keywords'],
+                'data': ['metadata'],
+                'join_columns': ['join_columns'],
+                'union_columns': ['union_columns']
+            },
+            'NYU': {
+                'id': ['id'],
+                'name': ['metadata', 'name'],
+                'score': ['score'],
+                'description': ['metadata', 'description'],
+                'keywords': undefined,
+                'data': ['metadata'],
+                'join_columns': ['join_columns'],
+                'union_columns': ['union_columns']
+            }
+        });
+        setDefault(preferences, 'getData', (result, attribute) => {
+            let path = preferences.infoPaths[preferences.sourceMode][attribute];
+            return path && path.reduce((out, term) => term in out && out[term], result)
+        });
+
+        // set default menu state
+        setDefault(preferences, 'datamartMode', 'Search');
+        setDefault(preferences, 'isSearching', {ISI: false, NYU: false});
+
+        setDefault(preferences, 'error', {ISI: undefined, NYU: undefined});
+        setDefault(preferences, 'success', {ISI: undefined, NYU: undefined});
+
+        setDefault(preferences, 'sourceMode', 'ISI');
+        setDefault(preferences, 'leftJoinVariables', new Set());
+        setDefault(preferences, 'rightJoinVariables', new Set());
     }
 
     view(vnode) {
         let {
-            datamartQuery, // https://datadrivendiscovery.org/wiki/display/work/Datamart+Query+API
-            datamartResults, // list of matched metadata
-            datamartIndex, // data to be attached to the upload
-            datamartDatasets, // summary info and paths related to materialized datasets
-
+            preferences,
             dataPath, // where to load data from, to augment with
             labelWidth, // width of titles on left side of cards
             endpoint, // Django app url
-            visualizeData // function called with data to be visualized
         } = vnode.attrs;
+
+        let {
+            query, // https://datadrivendiscovery.org/wiki/display/work/Datamart+Query+API
+            results, // list of matched metadata
+            index, // data to be attached to the upload
+            cached, // summary info and paths related to materialized datasets
+            getData
+        } = preferences;
 
         let bold = value => m('div', {style: {'font-weight': 'bold', display: 'inline'}}, value);
 
         let makeCard = ({key, color, summary}) => m('table', {
-                ondblclick: () => this.key = this.key === key ? undefined : key,
                 style: {
                     'background': common.menuColor,
                     'border': common.borderColor,
@@ -730,40 +738,47 @@ export default class Datamart {
         );
 
         let materializeData = async i => {
-            let id = getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].id);
-            this.key = id;
+            let id = getData(results[preferences.sourceMode][i], 'id');
+            preferences.selectedResult = results[preferences.sourceMode][i];
 
-            if (!(id in datamartDatasets)) {
-                let sourceMode = this.sourceMode;
+            if (!(id in cached)) {
+                let sourceMode = preferences.sourceMode;
 
                 let response = await m.request(endpoint + 'materialize', {
                     method: 'POST',
-                    data: {search_result: JSON.stringify(datamartResults[this.sourceMode][i])},
-                    source: this.sourceMode
+                    data: {
+                        search_result: JSON.stringify(preferences.selectedResult),
+                        source: preferences.sourceMode
+                    }
                 });
                 if (response.success) {
-                    datamartDatasets[id] = response.data;
-                    this.success[sourceMode] = 'Download initiated';
-                    delete this.error[sourceMode];
+                    cached[id] = response.data;
+                    cached[id].data_preview = cached[id].data_preview
+                        .split('\n').map(line => line.split(','));
+
+                    console.log('Materialized:', response.data);
+
+                    preferences.success[sourceMode] = 'Download initiated';
+                    delete preferences.error[sourceMode];
                 } else {
-                    delete this.success[sourceMode];
-                    this.error[sourceMode] = response.data;
+                    delete preferences.success[sourceMode];
+                    preferences.error[sourceMode] = response.data;
                 }
             }
+            m.redraw();
         };
 
         let buttonDownload = i => m(Button, {
             style: {'margin': '0em 0.25em'},
             onclick: async () => {
-                let id = getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].id);
-                this.key = id;
+                let id = getData(results[preferences.sourceMode][i], 'id');
 
                 await materializeData(i);
 
                 // download the file
                 let link = document.createElement('a');
                 document.body.appendChild(link);
-                link.href = datamartDatasets[id].data_path;
+                link.href = cached[id].data_path;
                 link.click();
 
             }
@@ -773,60 +788,42 @@ export default class Datamart {
         let buttonAugment = i => m(Button, {
             style: {'margin': '0em 0.25em'},
             onclick: async () => {
-                this.key = this.key = getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].id);;
-                await m.request(endpoint + 'augment', {
-                    method: 'POST',
-                    data: {
-                        data_path: dataPath,
-                        search_result: JSON.stringify(datamartResults[this.sourceMode][i]),
-                        source: this.sourceMode
-                    },
-                })
+                preferences.selectedResult = results[preferences.sourceMode][i];
+
+                if (preferences.sourceMode === 'ISI')
+                    preferences.modalShown = 'augment';
             }
         }, 'Augment');
 
         let buttonMetadata = i => m(Button, {
             style: {'margin': '0em 0.25em'},
             onclick: () => {
-                this.key = getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].id);
-
-                visualizeData([
-                        m('h4', (getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].name) || '') + ' Metadata'),
-                        m('label[style=width:100%]', 'Score: ' + getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].score) || 0),
-                        m(Table, {
-                            data: {
-                                'Join Columns': getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].join_columns),
-                                'Union Columns': getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].union_columns)
-                            }
-                        }),
-                        m('div[style=width:100%;overflow:auto]', m(Table, {data: getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].data)}))
-                    ])
+                preferences.selectedResult = results[preferences.sourceMode][i];
+                preferences.modalShown = 'metadata';
             }
         }, 'Metadata');
 
         let buttonPreview = i => m(Button, {
             style: {'margin': '0em 0.25em'},
             onclick: async () => {
-                let id = getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].id);
-                this.key = id;
+                let id = getData(results[preferences.sourceMode][i], 'id');
+                preferences.selectedResult = results[preferences.sourceMode][i];
                 await materializeData(i);
 
-                if (id in datamartDatasets) visualizeData([
-                    m('h4', (getPath(datamartResults[this.sourceMode][i], infoPaths[this.sourceMode].name) || '') + ' Preview'),
-                    m(Table, {data: datamartDatasets[id].data_preview})
-                ])
+                if (id in cached)
+                    preferences.modalShown = 'preview';
             }
         }, 'Preview');
 
         return m('div', {style: {width: '100%'}},
             m(ButtonRadio, {
                 id: 'datamartButtonBar',
-                onclick: state => this.datamartMode = state,
-                activeSection: this.datamartMode,
+                onclick: state => preferences.datamartMode = state,
+                activeSection: preferences.datamartMode,
                 sections: [{value: 'Search'}, {value: 'Index'}]
             }),
 
-            this.error[this.sourceMode] && m('div#errorMessage', {
+            preferences.error[preferences.sourceMode] && m('div#errorMessage', {
                 style: {
                     background: 'rgba(0,0,0,.05)',
                     'border-radius': '.5em',
@@ -836,12 +833,12 @@ export default class Datamart {
             }, [
                 m('div', {
                     style: {display: 'inline-block'},
-                    onclick: () => delete this.error[this.sourceMode]
+                    onclick: () => delete preferences.error[preferences.sourceMode]
                 }, glyph('remove', {style: {margin: '1em'}})),
-                warn('Error:'), this.error[this.sourceMode]
+                warn('Error:'), preferences.error[preferences.sourceMode]
             ]),
 
-            this.success[this.sourceMode] && m('div#successMessage', {
+            preferences.success[preferences.sourceMode] && m('div#successMessage', {
                 style: {
                     background: 'rgba(0,0,0,.05)',
                     'border-radius': '.5em',
@@ -851,103 +848,106 @@ export default class Datamart {
             }, [
                 m('div', {
                     style: {display: 'inline-block'},
-                    onclick: () => delete this.success[this.sourceMode]
+                    onclick: () => delete preferences.success[preferences.sourceMode]
                 }, glyph('remove', {style: {margin: '1em'}})),
-                this.success[this.sourceMode]
+                preferences.success[preferences.sourceMode]
             ]),
 
-            this.datamartMode === 'Index' && [
+            preferences.datamartMode === 'Index' && [
                 m(`div[style=background:${common.menuColor}]`, m(JSONSchema, {
-                    data: datamartIndex,
+                    data: index,
                     schema: indexSchema
                 })),
                 m(Button, {
                     style: {float: 'right', margin: '1em'},
                     onclick: async () => {
-                        console.log('Datamart Index', JSON.stringify(datamartIndex));
+                        console.log('Datamart Index', JSON.stringify(index));
 
                         // preserve state after async is awaited
-                        let sourceMode = this.sourceMode;
+                        let sourceMode = preferences.sourceMode;
 
                         let response = await m.request(endpoint + 'upload', {
                             method: 'POST',
                             data: {
-                                state: JSON.stringify(datamartQuery)
+                                state: JSON.stringify(query)
                             }
                         });
 
                         if (response.success) {
-                            delete this.error[sourceMode];
-                            Object.keys(datamartIndex).forEach(key => delete datamartIndex[key])
-                            Object.assign(datamartIndex, {
+                            delete preferences.error[sourceMode];
+                            Object.keys(index).forEach(key => delete index[key]);
+                            Object.assign(index, {
                                 title: '',
                                 description: '',
                                 url: '',
                                 keywords: []
                             });
-                            this.success[sourceMode] = 'Data successfully indexed.'
-                        } else this.error[sourceMode] = response.data;
+                            preferences.success[sourceMode] = 'Data successfully indexed.'
+                        } else preferences.error[sourceMode] = response.data;
                     }
                 }, 'Submit'),
             ],
 
-            this.datamartMode === 'Search' && [
+            preferences.datamartMode === 'Search' && [
                 m(`div[style=background:${common.menuColor}]`, m(JSONSchema, {
-                    data: datamartQuery,
+                    data: query,
                     schema: inputSchema
                 })),
 
                 m(ButtonRadio, {
                     id: 'dataSourceButtonBar',
-                    onclick: state => this.sourceMode = state,
-                    activeSection: this.sourceMode,
+                    onclick: state => {
+                        preferences.sourceMode = state;
+                        preferences.selectedResult = undefined;
+                    },
+                    activeSection: preferences.sourceMode,
                     sections: [{value: 'ISI'}, {value: 'NYU'}],
                     attrsAll: {style: {margin: '1em', width: 'auto'}}
                 }),
                 m(Button, {
                     style: {float: 'right', margin: '1em'},
-                    disabled: this.isSearching[this.sourceMode],
+                    disabled: preferences.isSearching[preferences.sourceMode],
                     onclick: async () => {
-                        console.log('Datamart Query', JSON.stringify(datamartQuery));
+                        console.log('Datamart Query', JSON.stringify(query));
 
                         // preserve state after async is awaited
-                        let sourceMode = this.sourceMode;
-                        datamartResults[sourceMode].length = 0;
+                        let sourceMode = preferences.sourceMode;
+                        results[sourceMode].length = 0;
 
                         // enable spinner
-                        this.isSearching[sourceMode] = true;
+                        preferences.isSearching[sourceMode] = true;
                         m.redraw();
 
                         let response = await m.request(endpoint + 'search', {
                             method: 'POST',
                             data: {
                                 data_path: dataPath,
-                                query: JSON.stringify(datamartQuery),
-                                source: this.sourceMode
+                                query: JSON.stringify(query),
+                                source: preferences.sourceMode
                             }
                         });
 
-                        this.isSearching[sourceMode] = false;
+                        preferences.isSearching[sourceMode] = false;
 
                         if (response.success) {
                             response.data.sort((a, b) =>
-                                getPath(b, infoPaths[sourceMode].score || 0) -
-                                getPath(a, infoPaths[sourceMode].score || 0));
-                            datamartResults[sourceMode].length = 0;
-                            datamartResults[sourceMode].push(...response.data);
+                                getData(b, 'score') || 0 -
+                                getData(a, 'score') || 0);
+                            results[sourceMode].length = 0;
+                            results[sourceMode].push(...response.data);
 
-                            if (datamartResults[sourceMode].length === 0) {
-                                delete this.success[sourceMode];
-                                this.error[sourceMode] = 'No results found.';
+                            if (results[sourceMode].length === 0) {
+                                delete preferences.success[sourceMode];
+                                preferences.error[sourceMode] = 'No results found.';
                             } else {
-                                delete this.error[sourceMode];
-                                this.success[sourceMode] = `${datamartResults[sourceMode].length} results found.`;
+                                delete preferences.error[sourceMode];
+                                preferences.success[sourceMode] = `${results[sourceMode].length} results found.`;
                             }
-                        } else this.error[sourceMode] = response.data;
+                        } else preferences.error[sourceMode] = response.data;
                     }
                 }, 'Submit'),
 
-                this.isSearching[this.sourceMode] && m('#loading.loader', {
+                preferences.isSearching[preferences.sourceMode] && m('#loading.loader', {
                     style: {
                         margin: 'auto',
                         'margin-top': '5em',
@@ -957,21 +957,21 @@ export default class Datamart {
                     }
                 }),
 
-                m('div#datamartResults', datamartResults[this.sourceMode]
+                m('div#datamartResults', results[preferences.sourceMode]
                     .map((result, i) => makeCard({
-                        key: getPath(result, infoPaths[this.sourceMode].name) || '',
-                        color: this.key === getPath(result, infoPaths[this.sourceMode].id) || '' ? common.selVarColor : common.grayColor,
+                        key: getData(result, 'name') || '',
+                        color: preferences.selectedResult === result ? common.selVarColor : common.grayColor,
                         summary: m('div',
-                            m('label[style=width:100%]', 'Score: ' + getPath(result, infoPaths[this.sourceMode].score)),
+                            m('label[style=width:100%]', 'Score: ' + getData(result, 'score')),
                             buttonPreview(i),
                             buttonDownload(i),
                             buttonAugment(i),
                             buttonMetadata(i),
                             m(Table, {
                                 data: {
-                                    description: getPath(result, infoPaths[this.sourceMode].description),
-                                    keywords: getPath(result, infoPaths[this.sourceMode].keywords) && m(ListTags, {
-                                        tags: getPath(result, infoPaths[this.sourceMode].keywords),
+                                    description: getData(result, 'description'),
+                                    keywords: getData(result, 'keywords') && m(ListTags, {
+                                        tags: getData(result, 'keywords'),
                                         readonly: true
                                     })
                                 }
@@ -980,5 +980,114 @@ export default class Datamart {
                 )
             ]
         )
+    }
+}
+
+
+// additional menus for displaying tables, augment columns and metadata
+export class ModalDatamart {
+    view(vnode) {
+        let {
+            preferences,
+            endpoint,
+            dataPath, // where to load data from, to augment with
+        } = vnode.attrs;
+
+        let {
+            cached, // summary info and paths related to materialized datasets
+            getData,
+            selectedResult
+        } = preferences;
+
+        if (!getData || !preferences.modalShown)
+            return;
+
+        return getData && preferences.modalShown && m(ModalVanilla, {
+            id: 'datamartModal',
+            setDisplay: () => preferences.modalShown = false
+        }, [
+            preferences.modalShown === 'preview' && [
+                m('h4', (preferences.getData(selectedResult, 'name') || '') + ' Preview'),
+                m('div', {style: {width: '100%', overflow: 'auto'}},
+                    m(Table, {
+                        headers: cached[preferences.getData(selectedResult, 'id')].data_preview[0],
+                        data: cached[preferences.getData(selectedResult, 'id')].data_preview.slice(1)
+                    }))
+            ],
+
+            preferences.modalShown === 'metadata' && [
+                m('h4', (getData(selectedResult, 'name') || '') + ' Metadata'),
+                m('label[style=width:100%]', 'Score: ' + getData(selectedResult, 'score') || 0),
+                m(Table, {
+                    data: {
+                        'Join Columns': getData(selectedResult, 'join_columns'),
+                        'Union Columns': getData(selectedResult, 'union_columns')
+                    }
+                }),
+                m('div[style=width:100%;overflow:auto]', m(Table, {data: getData(selectedResult, 'data')}))
+            ],
+
+            preferences.modalShown === 'augment' && [
+                m('h4[style=width:calc(50% - 1em);display:inline-block]', 'Left Join Columns'),
+                m('h4[style=width:calc(50% - 1em);display:inline-block]', 'Right Join Columns'),
+
+                m(PanelList, {
+                    id: 'leftColumns',
+                    items: app.valueKey,
+                    colors: {
+                        [app.hexToRgba(common.selVarColor)]: [...preferences.leftJoinVariables]
+                    },
+                    callback: variable => {
+                        preferences.leftJoinVariables.has(variable)
+                            ? preferences.leftJoinVariables.delete(variable)
+                            : preferences.leftJoinVariables.add(variable);
+                        setTimeout(m.redraw, 1000);
+                    },
+                    attrsAll: {style: {width: 'calc(50% - 1em)', display: 'inline-block', 'vertical-align': 'top'}}
+                }),
+                m(PanelList, {
+                    id: 'rightColumns',
+                    items: selectedResult.metadata.variables.map(variable => variable.name),
+                    colors: {
+                        [app.hexToRgba(common.selVarColor)]: [...preferences.rightJoinVariables]
+                    },
+                    callback: variable => {
+                        preferences.rightJoinVariables.has(variable)
+                            ? preferences.rightJoinVariables.delete(variable)
+                            : preferences.rightJoinVariables.add(variable);
+                        setTimeout(m.redraw, 1000);
+                    },
+                    attrsAll: {style: {width: 'calc(50% - 1em)', display: 'inline-block', 'vertical-align': 'top'}}
+                }),
+                m(Button, {
+                    onclick: async () => {
+
+                        let leftColumns = Object.keys(app.preprocess)
+                            .map((variable, i) => [variable, i])
+                            .filter(pair => preferences.leftJoinVariables.has(pair[0]))
+                            .map(pair => [pair[1]]);
+
+                        let rightColumns = preferences.selectedResult.metadata.variables
+                            .map((variable, i) => [variable, i])
+                            .filter(pair => preferences.rightJoinVariables.has(pair[0].name))
+                            .map(pair => [pair[1]]);
+
+                        let response = await m.request(endpoint + 'augment', {
+                            method: 'POST',
+                            data: {
+                                data_path: dataPath,
+                                search_result: JSON.stringify(preferences.selectedResult),
+                                source: preferences.sourceMode,
+                                left_columns: JSON.stringify(leftColumns),
+                                right_columns: JSON.stringify(rightColumns)
+                            }
+                        });
+
+                        console.warn("#debug response augment");
+                        console.log(response);
+                    }
+                }, 'Augment')
+            ]
+        ])
     }
 }
