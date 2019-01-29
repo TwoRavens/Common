@@ -365,142 +365,23 @@ let inputSchema = {
 let indexSchema = {
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "http://datamart.datadrivendiscovery.org/dataset.schema.json",
-    "definitions": {
-        "materialization": {
-            "description": "Method to retrieve the dataset or parts of the dataset",
-            "type": "object",
-            "properties": {
-                "python_path": {
-                    "description": "The python class to materialize the dataset",
-                    "type": "string"
-                },
-                "arguments": {
-                    "description": "keyword arguments to the python __init__ method",
-                    "type": [
-                        "object",
-                        "null"
-                    ]
-                }
-            },
-            "required": [
-                "python_path"
-            ]
-        },
-        "implicit_variable": {
-            "description": "implicit variables about the whole dataset, like the time coverage and entity coverage of the entire dataset. eg. A dataset from trading economics is about certain stocktickers, cannot be known from the dataset, should put it here",
-            "type": "object",
-            "properties": {
-                "name": {
-                    "description": "name of the variable",
-                    "type": "string"
-                },
-                "value": {
-                    "description": "value of the variable",
-                    "type": "string"
-                },
-                "semantic_type": {
-                    "description": "List of D3M semantic types",
-                    "type": [
-                        "array",
-                        "null"
-                    ],
-                    "items": {
-                        "type": "string",
-                        "format": "uri"
-                    }
-                }
-            }
-        },
-        "variable_metadata": {
-            "description": "Metadata describing a variable/column",
-            "type": "object",
-            "properties": {
-                "name": {
-                    "description": "The name given in the original dataset",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
-                },
-                "semantic_type": {
-                    "description": "List of D3M semantic types",
-                    "type": [
-                        "array",
-                        "null"
-                    ],
-                    "items": {
-                        "type": "string",
-                        "format": "uri"
-                    }
-                },
-                "named_entity": {
-                    "description": "List of named entities referenced in column values",
-                    "type": [
-                        "array",
-                        "null"
-                    ],
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "temporal_coverage": {
-                    "description": "Temporal extent",
-                    "type": [
-                        "object",
-                        "null"
-                    ],
-                    "properties": {
-                        "start": {
-                            "description": "Start of temporal coverage",
-                            "anyOf": [
-                                {
-                                    "type": "string",
-                                    "format": "date-time"
-                                },
-                                {
-                                    "type": "string",
-                                    "format": "date"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ]
-                        },
-                        "end": {
-                            "description": "End of temporal coverage",
-                            "anyOf": [
-                                {
-                                    "type": "string",
-                                    "format": "date-time"
-                                },
-                                {
-                                    "type": "string",
-                                    "format": "date"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ]
-                        }
-                    }
-                },
-                "spatial_coverage": {
-                    "description": "Spatial extent",
-                    "type": [
-                        "object",
-                        "null"
-                    ]
-                },
-                "variable_materialization": {
-                    "$ref": "#/definitions/materialization"
-                }
-            }
-        }
-    },
     "title": "dataset",
     "description": "Metadata describing an entire dataset",
     "type": "object",
     "properties": {
+        "materialization_arguments": {
+            "description": "Arguments for the method to retrieve the dataset or parts of the dataset",
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                },
+                "file_type": {
+                    "enum": ["csv", "html", "json", "excel"]
+                }
+            },
+            "required": ["url"]
+        },
         "title": {
             "description": "A short description of the dataset",
             "type": [
@@ -620,32 +501,121 @@ let indexSchema = {
                 "object",
                 "null"
             ]
-        },
-        "materialization": {
-            "description": "Method to retrieve the dataset or parts of the dataset",
+        }
+    },
+    "required": [
+        "materialization_arguments"
+    ],
+    "definitions": {
+        "implicit_variable": {
+            "description": "implicit variables about the whole dataset, like the time coverage and entity coverage of the entire dataset. eg. A dataset from trading economics is about certain stocktickers, cannot be known from the dataset, should put it here",
             "type": "object",
             "properties": {
-                "python_path": {
-                    "description": "The python class to materialize the dataset",
+                "name": {
+                    "description": "name of the variable",
                     "type": "string"
                 },
-                "arguments": {
-                    "description": "keyword arguments to the python __init__ method",
+                "value": {
+                    "description": "value of the variable",
+                    "type": "string"
+                },
+                "semantic_type": {
+                    "description": "List of D3M semantic types",
+                    "type": [
+                        "array",
+                        "null"
+                    ],
+                    "items": {
+                        "type": "string",
+                        "format": "uri"
+                    }
+                }
+            }
+        },
+        "variable_metadata": {
+            "description": "Metadata describing a variable/column",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "The name given in the original dataset",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "semantic_type": {
+                    "description": "List of D3M semantic types",
+                    "type": [
+                        "array",
+                        "null"
+                    ],
+                    "items": {
+                        "type": "string",
+                        "format": "uri"
+                    }
+                },
+                "named_entities": {
+                    "description": "List of named entities referenced in column values",
+                    "type": [
+                        "array",
+                        "null"
+                    ],
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "temporal_coverage": {
+                    "description": "Temporal extent",
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "properties": {
+                        "start": {
+                            "description": "Start of temporal coverage",
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        },
+                        "end": {
+                            "description": "End of temporal coverage",
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "spatial_coverage": {
+                    "description": "Spatial extent",
                     "type": [
                         "object",
                         "null"
                     ]
                 }
-            },
-            "required": [
-                "python_path"
-            ]
+            }
         }
-    },
-    "required": [
-        "materialization"
-    ]
-};
+    }
+}
 
 let setDefault = (obj, id, value) => obj[id] = id in obj ? obj[id] : value;
 let warn = (text) => m('[style=color:#dc3545;display:inline-block;margin-right:1em;]', text);
@@ -886,7 +856,8 @@ export default class Datamart {
                         let response = await m.request(endpoint + 'upload', {
                             method: 'POST',
                             data: {
-                                state: JSON.stringify(query)
+                                data: JSON.stringify(query),
+                                source: sourceMode
                             }
                         });
 
