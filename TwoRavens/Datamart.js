@@ -792,6 +792,23 @@ export default class Datamart {
 
                 if (preferences.sourceMode === 'ISI')
                     preferences.modalShown = 'augment';
+
+                if (preferences.sourceMode === 'NYU') {
+                    let response = await m.request(endpoint + 'augment', {
+                        method: 'POST',
+                        data: {
+                            data_path: dataPath,
+                            search_result: JSON.stringify(preferences.selectedResult),
+                            source: preferences.sourceMode
+                        }
+                    });
+
+                    if (!response.success)
+                        this.error = response.data;
+
+                    console.warn("#debug response");
+                    console.log(response);
+                }
             }
         }, 'Augment');
 
@@ -964,7 +981,7 @@ export default class Datamart {
                         summary: m('div',
                             m('label[style=width:100%]', 'Score: ' + getData(result, 'score')),
                             buttonPreview(i),
-                            buttonDownload(i),
+                            // buttonDownload(i), # download isn't working yet
                             buttonAugment(i),
                             buttonMetadata(i),
                             m(Table, {

@@ -40,8 +40,9 @@ import {selVarColor, mergeAttributes} from "../common";
 let natives = new Set(['number', 'string', 'boolean']);
 let nestedStyle = {
     style: {
-        background: 'rgba(0,0,0,.1)',
-        'box-shadow': '0px 5px 10px rgba(0, 0, 0, .2)',
+        background: 'rgba(0,0,0,.05)',
+        'border-radius': '.5em',
+        'box-shadow': '0px 5px 10px rgba(0, 0, 0, .1)',
         margin: '10px 0'
     }
 };
