@@ -134,7 +134,7 @@ export default class Schema {
         if (typeof data === 'object') return m(Table, {
             attrsAll: nestedStyle,
             attrsCells: {valign: "top"},
-            data: Object.keys(data).map(key => [
+            data: Object.keys(data).filter(key => key in schema).map(key => [
                 m('div', {
                     title: schema[key].description || '',
                     style: {'margin-top': '1em', 'font-weight': 'bold'}

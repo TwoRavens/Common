@@ -10,7 +10,11 @@ import {glyph} from "../common";
 import * as app from "../../app/app";
 import ModalVanilla from "../views/ModalVanilla";
 import PanelList from "../views/PanelList";
+import TextField from "../views/TextField";
+import Dropdown from "../views/Dropdown";
 
+// maximum number of records to display at once
+let resultLimit = 100;
 
 let inputSchema = {
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -615,7 +619,7 @@ let indexSchema = {
             }
         }
     }
-}
+};
 
 let setDefault = (obj, id, value) => obj[id] = id in obj ? obj[id] : value;
 let warn = (text) => m('[style=color:#dc3545;display:inline-block;margin-right:1em;]', text);
@@ -663,6 +667,12 @@ export default class Datamart {
         setDefault(preferences, 'sourceMode', 'ISI');
         setDefault(preferences, 'leftJoinVariables', new Set());
         setDefault(preferences, 'rightJoinVariables', new Set());
+
+        setDefault(preferences, 'datamartIndexMode', 'File');
+        setDefault(preferences, 'indexLink', '');
+        setDefault(preferences, 'indexFileType', 'csv');
+
+        setDefault(preferences, 'indexScrape', 'https://www.w3schools.com/html/html_tables.asp');
     }
 
     view(vnode) {
@@ -676,7 +686,7 @@ export default class Datamart {
         let {
             query, // https://datadrivendiscovery.org/wiki/display/work/Datamart+Query+API
             results, // list of matched metadata
-            index, // data to be attached to the upload
+            indices, // data to be attached to the upload
             cached, // summary info and paths related to materialized datasets
             getData
         } = preferences;
@@ -738,6 +748,31 @@ export default class Datamart {
             m.redraw();
         };
 
+        let handleIndex = async index => {
+            console.log('Datamart Index:', index);
+
+            // preserve state after async is awaited
+            let sourceMode = preferences.sourceMode;
+
+            let response = await m.request(endpoint + 'get_metadata', {
+                method: 'POST',
+                data: {
+                    custom: JSON.stringify(index),
+                    source: sourceMode
+                }
+            });
+
+            if (response.success) {
+                delete preferences.error[sourceMode];
+                preferences.indices.length = 0;
+                preferences.indices.push(...response.data);
+                preferences.success[sourceMode] = `Found ${response.data.length} potential dataset${response.data.length === 1 ? '' : 's'}. Please review the details.`
+            } else {
+                preferences.error[sourceMode] = response.data;
+                delete preferences.success[sourceMode]
+            }
+        };
+
         let buttonDownload = i => m(Button, {
             style: {'margin': '0em 0.25em'},
             onclick: async () => {
@@ -775,9 +810,6 @@ export default class Datamart {
 
                     if (!response.success)
                         this.error = response.data;
-
-                    console.warn("#debug response");
-                    console.log(response);
                 }
             }
         }, 'Augment');
@@ -840,42 +872,6 @@ export default class Datamart {
                 preferences.success[preferences.sourceMode]
             ]),
 
-            preferences.datamartMode === 'Index' && [
-                m(`div[style=background:${common.menuColor}]`, m(JSONSchema, {
-                    data: index,
-                    schema: indexSchema
-                })),
-                m(Button, {
-                    style: {float: 'right', margin: '1em'},
-                    onclick: async () => {
-                        console.log('Datamart Index', JSON.stringify(index));
-
-                        // preserve state after async is awaited
-                        let sourceMode = preferences.sourceMode;
-
-                        let response = await m.request(endpoint + 'upload', {
-                            method: 'POST',
-                            data: {
-                                data: JSON.stringify(query),
-                                source: sourceMode
-                            }
-                        });
-
-                        if (response.success) {
-                            delete preferences.error[sourceMode];
-                            Object.keys(index).forEach(key => delete index[key]);
-                            Object.assign(index, {
-                                title: '',
-                                description: '',
-                                url: '',
-                                keywords: []
-                            });
-                            preferences.success[sourceMode] = 'Data successfully indexed.'
-                        } else preferences.error[sourceMode] = response.data;
-                    }
-                }, 'Submit'),
-            ],
-
             preferences.datamartMode === 'Search' && [
                 m(`div[style=background:${common.menuColor}]`, m(JSONSchema, {
                     data: query,
@@ -911,7 +907,8 @@ export default class Datamart {
                             data: {
                                 data_path: dataPath,
                                 query: JSON.stringify(query),
-                                source: preferences.sourceMode
+                                source: preferences.sourceMode,
+                                limit: resultLimit
                             }
                         });
 
@@ -926,10 +923,10 @@ export default class Datamart {
 
                             if (results[sourceMode].length === 0) {
                                 delete preferences.success[sourceMode];
-                                preferences.error[sourceMode] = 'No results found.';
+                                preferences.error[sourceMode] = 'No datasets found.';
                             } else {
                                 delete preferences.error[sourceMode];
-                                preferences.success[sourceMode] = `${results[sourceMode].length} results found.`;
+                                preferences.success[sourceMode] = (results[sourceMode].length === resultLimit ? 'Over ' : '') + `${results[sourceMode].length} datasets found.`;
                             }
                         } else preferences.error[sourceMode] = response.data;
                     }
@@ -966,6 +963,125 @@ export default class Datamart {
                             }))
                     }))
                 )
+            ],
+            preferences.datamartMode === 'Index' && [
+                m('h5', 'Indexing is for adding your own datasets to datamart. You may upload a file or extract data from a link.'),
+                m(ButtonRadio, {
+                    id: 'datamartIndexMode',
+                    onclick: state => preferences.datamartIndexMode = state,
+                    activeSection: preferences.datamartIndexMode,
+                    sections: [{value: 'File'}, {value: 'Link'}, {value: 'Scrape'}]
+                }),
+                preferences.datamartIndexMode === 'File' && [
+                    m('label.btn.btn-default.btn-file', {style: {margin: '1em', display: 'inline-block'}}, [
+                        m('input', {
+                            hidden: true,
+                            type: 'file',
+                            style: {display: 'none'},
+                            onchange: async e => {
+
+                                // preserve state after async is awaited
+                                let sourceMode = preferences.sourceMode;
+
+                                let file = e.target.files[0];
+
+                                let data = new FormData();
+                                data.append("source_file", file);
+
+                                // initial upload
+                                let response = await m.request({
+                                    method: "POST",
+                                    url: endpoint + "upload",
+                                    data: data
+                                });
+
+                                if (!response.success) {
+                                    preferences.error[sourceMode] = response.data;
+                                    return;
+                                }
+                            }
+                        })
+                    ], 'Browse')
+                ],
+
+                preferences.datamartIndexMode === 'Link' && [
+                    m(TextField, {
+                        style: {margin: '1em', width: 'calc(100% - 15em)', display: 'inline-block'},
+                        id: 'datamartLinkTextField',
+                        value: preferences.indexLink,
+                        placeholder: 'Url to file',
+                        oninput: value => preferences.indexLink = value,
+                        onblur: value => preferences.indexLink = value
+                    }),
+                    m('div', {style: {margin: '1em', 'margin-left': '0px', display: 'inline-block'}}, m(Dropdown, {
+                        id: 'fileTypeDropdown',
+                        items: ['csv', 'excel'],
+                        activeItem: preferences.indexFileType,
+                        onclickChild: value => preferences.indexFileType = value
+                    })),
+                    m(Button, {
+                        style: {float: 'right', margin: '1em', 'margin-left': '0px', 'max-width': '10em', display: 'inline-block'},
+                        onclick: () => handleIndex({
+                            materialization_arguments: {
+                                url: preferences.indexLink,
+                                file_type: preferences.indexFileType
+                            }
+                        })
+                    }, 'Submit')
+                ],
+
+                preferences.datamartIndexMode === 'Scrape' && [
+                    m(TextField, {
+                        style: {margin: '1em', width: 'calc(100% - 10em)', display: 'inline-block'},
+                        id: 'datamartScrapeTextField',
+                        value: preferences.indexScrape,
+                        placeholder: 'Url to webpage with tables',
+                        onchange: value => preferences.indexScrape = value,
+                        onblur: value => preferences.indexScrape = value
+                    }),
+                    m(Button, {
+                        style: {float: 'right', margin: '1em', 'max-width': '10em', display: 'inline-block'},
+                        onclick: () => handleIndex({
+                            materialization_arguments: {
+                                url: preferences.indexScrape,
+                                file_type: 'html'
+                            }
+                        })
+                    }, 'Submit')
+                ],
+                indices.map(index => m(`div[style=background:${common.menuColor}]`, m(JSONSchema, {
+                    data: index,
+                    schema: indexSchema
+                }))),
+
+                indices.length > 0 && m(Button, {
+                    onclick: async () => {
+                        // preserve state after async is awaited
+                        let sourceMode = preferences.sourceMode;
+
+                        let responses = [];
+                        let promises = indices.map((index, i) => m.request(endpoint + 'index', {
+                            method: 'POST',
+                            data: {
+                                indices: JSON.stringify(index),
+                                source: sourceMode
+                            }
+                        }).then(response => responses[i] = response));
+
+                        await Promise.all(promises);
+
+                        preferences.success[sourceMode] = 'Index ' + responses
+                            .reduce((out, response, i) => response.success ? [...out, i] : out, []).join(', ') + ' successful.';
+
+                        preferences.indices = indices.filter((index, i) => !responses[i].success)
+
+                        if (preferences.indices.length) {
+                            preferences.error[sourceMode] = 'Some datasets failed uploading to datamart. The failed datasets are listed below.';
+                            delete preferences.success[sourceMode]
+                        } else
+                            preferences.success[sourceMode] = `Dataset${responses.length === 1 ? '' : 's'} successfully indexed.`
+                    }
+                }, 'Submit')
             ]
         )
     }
