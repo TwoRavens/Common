@@ -473,17 +473,34 @@ let indexSchema = {
         },
         "implicit_variables": {
             "description": "Description of each implicit variable of the dataset",
-            "anyOf": [
-                {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/implicit_variable"
+            "type": "array",
+            "items": {
+                "implicit_variable": {
+                    "description": "implicit variables about the whole dataset, like the time coverage and entity coverage of the entire dataset. eg. A dataset from trading economics is about certain stocktickers, cannot be known from the dataset, should put it here",
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "description": "name of the variable",
+                            "type": "string"
+                        },
+                        "value": {
+                            "description": "value of the variable",
+                            "type": "string"
+                        },
+                        "semantic_type": {
+                            "description": "List of D3M semantic types",
+                            "type": [
+                                "array",
+                                "null"
+                            ],
+                            "items": {
+                                "type": "string",
+                                "format": "uri"
+                            }
+                        }
                     }
                 },
-                {
-                    "type": "null"
-                }
-            ]
+            }
         },
         "variables": {
             "description": "Description of each variable/column of the dataset",
@@ -669,10 +686,14 @@ export default class Datamart {
         setDefault(preferences, 'rightJoinVariables', new Set());
 
         setDefault(preferences, 'datamartIndexMode', 'File');
-        setDefault(preferences, 'indexLink', '');
+
+        setDefault(preferences, 'indexLink', ''); // https://archive.ics.uci.edu/ml/machine-learning-databases/iris/bezdekIris.data
         setDefault(preferences, 'indexFileType', 'csv');
 
-        setDefault(preferences, 'indexScrape', 'https://www.w3schools.com/html/html_tables.asp');
+        setDefault(preferences, 'indexScrape', ''); // https://www.w3schools.com/html/html_tables.asp
+
+        setDefault(preferences, 'joinPairs', []);
+        setDefault(preferences, 'exactMatch', true);
     }
 
     view(vnode) {
@@ -767,6 +788,8 @@ export default class Datamart {
                 preferences.indices.length = 0;
                 preferences.indices.push(...response.data);
                 preferences.success[sourceMode] = `Found ${response.data.length} potential dataset${response.data.length === 1 ? '' : 's'}. Please review the details.`
+                console.warn("#debug after submission of new dataset, response.data");
+                console.log(response.data);
             } else {
                 preferences.error[sourceMode] = response.data;
                 delete preferences.success[sourceMode]
@@ -785,7 +808,6 @@ export default class Datamart {
                 document.body.appendChild(link);
                 link.href = cached[id].data_path;
                 link.click();
-
             }
         }, 'Download');
 
@@ -823,11 +845,17 @@ export default class Datamart {
         }, 'Metadata');
 
         let buttonPreview = i => m(Button, {
-            style: {'margin': '0em 0.25em'},
+            id: 'buttonPreview' + i,
+            class: 'ladda-label ladda-button',
+            style: {'margin': '0em 0.25em', 'data-spinner-color': 'black', 'data-style': 'zoom-in'},
             onclick: async () => {
                 let id = getData(results[preferences.sourceMode][i], 'id');
                 preferences.selectedResult = results[preferences.sourceMode][i];
+                let ladda = Ladda.create(document.getElementById('buttonPreview' + i));
+                ladda.start();
                 await materializeData(i);
+                ladda.stop();
+                m.redraw();
 
                 if (id in cached)
                     preferences.modalShown = 'preview';
@@ -1020,7 +1048,13 @@ export default class Datamart {
                         onclickChild: value => preferences.indexFileType = value
                     })),
                     m(Button, {
-                        style: {float: 'right', margin: '1em', 'margin-left': '0px', 'max-width': '10em', display: 'inline-block'},
+                        style: {
+                            float: 'right',
+                            margin: '1em',
+                            'margin-left': '0px',
+                            'max-width': '10em',
+                            display: 'inline-block'
+                        },
                         onclick: () => handleIndex({
                             materialization_arguments: {
                                 url: preferences.indexLink,
@@ -1132,65 +1166,163 @@ export class ModalDatamart {
             ],
 
             preferences.modalShown === 'augment' && [
+
+                preferences.error[preferences.sourceMode] && m('div#errorMessage', {
+                    style: {
+                        background: 'rgba(0,0,0,.05)',
+                        'border-radius': '.5em',
+                        'box-shadow': '0px 5px 10px rgba(0, 0, 0, .1)',
+                        margin: '10px 0'
+                    }
+                }, [
+                    m('div', {
+                        style: {display: 'inline-block'},
+                        onclick: () => delete preferences.error[preferences.sourceMode]
+                    }, glyph('remove', {style: {margin: '1em'}})),
+                    warn('Error:'), preferences.error[preferences.sourceMode]
+                ]),
+
+                preferences.joinPairs.map((pair, i) => m('div#pairContainer' + i, {
+                    style: {
+                        background: 'rgba(0,0,0,.05)',
+                        'border-radius': '.5em',
+                        'box-shadow': '0px 5px 10px rgba(0, 0, 0, .1)',
+                        margin: '10px 0'
+                    }
+                }, [
+                    m('div', {
+                        style: {display: 'inline-block'},
+                        onclick: () => preferences.joinPairs.splice(preferences.joinPairs.findIndex(elem => elem === pair), 1)
+                    }, glyph('remove', {style: {margin: '1em'}})),
+                    `Joining [${pair[0].join(', ')}] with [${pair[1].join(', ')}]`
+                ])),
+
+                m('div',
+                    m(Button, {
+                        style: {margin: '1em'},
+                        title: 'supply variables from both the left and right datasets',
+                        disabled: !preferences.leftJoinVariables.size || !preferences.rightJoinVariables.size,
+                        onclick: () => {
+                            if (!preferences.leftJoinVariables.size || !preferences.rightJoinVariables.size)
+                                return;
+
+                            preferences.joinPairs.push([
+                                [...preferences.leftJoinVariables],
+                                [...preferences.rightJoinVariables]]);
+
+                            preferences.leftJoinVariables = new Set();
+                            preferences.rightJoinVariables = new Set();
+                        }
+                    }, 'Add Pairing'),
+
+                    m('label[style=margin-right:1em]', 'Exact Match:'),
+                    m(ButtonRadio, {
+                        id: 'exactMatchButtonBar',
+                        attrsAll: {style: {display: 'inline-block', width: 'auto'}},
+                        onclick: state => preferences.exactMatch = state === 'true',
+                        activeSection: String(preferences.exactMatch),
+                        sections: [{value: 'true'}, {value: 'false'}]
+                    }),
+
+                    m(Button, {
+                        id: 'augmentButton',
+                        style: {margin: '1em', float: 'right', 'data-spinner-color': 'black', 'data-style': 'zoom-in'},
+                        class: 'ladda-label ladda-button',
+                        disabled: !preferences.joinPairs.length,
+                        onclick: async () => {
+                            let sourceMode = preferences.sourceMode;
+
+                            let originalLeftColumns = Object.keys(app.preprocess);
+                            let originalRightColumns = preferences.selectedResult.metadata.variables.map(row => row.name);
+
+                            let joinLeftColumns = [];
+                            let joinRightColumns = [];
+
+                            preferences.joinPairs.forEach(pair => {
+                                joinLeftColumns.push(pair[0]
+                                    .map(leftCol => originalLeftColumns.indexOf(leftCol)));
+                                joinRightColumns.push(pair[1]
+                                    .map(rightCol => originalRightColumns.indexOf(rightCol)));
+                            });
+
+                            let ladda = Ladda.create(document.getElementById('augmentButton'));
+                            ladda.start();
+
+                            let response = await m.request(endpoint + 'augment', {
+                                method: 'POST',
+                                data: {
+                                    data_path: dataPath,
+                                    search_result: JSON.stringify(preferences.selectedResult),
+                                    source: preferences.sourceMode,
+                                    left_columns: JSON.stringify(joinLeftColumns),
+                                    right_columns: JSON.stringify(joinRightColumns),
+                                    exact_match: preferences.exactMatch
+                                }
+                            });
+                            ladda.stop();
+
+                            if (response.success) {
+                                delete preferences.error[sourceMode];
+                                preferences.success[sourceMode] = `Successful augmentation.`;
+                            } else {
+                                preferences.error[sourceMode] = response.data;
+                                delete preferences.success[sourceMode]
+                            }
+
+                            console.warn("#debug response augment");
+                            console.log(response);
+                        }
+                    }, 'Augment')),
+
                 m('h4[style=width:calc(50% - 1em);display:inline-block]', 'Left Join Columns'),
                 m('h4[style=width:calc(50% - 1em);display:inline-block]', 'Right Join Columns'),
 
-                m(PanelList, {
-                    id: 'leftColumns',
-                    items: app.valueKey,
-                    colors: {
-                        [app.hexToRgba(common.selVarColor)]: [...preferences.leftJoinVariables]
-                    },
-                    callback: variable => {
-                        preferences.leftJoinVariables.has(variable)
-                            ? preferences.leftJoinVariables.delete(variable)
-                            : preferences.leftJoinVariables.add(variable);
-                        setTimeout(m.redraw, 1000);
-                    },
-                    attrsAll: {style: {width: 'calc(50% - 1em)', display: 'inline-block', 'vertical-align': 'top'}}
-                }),
-                m(PanelList, {
-                    id: 'rightColumns',
-                    items: selectedResult.metadata.variables.map(variable => variable.name),
-                    colors: {
-                        [app.hexToRgba(common.selVarColor)]: [...preferences.rightJoinVariables]
-                    },
-                    callback: variable => {
-                        preferences.rightJoinVariables.has(variable)
-                            ? preferences.rightJoinVariables.delete(variable)
-                            : preferences.rightJoinVariables.add(variable);
-                        setTimeout(m.redraw, 1000);
-                    },
-                    attrsAll: {style: {width: 'calc(50% - 1em)', display: 'inline-block', 'vertical-align': 'top'}}
-                }),
-                m(Button, {
-                    onclick: async () => {
-
-                        let leftColumns = Object.keys(app.preprocess)
-                            .map((variable, i) => [variable, i])
-                            .filter(pair => preferences.leftJoinVariables.has(pair[0]))
-                            .map(pair => [pair[1]]);
-
-                        let rightColumns = preferences.selectedResult.metadata.variables
-                            .map((variable, i) => [variable, i])
-                            .filter(pair => preferences.rightJoinVariables.has(pair[0].name))
-                            .map(pair => [pair[1]]);
-
-                        let response = await m.request(endpoint + 'augment', {
-                            method: 'POST',
-                            data: {
-                                data_path: dataPath,
-                                search_result: JSON.stringify(preferences.selectedResult),
-                                source: preferences.sourceMode,
-                                left_columns: JSON.stringify(leftColumns),
-                                right_columns: JSON.stringify(rightColumns)
+                m('div', {style: {width: 'calc(50% - 1em)', display: 'inline-block', 'vertical-align': 'top'}},
+                    m(PanelList, {
+                        id: 'leftColumns',
+                        items: app.valueKey,
+                        colors: {
+                            [app.hexToRgba(common.selVarColor)]: [...preferences.leftJoinVariables]
+                        },
+                        callback: variable => {
+                            preferences.leftJoinVariables.has(variable)
+                                ? preferences.leftJoinVariables.delete(variable)
+                                : preferences.leftJoinVariables.add(variable);
+                            setTimeout(m.redraw, 1000);
+                        },
+                        attrsAll: {
+                            style: {
+                                background: 'rgba(0,0,0,.025)',
+                                'box-shadow': '0px 5px 10px rgba(0, 0, 0, .1)',
+                                'max-width': '30em',
+                                padding: '1em',
+                                margin: 'auto'
                             }
-                        });
-
-                        console.warn("#debug response augment");
-                        console.log(response);
-                    }
-                }, 'Augment')
+                        }
+                    })),
+                m('div', {style: {width: 'calc(50% - 1em)', display: 'inline-block', 'vertical-align': 'top'}},
+                    m(PanelList, {
+                        id: 'rightColumns',
+                        items: selectedResult.metadata.variables.map(variable => variable.name),
+                        colors: {
+                            [app.hexToRgba(common.selVarColor)]: [...preferences.rightJoinVariables]
+                        },
+                        callback: variable => {
+                            preferences.rightJoinVariables.has(variable)
+                                ? preferences.rightJoinVariables.delete(variable)
+                                : preferences.rightJoinVariables.add(variable);
+                            setTimeout(m.redraw, 1000);
+                        },
+                        attrsAll: {
+                            style: {
+                                background: 'rgba(0,0,0,.025)',
+                                'box-shadow': '0px 5px 10px rgba(0, 0, 0, .1)',
+                                'max-width': '30em',
+                                padding: '1em',
+                                margin: 'auto'
+                            }
+                        }
+                    }))
             ]
         ])
     }

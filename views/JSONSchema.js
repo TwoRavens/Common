@@ -4,7 +4,7 @@ import Table from "./Table";
 import TextField from "./TextField";
 import Dropdown from "./Dropdown";
 import TextFieldSuggestion from "./TextFieldSuggestion";
-import {glyph} from '../common.js';
+import {glyph, deepCopy} from '../common.js';
 
 // Generic component that constructs menus that mutate an instance of a JSON schema
 // There are a number of features in the JSON schema spec that aren't supported... but this is a good start
@@ -32,7 +32,7 @@ let prettifyText = text => text.replace(/_/g, ' ').split(' ').map(capitalizeFirs
 
 export default class Schema {
     oninit(vnode) {
-        this.schema = vnode.attrs.schema;
+        this.schema = deepCopy(vnode.attrs.schema);
     }
 
     view(vnode) {
@@ -109,7 +109,8 @@ export default class Schema {
                                 ...(schema.items.oneOf || [])
                                     .map(item => item.$ref.split('/').slice(-1)[0]),
                                 ...(schema.items.anyOf || [])
-                                    .map(item => item.$ref.split('/').slice(-1)[0])
+                                    .map(item => item.$ref.split('/').slice(-1)[0]),
+                                ...Object.keys(schema.items || {})
                             ],
                             activeItem: 'Add',
                             onclickChild: child => {
@@ -151,7 +152,7 @@ export default class Schema {
 
                         // TODO: better handling of multiple potential schemas. In this case, only the first non-null is used
                         if (!schema[child].type && 'anyOf' in schema[child]) {
-                            Object.assign(schema[child], schema[child].anyOf.find(childOpt => childOpt.type !== 'null'))
+                            Object.assign(schema[child], schema[child].anyOf.find(childOpt => childOpt.type !== 'null'));
                             delete schema[child].anyOf
                         }
                         // sometimes the type is a list, support the most general form
