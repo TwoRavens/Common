@@ -855,10 +855,10 @@ export default class Datamart {
                 ladda.start();
                 await materializeData(i);
                 ladda.stop();
-                m.redraw();
 
                 if (id in cached)
                     preferences.modalShown = 'preview';
+                m.redraw();
             }
         }, 'Preview');
 
