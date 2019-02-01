@@ -502,20 +502,6 @@ let indexSchema = {
                 },
             }
         },
-        "variables": {
-            "description": "Description of each variable/column of the dataset",
-            "anyOf": [
-                {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/variable_metadata"
-                    }
-                },
-                {
-                    "type": "null"
-                }
-            ]
-        },
         "additional_info": {
             "description": "Any other information which is useful",
             "type": [
@@ -1070,7 +1056,7 @@ export default class Datamart {
                         id: 'datamartScrapeTextField',
                         value: preferences.indexScrape,
                         placeholder: 'Url to webpage with tables',
-                        onchange: value => preferences.indexScrape = value,
+                        oninput: value => preferences.indexScrape = value,
                         onblur: value => preferences.indexScrape = value
                     }),
                     m(Button, {
@@ -1114,6 +1100,8 @@ export default class Datamart {
                             delete preferences.success[sourceMode]
                         } else
                             preferences.success[sourceMode] = `Dataset${responses.length === 1 ? '' : 's'} successfully indexed.`
+
+                        m.redraw()
                     }
                 }, 'Submit')
             ]
