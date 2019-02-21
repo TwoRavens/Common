@@ -952,6 +952,7 @@ export default class Datamart {
                                 // Datasets found!
                                 //
                                 delete preferences.error[sourceMode]; // remove error
+
                                 let numDatasetMsg = '';
                                 if (results[sourceMode].length > resultLimit){
                                   numDatasetMsg = 'Over ';
@@ -962,6 +963,7 @@ export default class Datamart {
                             }
                         } else {
                             // show the error message
+                            delete preferences.success[sourceMode]; // remove "success"
                             preferences.error[sourceMode] = response.message;
                         }
                         m.redraw();
@@ -1165,16 +1167,26 @@ export class ModalDatamart {
             ],
 
             preferences.modalShown === 'metadata' && [
-                m('h4', (getData(selectedResult, 'name') || '') + ' Metadata'),
-                m('label[style=width:100%]', 'Score: ' + getData(selectedResult, 'score') || 0),
+              m('h4', (getData(selectedResult, 'name') || '') + ' Metadata'),
+              m('label[style=width:100%]', 'Score: ' + getData(selectedResult, 'score') || 0),
+              m(Table, {
+                  data: {
+                      'Join Columns': getData(selectedResult, 'join_columns') || '(no join columns)',
+                      'Union Columns': getData(selectedResult, 'union_columns') || '(no join columns)'
+                  },
+                  tableTags: m('colgroup',
+                      m('col', {span: 1}),
+                      m('col', {span: 1, width: '30%'}))
+              }),
+              m('div[style=width:100%;overflow:auto]',
                 m(Table, {
-                    data: {
-                        'Join Columns': getData(selectedResult, 'join_columns'),
-                        'Union Columns': getData(selectedResult, 'union_columns')
-                    }
-                }),
-                m('div[style=width:100%;overflow:auto]', m(Table, {data: getData(selectedResult, 'data')}))
+                    data: getData(selectedResult, 'data'),
+                    // attrsCells: {'class': 'text-left'}, // {class: "text-left"},
+                  }
+                ),
+              ),
             ],
+
 
             preferences.modalShown === 'augment' && [
 
