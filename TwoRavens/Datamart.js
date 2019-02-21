@@ -700,6 +700,12 @@ export default class Datamart {
 
         let bold = value => m('div', {style: {'font-weight': 'bold', display: 'inline'}}, value);
 
+        // ---------------------------
+        // for debugging
+        // ---------------------------
+        let xmakeCard = ({key, color, summary}) => m('div', summary);
+        // ---------------------------
+
         let makeCard = ({key, color, summary}) => m('table', {
                 style: {
                     'background': common.menuColor,
@@ -929,20 +935,36 @@ export default class Datamart {
                         preferences.isSearching[sourceMode] = false;
 
                         if (response.success) {
-                            response.data.sort((a, b) =>
-                                getData(b, 'score') || 0 -
-                                getData(a, 'score') || 0);
+                            console.log('results are back! ' + JSON.stringify(response));
+                            // (moved sort to server side)
+                            // clear array and add results
                             results[sourceMode].length = 0;
                             results[sourceMode].push(...response.data);
 
+                            console.log('Num results: ' + results[sourceMode].length);
+
                             if (results[sourceMode].length === 0) {
-                                delete preferences.success[sourceMode];
+                                // No datasets found
+                                //
+                                delete preferences.success[sourceMode]; // remove "success"
                                 preferences.error[sourceMode] = 'No datasets found.';
                             } else {
-                                delete preferences.error[sourceMode];
-                                preferences.success[sourceMode] = (results[sourceMode].length === resultLimit ? 'Over ' : '') + `${results[sourceMode].length} datasets found.`;
+                                // Datasets found!
+                                //
+                                delete preferences.error[sourceMode]; // remove error
+                                let numDatasetMsg = '';
+                                if (results[sourceMode].length > resultLimit){
+                                  numDatasetMsg = 'Over ';
+                                }
+                                numDatasetMsg += `${results[sourceMode].length} datasets found.`;
+                                preferences.success[sourceMode] = numDatasetMsg;
+                                console.log('msg: ' + numDatasetMsg);
                             }
-                        } else preferences.error[sourceMode] = response.data;
+                        } else {
+                            // show the error message
+                            preferences.error[sourceMode] = response.message;
+                        }
+                        m.redraw();
                     }
                 }, 'Submit'),
 
@@ -957,8 +979,9 @@ export default class Datamart {
                 }),
 
                 m('div#datamartResults', results[preferences.sourceMode]
-                    .map((result, i) => makeCard({
-                        key: getData(result, 'name') || '',
+                     .map((result, i) => makeCard({
+                        key: m('', m('', getData(result, 'name') || ''),
+                                    m('p[style=font-weight:normal]', `(#${i+1})`)),
                         color: preferences.selectedResult === result ? common.selVarColor : common.grayColor,
                         summary: m('div',
                             m('label[style=width:100%]', 'Score: ' + getData(result, 'score')),
@@ -976,8 +999,8 @@ export default class Datamart {
                                 }
                             }))
                     }))
-                )
-            ],
+                 )
+             ],
             preferences.datamartMode === 'Index' && [
                 m('h5', 'Indexing is for adding your own datasets to datamart. You may upload a file or extract data from a link.'),
                 m(ButtonRadio, {
