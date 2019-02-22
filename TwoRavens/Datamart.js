@@ -783,7 +783,7 @@ export default class Datamart {
                 console.warn("#debug after submission of new dataset, response.data");
                 console.log(response.data);
             } else {
-                preferences.error[sourceMode] = response.data;
+                preferences.error[sourceMode] = response.message;
                 delete preferences.success[sourceMode]
             }
         };
