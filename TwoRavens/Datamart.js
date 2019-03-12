@@ -732,12 +732,12 @@ export default class Datamart {
 
         let materializeData = async i => {
             let id = getData(results[preferences.sourceMode][i], 'id');
+
             preferences.selectedResult = results[preferences.sourceMode][i];
 
             if (!(id in cached)) {
                 let sourceMode = preferences.sourceMode;
-
-                let response = await m.request(endpoint + 'materialize', {
+                let response = await m.request(endpoint + 'materialize-async', {
                     method: 'POST',
                     data: {
                         search_result: JSON.stringify(preferences.selectedResult),
@@ -745,17 +745,20 @@ export default class Datamart {
                     }
                 });
                 if (response.success) {
+                    /*
+                      - data now returned async
+                    console.log('materializeData response.data:', response.data);
                     cached[id] = response.data;
                     cached[id].data_preview = cached[id].data_preview
                         .split('\n').map(line => line.split(','));
 
-                    console.log('Materialized:', response.data);
-
-                    preferences.success[sourceMode] = 'Download initiated';
+                    // console.log('Materialized:', response.data);
+                    */
+                    preferences.success[sourceMode] = 'Preview initiated ...';
                     delete preferences.error[sourceMode];
                 } else {
                     delete preferences.success[sourceMode];
-                    preferences.error[sourceMode] = response.data;
+                    preferences.error[sourceMode] = response.message;
                 }
             }
             m.redraw();
@@ -1035,7 +1038,7 @@ export default class Datamart {
                                 });
 
                                 if (!response.success) {
-                                    preferences.error[sourceMode] = response.data;
+                                    preferences.error[sourceMode] = response.message;
                                     return;
                                 }
                             }
