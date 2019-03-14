@@ -1269,7 +1269,7 @@ export class ModalDatamart {
                         onclick: async () => {
                             let sourceMode = preferences.sourceMode;
 
-                            let originalLeftColumns = Object.keys(app.preprocess);
+                            let originalLeftColumns = app.getSelectedDataset().variablesInitial;
                             let originalRightColumns = preferences.selectedResult.metadata.variables.map(row => row.name);
 
                             let joinLeftColumns = [];
@@ -1327,7 +1327,7 @@ export class ModalDatamart {
                 m('div', {style: {width: 'calc(50% - 1em)', display: 'inline-block', 'vertical-align': 'top'}},
                     m(PanelList, {
                         id: 'leftColumns',
-                        items: app.valueKey,
+                        items: Object.keys(app.getSelectedProblem().preprocess),
                         colors: {
                             [app.hexToRgba(common.selVarColor)]: [...preferences.leftJoinVariables]
                         },
