@@ -745,6 +745,12 @@ export default class Datamart {
 
         let bold = value => m('div', {style: {'font-weight': 'bold', display: 'inline'}}, value);
 
+        // ---------------------------
+        // for debugging
+        // ---------------------------
+        let xmakeCard = ({key, color, summary}) => m('div', summary);
+        // ---------------------------
+
         let makeCard = ({key, color, summary}) => m('table', {
                 style: {
                     'background': common.menuColor,
@@ -771,12 +777,12 @@ export default class Datamart {
 
         let materializeData = async i => {
             let id = getData(results[preferences.sourceMode][i], 'id');
+
             preferences.selectedResult = results[preferences.sourceMode][i];
 
             if (!(id in cached)) {
                 let sourceMode = preferences.sourceMode;
-
-                let response = await m.request(endpoint + 'materialize', {
+                let response = await m.request(endpoint + 'materialize-async', {
                     method: 'POST',
                     data: {
                         search_result: JSON.stringify(preferences.selectedResult),
@@ -784,17 +790,20 @@ export default class Datamart {
                     }
                 });
                 if (response.success) {
+                    /*
+                      - data now returned async
+                    console.log('materializeData response.data:', response.data);
                     cached[id] = response.data;
                     cached[id].data_preview = cached[id].data_preview
                         .split('\n').map(line => line.split(','));
 
-                    console.log('Materialized:', response.data);
-
-                    preferences.success[sourceMode] = 'Download initiated';
+                    // console.log('Materialized:', response.data);
+                    */
+                    preferences.success[sourceMode] = 'Preview initiated ...';
                     delete preferences.error[sourceMode];
                 } else {
                     delete preferences.success[sourceMode];
-                    preferences.error[sourceMode] = response.data;
+                    preferences.error[sourceMode] = response.message;
                 }
             }
             m.redraw();
@@ -822,7 +831,7 @@ export default class Datamart {
                 console.warn("#debug after submission of new dataset, response.data");
                 console.log(response.data);
             } else {
-                preferences.error[sourceMode] = response.data;
+                preferences.error[sourceMode] = response.message;
                 delete preferences.success[sourceMode]
             }
         };
@@ -974,20 +983,38 @@ export default class Datamart {
                         preferences.isSearching[sourceMode] = false;
 
                         if (response.success) {
-                            response.data.sort((a, b) =>
-                                getData(b, 'score') || 0 -
-                                getData(a, 'score') || 0);
+                            console.log('results are back! ' + JSON.stringify(response));
+                            // (moved sort to server side)
+                            // clear array and add results
                             results[sourceMode].length = 0;
                             results[sourceMode].push(...response.data);
 
+                            console.log('Num results: ' + results[sourceMode].length);
+
                             if (results[sourceMode].length === 0) {
-                                delete preferences.success[sourceMode];
+                                // No datasets found
+                                //
+                                delete preferences.success[sourceMode]; // remove "success"
                                 preferences.error[sourceMode] = 'No datasets found.';
                             } else {
-                                delete preferences.error[sourceMode];
-                                preferences.success[sourceMode] = (results[sourceMode].length === resultLimit ? 'Over ' : '') + `${results[sourceMode].length} datasets found.`;
+                                // Datasets found!
+                                //
+                                delete preferences.error[sourceMode]; // remove error
+
+                                let numDatasetMsg = '';
+                                if (results[sourceMode].length > resultLimit){
+                                  numDatasetMsg = 'Over ';
+                                }
+                                numDatasetMsg += `${results[sourceMode].length} datasets found.`;
+                                preferences.success[sourceMode] = numDatasetMsg;
+                                console.log('msg: ' + numDatasetMsg);
                             }
-                        } else preferences.error[sourceMode] = response.data;
+                        } else {
+                            // show the error message
+                            delete preferences.success[sourceMode]; // remove "success"
+                            preferences.error[sourceMode] = response.message;
+                        }
+                        m.redraw();
                     }
                 }, 'Submit'),
 
@@ -1002,8 +1029,9 @@ export default class Datamart {
                 }),
 
                 m('div#datamartResults', results[preferences.sourceMode]
-                    .map((result, i) => makeCard({
-                        key: getData(result, 'name') || '',
+                     .map((result, i) => makeCard({
+                        key: m('', m('', getData(result, 'name') || ''),
+                                    m('p[style=font-weight:normal]', `(#${i+1})`)),
                         color: preferences.selectedResult === result ? common.selVarColor : common.grayColor,
                         summary: m('div',
                             m('label[style=width:100%]', 'Score: ' + getData(result, 'score')),
@@ -1021,8 +1049,8 @@ export default class Datamart {
                                 }
                             }))
                     }))
-                )
-            ],
+                 )
+             ],
             preferences.datamartMode === 'Index' && [
                 m('h5', 'Indexing is for adding your own datasets to datamart. You may upload a file or extract data from a link.'),
                 m(ButtonRadio, {
@@ -1055,7 +1083,7 @@ export default class Datamart {
                                 });
 
                                 if (!response.success) {
-                                    preferences.error[sourceMode] = response.data;
+                                    preferences.error[sourceMode] = response.message;
                                     return;
                                 }
                             }
@@ -1191,16 +1219,26 @@ export class ModalDatamart {
             ],
 
             preferences.modalShown === 'metadata' && [
-                m('h4', (getData(selectedResult, 'name') || '') + ' Metadata'),
-                m('label[style=width:100%]', 'Score: ' + getData(selectedResult, 'score') || 0),
+              m('h4', (getData(selectedResult, 'name') || '') + ' Metadata'),
+              m('label[style=width:100%]', 'Score: ' + getData(selectedResult, 'score') || 0),
+              m(Table, {
+                  data: {
+                      'Join Columns': getData(selectedResult, 'join_columns') || '(no join columns)',
+                      'Union Columns': getData(selectedResult, 'union_columns') || '(no join columns)'
+                  },
+                  tableTags: m('colgroup',
+                      m('col', {span: 1}),
+                      m('col', {span: 1, width: '30%'}))
+              }),
+              m('div[style=width:100%;overflow:auto]',
                 m(Table, {
-                    data: {
-                        'Join Columns': getData(selectedResult, 'join_columns'),
-                        'Union Columns': getData(selectedResult, 'union_columns')
-                    }
-                }),
-                m('div[style=width:100%;overflow:auto]', m(Table, {data: getData(selectedResult, 'data')}))
+                    data: getData(selectedResult, 'data'),
+                    // attrsCells: {'class': 'text-left'}, // {class: "text-left"},
+                  }
+                ),
+              ),
             ],
+
 
             preferences.modalShown === 'augment' && [
 
