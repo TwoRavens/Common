@@ -67,7 +67,7 @@ export default class Panel {
                     }
                 },
                 [
-                    m(`#${side}paneltitle.panel-heading.text-center`, m("h3.panel-title", label)),
+                    m(`#${side}paneltitle.panel-heading.text-center`, {style: {'margin-top': '.5em'}}, m("h4.panel-title", label)),
                     vnode.children
                 ])
         ])

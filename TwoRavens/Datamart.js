@@ -12,6 +12,7 @@ import ModalVanilla from "../views/ModalVanilla";
 import PanelList from "../views/PanelList";
 import TextField from "../views/TextField";
 import Dropdown from "../views/Dropdown";
+import Icon from "../../app/views/Icon";
 
 // maximum number of records to display at once
 let resultLimit = 100;
@@ -921,7 +922,7 @@ export default class Datamart {
                 m('div', {
                     style: {display: 'inline-block'},
                     onclick: () => delete preferences.error[preferences.sourceMode]
-                }, glyph('remove', {style: {margin: '1em'}})),
+                }, m(Icon, {name: 'x'})),
                 warn('Error:'), preferences.error[preferences.sourceMode]
             ]),
 
@@ -936,7 +937,7 @@ export default class Datamart {
                 m('div', {
                     style: {display: 'inline-block'},
                     onclick: () => delete preferences.success[preferences.sourceMode]
-                }, glyph('remove', {style: {margin: '1em'}})),
+                }, m(Icon, {name: 'x'})),
                 preferences.success[preferences.sourceMode]
             ]),
 
@@ -1253,7 +1254,7 @@ export class ModalDatamart {
                     m('div', {
                         style: {display: 'inline-block'},
                         onclick: () => delete preferences.error[preferences.sourceMode]
-                    }, glyph('remove', {style: {margin: '1em'}})),
+                    }, m(Icon, {name: 'x'})),
                     warn('Error:'), preferences.error[preferences.sourceMode]
                 ]),
 
@@ -1268,7 +1269,7 @@ export class ModalDatamart {
                     m('div', {
                         style: {display: 'inline-block'},
                         onclick: () => preferences.joinPairs.splice(preferences.joinPairs.findIndex(elem => elem === pair), 1)
-                    }, glyph('remove', {style: {margin: '1em'}})),
+                    }, m(Icon, {name: 'x'})),
                     `Joining [${pair[0].join(', ')}] with [${pair[1].join(', ')}]`
                 ])),
 

@@ -3,11 +3,11 @@
 import m from "mithril";
 
 export let panelMargin = '10px';
-export let heightHeader = '72px';
-export let heightFooter = '40px';
+export let heightHeader = '88px';
+export let heightFooter = '50px';
 
 export let menuColor = '#f9f9f9';
-export let borderColor = '1px solid #adadad';
+export let borderColor = '1px solid #bfbfbf';
 
 export let csColor = '#419641';
 export let dvColor = '#28a4c9';
