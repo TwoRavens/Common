@@ -1365,7 +1365,7 @@ export class ModalDatamart {
                 m('div', {style: {width: 'calc(50% - 1em)', display: 'inline-block', 'vertical-align': 'top'}},
                     m(PanelList, {
                         id: 'leftColumns',
-                        items: Object.keys(app.getSelectedProblem().preprocess),
+                        items: Object.keys(app.getSelectedProblem().summaries),
                         colors: {
                             [app.hexToRgba(common.selVarColor)]: [...preferences.leftJoinVariables]
                         },
