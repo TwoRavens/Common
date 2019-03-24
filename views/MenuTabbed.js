@@ -1,5 +1,6 @@
 import m from 'mithril';
 import ButtonRadio from "./ButtonRadio";
+import {mergeAttributes} from "../common";
 
 // ```
 // m(MenuTabbed, {
@@ -42,7 +43,15 @@ export default class MenuTabbed {
         }
 
         // Contents to render for the section
-        return m('#' + id, attrsAll, [
+        return m('', mergeAttributes( {
+            id,
+            style: {
+                display: 'flex',
+                margin: '4px',
+                'flex-direction': 'column',
+                height: '100%'
+            }
+        }, attrsAll), [
             m(ButtonRadio, {
                 id: id + 'ButtonBar',
                 onclick: callback,
@@ -65,8 +74,8 @@ export default class MenuTabbed {
                 .map(section => m(`div#tab${section['idSuffix'] || section['value']}`, {
                     style: {
                         display: section['value'] === currentTab ? 'block' : 'none',
-                        height: 'calc(100% - 39px)',
-                        overflow: 'auto'
+                        overflow: 'auto',
+                        flex: 1
                     }
                 }, section.contents))
         ]);
