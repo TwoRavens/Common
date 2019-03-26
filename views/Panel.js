@@ -41,7 +41,8 @@ export default class Panel {
 
         return m(`#${side}panel.card.sidepanel`, mergeAttributes({
             style: {
-                padding: '0 16px 0 0',
+                padding: '0',
+                ['padding-' + (side === 'left' ? 'right' : 'left')]: '16px',
                 background: menuColor,
                 width: panelOpen[side] ? width : 0,
                 height: `calc(100% - 2*${panelMargin} - ${heightHeader} - ${heightFooter} - ${canvasScroll['horizontal'] ? scrollbarWidth : 0}px)`,

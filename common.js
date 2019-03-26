@@ -19,6 +19,7 @@ export let nomColor = '#ff6600';
 export let varColor = '#f0f8ff'; // d3.rgb("aliceblue");
 export let taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
 export let timeColor = '#2d6ca2';
+export let weightColor = '#bf4d66';
 
 export let d3Color = '#1f77b4'; // d3's default blue
 export let selVarColor = '#fa8072'; // d3.rgb("salmon");
