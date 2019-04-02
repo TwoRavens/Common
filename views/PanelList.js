@@ -1,5 +1,6 @@
 import m from 'mithril';
 import {mergeAttributes, varColor} from '../common';
+import $ from 'jquery';
 
 // ```
 // m(PanelList, {
@@ -50,10 +51,10 @@ export default class PanelList {
 
                 // add popup if defined
                 popup ? {
-                    onmouseover: function() {$(this).popover('toggle')},
-                    onmouseout: function() {$(this).popover('toggle')},
+                    onmouseover: function() {$(this).popover('show')},
+                    onmouseout: function() {$(this).popover('hide')},
                     'data-container': 'body',
-                    'data-content': popup(item),
+                    'data-content': popup.content(item),
                     'data-html': 'true',
                     'data-original-title': item,
                     'data-placement': 'auto',
@@ -62,6 +63,7 @@ export default class PanelList {
                 } : {},
 
                 // add any additional attributes if passed
-                attrsItems), item)));
+                // attrsItems
+            ), item)));
     }
 }
