@@ -21,7 +21,7 @@ export default class MenuHeaders {
             .filter(section => section) // ignore undefined sections
             .map(section => m(`div#bin${section['idSuffix'] || section.value.replace(/\W/g, '_')}`,
                 m(`#header${section['idSuffix'] || section.value.replace(/\W/g, '_')}.card-header`,
-                    m("h3.card-title", section.value)),
+                    m("h4.card-title", section.value)),
                 section.contents))
         )
     }
