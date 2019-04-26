@@ -1,5 +1,5 @@
 import m from "mithril";
-import Popper from 'popper.js/index.js';
+import Popper from 'popper.js';
 import * as common from '../common';
 
 // Construct/place a popper upon hover of child content
@@ -31,6 +31,9 @@ export default class PopperWrapper {
     view({attrs, children}) {
         attrs.popperDuration = attrs.popperDuration || 100;
 
+        // don't bother setting up the popper if the popper has no content
+        if (!attrs.content) return children;
+
         return m('div',
             m('div', {
                 style: {
@@ -45,7 +48,8 @@ export default class PopperWrapper {
                     'background-color': common.menuColor,
                     padding: '.5em',
                     'border-radius': '.5em',
-                    'box-shadow': '0 1px 4px rgba(0, 0, 0, 0.4)'
+                    'box-shadow': '0 1px 4px rgba(0, 0, 0, 0.4)',
+                    'z-index': 10000
                 },
                 oncreate: ({dom}) => this.popperDom = dom,
                 onmouseover: () => clearTimeout(this.timeout),
