@@ -82,7 +82,7 @@ export default class ButtonRadio {
 
         this.active = activeSection || this.active;
         // Button bar
-        return m(`div#${id}.btn-group.btn-group${vertical ? '-vertical' : '-toggle'}[role=group][data-toggle=buttons]`,
+        return m(`div#${id}.btn-group.btn-group-toggle${vertical ? '.btn-group-vertical' : ''}[role=group][data-toggle=buttons]`,
             mergeAttributes({style: {'width': '100%'}}, attrsAll),
             sections.map(section =>
                 // Individual buttons
