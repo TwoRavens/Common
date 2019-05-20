@@ -246,6 +246,19 @@ popup returns the popup contents when called with the item. If not set, then pop
 ## Peek
 Widget for displaying a full-page data preview. Handle all logic for loading and preparing the data from within your app. There is code within Peek.js that belongs in the app you're implementing the preview for.
 
+
+## Popper
+Construct/place a popper upon hover of child content
+
+```
+m(Popper, {
+        content: () => 'popper content',
+        options: {placement: 'left', ...}, // specification for options: https://popper.js.org/popper-documentation.html#Popper.Defaults
+        popperDuration: 100 // time in ms to delay load/unload
+    }, 'child content')
+```
+
+
 ## Subpanel
 ```
 m(Subpanel, {

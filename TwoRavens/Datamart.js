@@ -6,12 +6,12 @@ import * as common from "../common";
 import Table from "../views/Table";
 import ListTags from "../views/ListTags";
 import ButtonRadio from "../views/ButtonRadio";
-import {glyph} from "../common";
 import * as app from "../../app/app";
 import ModalVanilla from "../views/ModalVanilla";
 import PanelList from "../views/PanelList";
 import TextField from "../views/TextField";
 import Dropdown from "../views/Dropdown";
+import Icon from "../../app/views/Icon";
 
 // maximum number of records to display at once
 let resultLimit = 100;
@@ -624,6 +624,49 @@ let indexSchema = {
     }
 };
 
+
+let joinSchema = {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://datamart.datadrivendiscovery.org/implicit.schema.json",
+    "title": "implicit variables",
+    "description": "Metadata describing a join's implicit variables",
+    "type": "object",
+    "properties": {
+        "implicit_variables": {
+            "description": "Description of each implicit variable of the dataset",
+            "type": "array",
+            "items": {
+                "implicit_variable": {
+                    "description": "implicit variables about the whole dataset, like the time coverage and entity coverage of the entire dataset. eg. A dataset from trading economics is about certain stocktickers, cannot be known from the dataset, should put it here",
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "description": "name of the variable",
+                            "type": "string"
+                        },
+                        "value": {
+                            "description": "value of the variable",
+                            "type": "string"
+                        },
+                        "semantic_type": {
+                            "description": "List of D3M semantic types",
+                            "type": [
+                                "array",
+                                "null"
+                            ],
+                            "items": {
+                                "type": "string",
+                                "format": "uri"
+                            }
+                        }
+                    }
+                },
+            }
+        }
+    }
+};
+
+
 let setDefault = (obj, id, value) => obj[id] = id in obj ? obj[id] : value;
 let warn = (text) => m('[style=color:#dc3545;display:inline-block;margin-right:1em;]', text);
 
@@ -680,6 +723,8 @@ export default class Datamart {
 
         setDefault(preferences, 'joinPairs', []);
         setDefault(preferences, 'exactMatch', true);
+
+        setDefault(preferences, 'implicitVariables', {implicit_variables: []});
     }
 
     view(vnode) {
@@ -876,7 +921,7 @@ export default class Datamart {
                 m('div', {
                     style: {display: 'inline-block'},
                     onclick: () => delete preferences.error[preferences.sourceMode]
-                }, glyph('remove', {style: {margin: '1em'}})),
+                }, m(Icon, {name: 'x'})),
                 warn('Error:'), preferences.error[preferences.sourceMode]
             ]),
 
@@ -891,7 +936,7 @@ export default class Datamart {
                 m('div', {
                     style: {display: 'inline-block'},
                     onclick: () => delete preferences.success[preferences.sourceMode]
-                }, glyph('remove', {style: {margin: '1em'}})),
+                }, m(Icon, {name: 'x'})),
                 preferences.success[preferences.sourceMode]
             ]),
 
@@ -1097,6 +1142,7 @@ export default class Datamart {
                         })
                     }, 'Submit')
                 ],
+
                 indices.map(index => m(`div[style=background:${common.menuColor}]`, m(JSONSchema, {
                     data: index,
                     schema: indexSchema
@@ -1111,7 +1157,7 @@ export default class Datamart {
                         let promises = indices.map((index, i) => m.request(endpoint + 'index', {
                             method: 'POST',
                             data: {
-                                indices: JSON.stringify(index),
+                                index: JSON.stringify(index),
                                 source: sourceMode
                             }
                         }).then(response => responses[i] = response));
@@ -1121,9 +1167,11 @@ export default class Datamart {
                         preferences.success[sourceMode] = 'Index ' + responses
                             .reduce((out, response, i) => response.success ? [...out, i] : out, []).join(', ') + ' successful.';
 
-                        preferences.indices = indices.filter((index, i) => !responses[i].success)
+                        preferences.indices = indices.filter((index, i) => !responses[i].success);
 
                         if (preferences.indices.length) {
+                            console.warn("#debug responses");
+                            console.log(responses);
                             preferences.error[sourceMode] = 'Some datasets failed uploading to datamart. The failed datasets are listed below.';
                             delete preferences.success[sourceMode]
                         } else
@@ -1150,7 +1198,8 @@ export class ModalDatamart {
         let {
             cached, // summary info and paths related to materialized datasets
             getData,
-            selectedResult
+            selectedResult,
+            implicitVariables
         } = preferences;
 
         if (!getData || !preferences.modalShown)
@@ -1204,7 +1253,7 @@ export class ModalDatamart {
                     m('div', {
                         style: {display: 'inline-block'},
                         onclick: () => delete preferences.error[preferences.sourceMode]
-                    }, glyph('remove', {style: {margin: '1em'}})),
+                    }, m(Icon, {name: 'x'})),
                     warn('Error:'), preferences.error[preferences.sourceMode]
                 ]),
 
@@ -1219,7 +1268,7 @@ export class ModalDatamart {
                     m('div', {
                         style: {display: 'inline-block'},
                         onclick: () => preferences.joinPairs.splice(preferences.joinPairs.findIndex(elem => elem === pair), 1)
-                    }, glyph('remove', {style: {margin: '1em'}})),
+                    }, m(Icon, {name: 'x'})),
                     `Joining [${pair[0].join(', ')}] with [${pair[1].join(', ')}]`
                 ])),
 
@@ -1258,7 +1307,7 @@ export class ModalDatamart {
                         onclick: async () => {
                             let sourceMode = preferences.sourceMode;
 
-                            let originalLeftColumns = Object.keys(app.preprocess);
+                            let originalLeftColumns = app.getSelectedDataset().variablesInitial;
                             let originalRightColumns = preferences.selectedResult.metadata.variables.map(row => row.name);
 
                             let joinLeftColumns = [];
@@ -1274,6 +1323,9 @@ export class ModalDatamart {
                             let ladda = Ladda.create(document.getElementById('augmentButton'));
                             ladda.start();
 
+                            // console.warn("#debug implicitVariables");
+                            // console.log(implicitVariables);
+
                             let response = await m.request(endpoint + 'augment', {
                                 method: 'POST',
                                 data: {
@@ -1282,7 +1334,8 @@ export class ModalDatamart {
                                     source: preferences.sourceMode,
                                     left_columns: JSON.stringify(joinLeftColumns),
                                     right_columns: JSON.stringify(joinRightColumns),
-                                    exact_match: preferences.exactMatch
+                                    exact_match: preferences.exactMatch,
+                                    // left_meta: JSON.stringify(implicitVariables)
                                 }
                             });
                             ladda.stop();
@@ -1290,6 +1343,7 @@ export class ModalDatamart {
                             if (response.success) {
                                 delete preferences.error[sourceMode];
                                 preferences.success[sourceMode] = `Successful augmentation.`;
+                                preferences.modalShown = false;
                             } else {
                                 preferences.error[sourceMode] = response.data;
                                 delete preferences.success[sourceMode]
@@ -1300,13 +1354,18 @@ export class ModalDatamart {
                         }
                     }, 'Augment')),
 
+                // m(`div[style=background:${common.menuColor}]`, m(JSONSchema, {
+                //     data: implicitVariables,
+                //     schema: joinSchema
+                // })),
+
                 m('h4[style=width:calc(50% - 1em);display:inline-block]', 'Left Join Columns'),
                 m('h4[style=width:calc(50% - 1em);display:inline-block]', 'Right Join Columns'),
 
                 m('div', {style: {width: 'calc(50% - 1em)', display: 'inline-block', 'vertical-align': 'top'}},
                     m(PanelList, {
                         id: 'leftColumns',
-                        items: app.valueKey,
+                        items: Object.keys(app.variableSummaries),
                         colors: {
                             [app.hexToRgba(common.selVarColor)]: [...preferences.leftJoinVariables]
                         },

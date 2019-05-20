@@ -5,6 +5,7 @@ import TextField from "./TextField";
 import Dropdown from "./Dropdown";
 import TextFieldSuggestion from "./TextFieldSuggestion";
 import {glyph, deepCopy} from '../common.js';
+import Icon from "../../app/views/Icon";
 
 // Generic component that constructs menus that mutate an instance of a JSON schema
 // There are a number of features in the JSON schema spec that aren't supported... but this is a good start
@@ -99,7 +100,7 @@ export default class Schema {
                 data: schema.type === 'array' && 'items' in schema ? [
                     ...data.map((elem, i) => [
                         value(i),
-                        m('div', {onclick: () => data.splice(i, 1)}, glyph('remove', {style: {margin: '1em 1em 1em 0em'}}))
+                        m('div', {onclick: () => data.splice(i, 1)}, m(Icon, {name: 'x', style: {margin: '1em 1em 1em 0em'}}))
                     ]),
                     [
                         m(Dropdown, {
@@ -125,7 +126,7 @@ export default class Schema {
                 ] : [
                     ...data.map((elem, i) => [
                         m(TextField, {value: elem, oninput: val => data[i] = val}),
-                        m('div', {onclick: () => data.splice(i, 1)}, glyph('remove', {style: {margin: '1em 1em 1em 0em'}}))
+                        m('div', {onclick: () => data.splice(i, 1)}, m(Icon, {name: 'x', style: {margin: '1em 1em 1em 0em'}}))
                     ]),
                     [m(TextField, {value: '', oninput: val => data.push(val)}), undefined]
                 ]
@@ -141,7 +142,7 @@ export default class Schema {
                     style: {'margin-top': '1em', 'font-weight': 'bold'}
                 }, prettifyText(key)),
                 value(key),
-                m('div', {onclick: () => delete data[key]}, glyph('remove', {style: {margin: '1em 1em 1em 0em'}}))
+                m('div', {onclick: () => delete data[key]}, m(Icon, {name: 'x', style: {margin: '1em 1em 1em 0em'}}))
             ]).concat(Object.keys(data).length === Object.keys(schema).length ? [] : [[
                 m(Dropdown, {
                     style: {float: 'left'},

@@ -11,7 +11,7 @@ import m from 'mithril'
 // ```
 
 export default class Button {
-    view(vnode) {
-        return m(`button.btn.btn-default`, vnode.attrs, vnode.children)
+    view({attrs, children}) {
+        return m(`button.btn.btn-secondary`, attrs, children)
     }
 }

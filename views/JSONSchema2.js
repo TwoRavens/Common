@@ -6,6 +6,7 @@ import Dropdown from "./Dropdown";
 import TextFieldSuggestion from "./TextFieldSuggestion";
 import {glyph, deepCopy} from '../common.js';
 import m from "mithril";
+import Icon from "../../app/views/Icon";
 
 let nestedStyle = {
     style: {
@@ -62,8 +63,8 @@ export default class Schema {
                 content = [
                     ...data.map((elem, i) => [
                         value(i),
-                        m('div', {onclick: () => data.splice(i, 1)},
-                            glyph('remove', {style: {margin: '1em 1em 1em 0em'}}))
+                        m('div', {onclick: () => data.splice(i, 1), style: {margin: '1em 1em 1em 0em'}},
+                            m(Icon, {name: 'x'}))
                     ]),
                     [
                         m(Dropdown, {
@@ -89,7 +90,8 @@ export default class Schema {
             } else content = [
                 ...data.map((elem, i) => [
                     m(TextField, {value: elem, oninput: val => data[i] = val}),
-                    m('div', {onclick: () => data.splice(i, 1)}, glyph('remove', {style: {margin: '1em 1em 1em 0em'}}))
+                    m('div', {onclick: () => data.splice(i, 1), style: {margin: '1em 1em 1em 0em'}},
+                        m(Icon, {name: 'x'}))
                 ]),
                 [
                     m(TextField, {value: '', oninput: val => data.push(val)}),

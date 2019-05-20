@@ -39,17 +39,17 @@ export default class Panel {
         else
             setPanelOcclusion(side, `calc(${panelMargin} + ${panelOpen[side] ? width : '16px'} + ${panelMargin} + ${scroll}px)`);
 
-        return m(`#${side}panel.container.sidepanel.clearfix`, mergeAttributes({
+        return m(`#${side}panel.card.sidepanel`, mergeAttributes({
             style: {
+                padding: '0',
+                ['padding-' + (side === 'left' ? 'right' : 'left')]: '16px',
                 background: menuColor,
-                border: borderColor,
                 width: panelOpen[side] ? width : 0,
                 height: `calc(100% - 2*${panelMargin} - ${heightHeader} - ${heightFooter} - ${canvasScroll['horizontal'] ? scrollbarWidth : 0}px)`,
                 position: 'fixed',
                 top: `calc(${heightHeader} + ${panelMargin})`,
                 [side]: `calc(${(side === 'right' && canvasScroll['vertical'] ? scrollbarWidth : 0)}px + ${panelMargin})`,
-                'z-index': 100,
-                'box-shadow': 'rgba(0, 0, 0, .2) 0px 3px 10px'
+                'z-index': 100
             }
         }, attrsAll), [
             // Panel handle
@@ -62,12 +62,11 @@ export default class Panel {
             m(`div${panelOpen[side] ? '' : '.closepanel'}`, {
                     style: {
                         width: 'calc(100% - 8px)', height: '100%',
-                        margin: '0 4px',
-                        display: panelOpen[side] ? 'block' : 'none'
+                        display: panelOpen[side] ? 'contents' : 'none'
                     }
                 },
                 [
-                    m(`#${side}paneltitle.panel-heading.text-center`, m("h3.panel-title", label)),
+                    m(`#${side}paneltitle.text-center`, {style: {'margin-top': '.5em'}}, m("h4.card-title", label)),
                     vnode.children
                 ])
         ])

@@ -1,5 +1,5 @@
 import m from 'mithril';
-import {mergeAttributes, panelOcclusion, heightFooter, heightHeader, scrollBarChanged} from "../common";
+import * as common from '../common';
 
 // Interface specification
 
@@ -18,21 +18,21 @@ import {mergeAttributes, panelOcclusion, heightFooter, heightHeader, scrollBarCh
 export default class Canvas {
     oncreate() {
         // Redraw if scroll bar status has changed
-        window.addEventListener('resize', () => {if (scrollBarChanged()) m.redraw()});
+        window.addEventListener('resize', () => {if (common.scrollBarChanged()) m.redraw()});
     }
 
     view(vnode) {
         let {attrsAll} = vnode.attrs;
-        return m('div', mergeAttributes({
+        return m('div', common.mergeAttributes({
             id: 'canvas',
             style: {
                 width: '100%',
-                height: `calc(100% - ${heightHeader} - ${heightFooter})`,
-                'padding-left': panelOcclusion['left'],
-                'padding-right': panelOcclusion['right'],
+                height: `calc(100% - ${common.heightHeader} - ${common.heightFooter})`,
+                'padding-left': common.panelOcclusion['left'],
+                'padding-right': common.panelOcclusion['right'],
                 position: 'fixed',
                 overflow: 'auto',
-                top: heightHeader
+                top: common.heightHeader
             }
         }, attrsAll), vnode.children)
     }

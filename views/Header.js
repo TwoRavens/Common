@@ -23,18 +23,18 @@ export default class Header {
     view(vnode) {
         let {image, aboutText, attrsInterface} = vnode.attrs;
 
-        // navbar-default is for bootstrap 3 compatibility
-        return m('nav.navbar.navbar-expand-lg.fixed-top.bg-light.navbar-default', mergeAttributes({
+        return m('nav.navbar.navbar-expand-lg.fixed-top.bg-light', mergeAttributes({
             style: {
                 'min-height': heightHeader,
                 'box-shadow': '0 0 4px #888',
                 'z-index': 1000,
                 'height': 'auto',
-                'margin-bottom': '0px'
+                'margin-bottom': '0px',
+                padding: '0px 1rem'
             }
         }, attrsInterface), [
             m("img.navbar-brand[alt=TwoRavens]", {
-                style: {height: '100%', 'max-height': heightHeader, 'max-width': '140px'},
+                style: {height: '100%', 'max-height': `calc(${heightHeader} - 16px)`, 'max-width': '140px'},
                 onmouseover: _ => this.about = true,
                 onmouseout: _ => this.about = false,
                 src: image
@@ -48,8 +48,8 @@ export default class Header {
                 style: {
                     display: 'none',
                     float: 'right',
-                    'margin-top': `calc(${heightHeader} / 2)`,
-                    'margin-bottom': `calc(-${heightHeader} / 2)`,
+                    'margin-top': `calc(calc(${heightHeader} - 16px) / 2)`,
+                    'margin-bottom': `calc(-calc(${heightHeader} - 16px) / 2)`,
                     'margin-right': '1em',
                     transform: 'translateY(-50%)',
                     position: 'relative',
@@ -68,8 +68,8 @@ export default class Header {
                         width: 'calc(100% - 140px)',
                         display: 'inline-grid',
                         float: 'right',
-                        'margin-top': `calc(${heightHeader} / 2)`,
-                        'margin-bottom': `calc(-${heightHeader} / 2)`,
+                        'margin-top': `calc(${heightHeader} / 2 - 8px)`,
+                        'margin-bottom': `calc(-${heightHeader} / 2 + 24px)`,
                         transform: 'translateY(-50%)'
                     }
                 },

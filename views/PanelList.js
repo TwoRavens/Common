@@ -1,5 +1,6 @@
 import m from 'mithril';
 import {mergeAttributes, varColor} from '../common';
+import Popper from './Popper';
 
 // ```
 // m(PanelList, {
@@ -23,7 +24,7 @@ import {mergeAttributes, varColor} from '../common';
 
 export default class PanelList {
     view(vnode) {
-        let {id, items, colors, classes, callback, popup, attrsAll, attrsItems} = vnode.attrs;
+        let {id, items, colors, classes, callback, popup, popupOptions, attrsAll, attrsItems} = vnode.attrs;
 
         // set alternate background-color if defined
         let viewColor = Object.create(null); // need object without default prototypal inheritance (avoids collisions)
@@ -37,8 +38,12 @@ export default class PanelList {
             for (let item of classes[css])
                 viewClass[item] ? viewClass[item].push(css) : viewClass[item] = [css];
 
+        let wrapPopper = (item, children) => popup
+            ? m(Popper, {content: () => popup(item), options: popupOptions}, children)
+            : children;
+
         return m(`div#${id}`, attrsAll, items.map((item) =>
-            m(`div#${id + item.replace(/\W/g, '_')}`, mergeAttributes({
+            wrapPopper(item, m(`div#${id + item.replace(/\W/g, '_')}`, mergeAttributes({
                     style: {
                         'margin-top': '5px',
                         'text-align': "center",
@@ -47,21 +52,8 @@ export default class PanelList {
                     'class': (viewClass[item] || []).join(' '),
                     onclick: () => (callback || Function)(item)
                 },
-
-                // add popup if defined
-                popup ? {
-                    onmouseover: function() {$(this).popover('toggle')},
-                    onmouseout: function() {$(this).popover('toggle')},
-                    'data-container': 'body',
-                    'data-content': popup(item),
-                    'data-html': 'true',
-                    'data-original-title': item,
-                    'data-placement': 'auto',
-                    'data-toggle': 'popover',
-                    'data-trigger': 'hover'
-                } : {},
-
                 // add any additional attributes if passed
-                attrsItems), item)));
+                attrsItems
+            ), item))));
     }
 }

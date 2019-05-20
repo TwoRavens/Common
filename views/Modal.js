@@ -1,4 +1,5 @@
 import m from 'mithril';
+import $ from 'jquery';
 
 let text = "Default modal text";
 let header = "Default modal header";

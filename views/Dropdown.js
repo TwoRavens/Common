@@ -27,7 +27,7 @@ export default class Dropdown {
         this.activeItem = activeItem || this.activeItem;
 
         return m('.dropdown[style=display: block]', [
-            m('button.btn.btn-default.btn-outline-secondary.dropdown-toggle',
+            m('button.btn.btn-secondary.dropdown-toggle',
                 mergeAttributes(vnode.attrs, {
                     onclick: () => {
                         this.isDropped = !this.isDropped;

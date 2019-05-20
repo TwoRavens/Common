@@ -82,13 +82,14 @@ export default class ButtonRadio {
 
         this.active = activeSection || this.active;
         // Button bar
-        return m(`div#${id}.btn-group${vertical ? '-vertical' : ''}[role=group][data-toggle=buttons]`,
+        return m(`div#${id}.btn-group.btn-group-toggle${vertical ? '.btn-group-vertical' : ''}[role=group][data-toggle=buttons]`,
             mergeAttributes({style: {'width': '100%'}}, attrsAll),
             sections.map(section =>
                 // Individual buttons
-                m(`#${section.id || 'btn' + section.value}.btn.btn-outline-secondary.btn-default
-                    ${section.value.toLowerCase() === (activeSection || this.active).toLowerCase() ? '.active' : ''}`,
+                m(`#${section.id || 'btn' + section.value}.btn.btn-secondary${
+                    section.value.toLowerCase() === (activeSection || this.active).toLowerCase() ? '.active' : ''}`,
                     mergeAttributes({
+                        class: section.value.toLowerCase() === (activeSection || this.active).toLowerCase() ? ['active'] : [''],
                         onmouseover: () => this.hovered = section.value,
                         onmouseout: () => this.hovered = undefined,
                         style: {width: getWidth(section.value)},
@@ -102,7 +103,8 @@ export default class ButtonRadio {
                         m(`input#${id}${section.value}`, {'name': id, 'title': section.title, 'type': 'radio'}),
                         section.value
                     ]
-                ))
+                )
+            )
         );
     }
 }
