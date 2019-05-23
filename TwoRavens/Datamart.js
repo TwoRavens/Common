@@ -714,7 +714,7 @@ export default class Datamart {
         setDefault(preferences, 'leftJoinVariables', new Set());
         setDefault(preferences, 'rightJoinVariables', new Set());
 
-        setDefault(preferences, 'datamartIndexMode', 'File');
+        setDefault(preferences, 'datamartIndexMode', 'Link');
 
         setDefault(preferences, 'indexLink', ''); // https://archive.ics.uci.edu/ml/machine-learning-databases/iris/bezdekIris.data
         setDefault(preferences, 'indexFileType', 'csv');
@@ -902,7 +902,10 @@ export default class Datamart {
             }
         }, 'Preview');
 
-        return m('div', {style: {width: '100%'}},
+        return m('div', {style: {width: '100%',
+                'overflow-y': 'scroll',
+                height: '100%'
+        }},
             m(ButtonRadio, {
                 id: 'datamartButtonBar',
                 onclick: state => preferences.datamartMode = state,
@@ -946,16 +949,17 @@ export default class Datamart {
                     schema: inputSchema
                 })),
 
-                m(ButtonRadio, {
-                    id: 'dataSourceButtonBar',
-                    onclick: state => {
-                        preferences.sourceMode = state;
-                        preferences.selectedResult = undefined;
-                    },
-                    activeSection: preferences.sourceMode,
-                    sections: [{value: 'ISI'}, {value: 'NYU'}],
-                    attrsAll: {style: {margin: '1em', width: 'auto'}}
-                }),
+                // m(ButtonRadio, {
+                //     id: 'dataSourceButtonBar',
+                //     onclick: state => {
+                //         preferences.sourceMode = state;
+                //         preferences.selectedResult = undefined;
+                //     },
+                //     activeSection: preferences.sourceMode,
+                //     sections: [{value: 'ISI'}, {value: 'NYU'}],
+                //     attrsAll: {style: {margin: '1em', width: 'auto'}},
+                //     attrsButtons: {style: {width: 'auto'}}
+                // }),
                 m(Button, {
                     style: {float: 'right', margin: '1em'},
                     disabled: preferences.isSearching[preferences.sourceMode],
@@ -1018,15 +1022,12 @@ export default class Datamart {
                     }
                 }, 'Submit'),
 
-                preferences.isSearching[preferences.sourceMode] && m('#loading.loader', {
-                    style: {
-                        margin: 'auto',
-                        'margin-top': '5em',
-                        position: 'relative',
-                        top: '40%',
-                        transform: 'translateY(-50%)'
-                    }
-                }),
+                preferences.isSearching[preferences.sourceMode] && m('div', {
+                        style: {height: '120px', margin: 'auto calc(50% - 60px)'}
+                    },
+                    m('#loading.loader', {
+                        style: {position: 'relative', transform: 'translateY(-50%)'}
+                    })),
 
                 m('div#datamartResults', results[preferences.sourceMode]
                      .map((result, i) => makeCard({
@@ -1052,12 +1053,16 @@ export default class Datamart {
                  )
              ],
             preferences.datamartMode === 'Index' && [
-                m('h5', 'Indexing is for adding your own datasets to datamart. You may upload a file or extract data from a link.'),
+                m('div', {style: {margin: '1em'}}, 'Indexing is for adding your own datasets to datamart. You may provide a ', bold('link'), ' to a file, or ', bold('scrape'), ' datasets from a website.'), // You may upload a file or extract data from a link.
                 m(ButtonRadio, {
                     id: 'datamartIndexMode',
                     onclick: state => preferences.datamartIndexMode = state,
                     activeSection: preferences.datamartIndexMode,
-                    sections: [{value: 'File'}, {value: 'Link'}, {value: 'Scrape'}]
+                    sections: [
+                        // {value: 'File'},
+                        {value: 'Link'},
+                        {value: 'Scrape'}
+                    ]
                 }),
                 preferences.datamartIndexMode === 'File' && [
                     m('label.btn.btn-default.btn-file', {style: {margin: '1em', display: 'inline-block'}}, [
