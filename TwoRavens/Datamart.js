@@ -918,14 +918,16 @@ export default class Datamart {
                     background: 'rgba(0,0,0,.05)',
                     'border-radius': '.5em',
                     'box-shadow': '0px 5px 10px rgba(0, 0, 0, .1)',
-                    margin: '10px 0'
+                    margin: '10px 0',
+                    padding: '1em'
                 }
             }, [
                 m('div', {
                     style: {display: 'inline-block'},
                     onclick: () => delete preferences.error[preferences.sourceMode]
                 }, m(Icon, {name: 'x'})),
-                warn('Error:'), preferences.error[preferences.sourceMode]
+                m('div', {style: {'margin-left': '1em', display: 'inline-block'}},
+                    warn('Error:'), preferences.error[preferences.sourceMode])
             ]),
 
             preferences.success[preferences.sourceMode] && m('div#successMessage', {
@@ -933,14 +935,16 @@ export default class Datamart {
                     background: 'rgba(0,0,0,.05)',
                     'border-radius': '.5em',
                     'box-shadow': '0px 5px 10px rgba(0, 0, 0, .1)',
-                    margin: '10px 0'
+                    margin: '10px 0',
+                    padding: '1em'
                 }
             }, [
-                m('div', {
+                m('div#successMessage', {
                     style: {display: 'inline-block'},
                     onclick: () => delete preferences.success[preferences.sourceMode]
                 }, m(Icon, {name: 'x'})),
-                preferences.success[preferences.sourceMode]
+                m('div', {style: {'margin-left': '1em', display: 'inline-block'}},
+                    preferences.success[preferences.sourceMode])
             ]),
 
             preferences.datamartMode === 'Search' && [
@@ -1252,14 +1256,16 @@ export class ModalDatamart {
                         background: 'rgba(0,0,0,.05)',
                         'border-radius': '.5em',
                         'box-shadow': '0px 5px 10px rgba(0, 0, 0, .1)',
-                        margin: '10px 0'
+                        margin: '10px 0',
+                        padding: '1em'
                     }
                 }, [
                     m('div', {
                         style: {display: 'inline-block'},
                         onclick: () => delete preferences.error[preferences.sourceMode]
                     }, m(Icon, {name: 'x'})),
-                    warn('Error:'), preferences.error[preferences.sourceMode]
+                    m('div', {style: {'margin-left': '1em', display: 'inline-block'}},
+                        warn('Error:'), preferences.error[preferences.sourceMode])
                 ]),
 
                 preferences.joinPairs.map((pair, i) => m('div#pairContainer' + i, {
@@ -1267,14 +1273,16 @@ export class ModalDatamart {
                         background: 'rgba(0,0,0,.05)',
                         'border-radius': '.5em',
                         'box-shadow': '0px 5px 10px rgba(0, 0, 0, .1)',
-                        margin: '10px 0'
+                        margin: '10px 0',
+                        padding: '1em'
                     }
                 }, [
                     m('div', {
                         style: {display: 'inline-block'},
                         onclick: () => preferences.joinPairs.splice(preferences.joinPairs.findIndex(elem => elem === pair), 1)
                     }, m(Icon, {name: 'x'})),
-                    `Joining [${pair[0].join(', ')}] with [${pair[1].join(', ')}]`
+                    m('div', {style: {'margin-left': '1em', display: 'inline-block'}},
+                        `Joining [${pair[0].join(', ')}] with [${pair[1].join(', ')}]`)
                 ])),
 
                 m('div',
@@ -1347,7 +1355,7 @@ export class ModalDatamart {
 
                             if (response.success) {
                                 delete preferences.error[sourceMode];
-                                preferences.success[sourceMode] = `Successful augmentation.`;
+                                preferences.success[sourceMode] = response.message;
                                 preferences.modalShown = false;
                             } else {
                                 preferences.error[sourceMode] = response.data;
