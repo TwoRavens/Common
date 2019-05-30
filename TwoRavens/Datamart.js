@@ -12,6 +12,7 @@ import PanelList from "../views/PanelList";
 import TextField from "../views/TextField";
 import Dropdown from "../views/Dropdown";
 import Icon from "../../app/views/Icon";
+import ButtonLadda from "../../app/views/LaddaButton";
 
 // maximum number of records to display at once
 let resultLimit = 100;
@@ -743,6 +744,18 @@ export default class Datamart {
             getData
         } = preferences;
 
+        let loader = m('div', {
+                style: {height: '120px', margin: 'auto calc(50% - 60px)'}
+            },
+            m('#loading.loader', {
+                style: {position: 'relative', transform: 'translateY(-50%)'}
+            }));
+
+        if (preferences.isAugmenting) return m('div',
+            m('h5', 'The system is performing an augmentation.'),
+            loader
+        );
+
         let bold = value => m('div', {style: {'font-weight': 'bold', display: 'inline'}}, value);
 
         // ---------------------------
@@ -851,7 +864,6 @@ export default class Datamart {
             }
         }, 'Download');
 
-        // TODO
         let buttonAugment = i => m(Button, {
             style: {'margin': '0em 0.25em'},
             onclick: async () => {
@@ -953,17 +965,17 @@ export default class Datamart {
                     schema: inputSchema
                 })),
 
-                // m(ButtonRadio, {
-                //     id: 'dataSourceButtonBar',
-                //     onclick: state => {
-                //         preferences.sourceMode = state;
-                //         preferences.selectedResult = undefined;
-                //     },
-                //     activeSection: preferences.sourceMode,
-                //     sections: [{value: 'ISI'}, {value: 'NYU'}],
-                //     attrsAll: {style: {margin: '1em', width: 'auto'}},
-                //     attrsButtons: {style: {width: 'auto'}}
-                // }),
+                m(ButtonRadio, {
+                    id: 'dataSourceButtonBar',
+                    onclick: state => {
+                        preferences.sourceMode = state;
+                        preferences.selectedResult = undefined;
+                    },
+                    activeSection: preferences.sourceMode,
+                    sections: [{value: 'ISI'}, {value: 'NYU'}],
+                    attrsAll: {style: {margin: '1em', width: 'auto'}},
+                    attrsButtons: {style: {width: 'auto'}}
+                }),
                 m(Button, {
                     style: {float: 'right', margin: '1em'},
                     disabled: preferences.isSearching[preferences.sourceMode],
@@ -1026,12 +1038,7 @@ export default class Datamart {
                     }
                 }, 'Submit'),
 
-                preferences.isSearching[preferences.sourceMode] && m('div', {
-                        style: {height: '120px', margin: 'auto calc(50% - 60px)'}
-                    },
-                    m('#loading.loader', {
-                        style: {position: 'relative', transform: 'translateY(-50%)'}
-                    })),
+                preferences.isSearching[preferences.sourceMode] && loader,
 
                 m('div#datamartResults', results[preferences.sourceMode]
                      .map((result, i) => makeCard({
@@ -1273,14 +1280,17 @@ export class ModalDatamart {
                         background: 'rgba(0,0,0,.05)',
                         'border-radius': '.5em',
                         'box-shadow': '0px 5px 10px rgba(0, 0, 0, .1)',
-                        margin: '10px 0',
+                        margin: '2em 0 1em 0',
                         padding: '1em'
                     }
                 }, [
                     m('div', {
                         style: {display: 'inline-block'},
-                        onclick: () => preferences.joinPairs.splice(preferences.joinPairs.findIndex(elem => elem === pair), 1)
-                    }, m(Icon, {name: 'x'})),
+                        onclick: () => {
+                            if (preferences.isAugmenting) return;
+                            preferences.joinPairs.splice(preferences.joinPairs.findIndex(elem => elem === pair), 1)
+                        }
+                    }, !preferences.isAugmenting && m(Icon, {name: 'x'})),
                     m('div', {style: {'margin-left': '1em', display: 'inline-block'}},
                         `Joining [${pair[0].join(', ')}] with [${pair[1].join(', ')}]`)
                 ])),
@@ -1289,9 +1299,9 @@ export class ModalDatamart {
                     m(Button, {
                         style: {margin: '1em'},
                         title: 'supply variables from both the left and right datasets',
-                        disabled: !preferences.leftJoinVariables.size || !preferences.rightJoinVariables.size,
+                        disabled: !preferences.leftJoinVariables.size || !preferences.rightJoinVariables.size || preferences.isAugmenting === true,
                         onclick: () => {
-                            if (!preferences.leftJoinVariables.size || !preferences.rightJoinVariables.size)
+                            if (!preferences.leftJoinVariables.size || !preferences.rightJoinVariables.size || preferences.isAugmenting)
                                 return;
 
                             preferences.joinPairs.push([
@@ -1307,17 +1317,22 @@ export class ModalDatamart {
                     m(ButtonRadio, {
                         id: 'exactMatchButtonBar',
                         attrsAll: {style: {display: 'inline-block', width: 'auto'}},
-                        onclick: state => preferences.exactMatch = state === 'true',
+                        onclick: state => {
+                            if (preferences.isAugmenting) return;
+                            preferences.exactMatch = state === 'true'
+                        },
                         activeSection: String(preferences.exactMatch),
                         sections: [{value: 'true'}, {value: 'false'}]
                     }),
 
-                    m(Button, {
+                    m(ButtonLadda, {
                         id: 'augmentButton',
-                        style: {margin: '1em', float: 'right', 'data-spinner-color': 'black', 'data-style': 'zoom-in'},
-                        class: 'ladda-label ladda-button',
-                        disabled: !preferences.joinPairs.length,
+                        style: {margin: '1em', float: 'right'},
+                        activeLadda: preferences.isAugmenting,
+                        disabled: !preferences.joinPairs.length || preferences.isAugmenting === true,
                         onclick: async () => {
+                            preferences.isAugmenting = true;
+
                             let sourceMode = preferences.sourceMode;
 
                             let originalLeftColumns = app.getRavenConfig().variablesInitial;
@@ -1332,9 +1347,6 @@ export class ModalDatamart {
                                 joinRightColumns.push(pair[1]
                                     .map(rightCol => originalRightColumns.indexOf(rightCol)));
                             });
-
-                            let ladda = Ladda.create(document.getElementById('augmentButton'));
-                            ladda.start();
 
                             // console.warn("#debug implicitVariables");
                             // console.log(implicitVariables);
@@ -1351,7 +1363,6 @@ export class ModalDatamart {
                                     // left_meta: JSON.stringify(implicitVariables)
                                 }
                             });
-                            ladda.stop();
 
                             if (response.success) {
                                 delete preferences.error[sourceMode];
@@ -1380,9 +1391,11 @@ export class ModalDatamart {
                         id: 'leftColumns',
                         items: Object.keys(app.variableSummaries),
                         colors: {
-                            [app.hexToRgba(common.selVarColor)]: [...preferences.leftJoinVariables]
+                            [app.hexToRgba(preferences.isAugmenting ? common.grayColor : common.selVarColor)]:
+                                [...preferences.leftJoinVariables]
                         },
                         callback: variable => {
+                            if (preferences.isAugmenting) return;
                             preferences.leftJoinVariables.has(variable)
                                 ? preferences.leftJoinVariables.delete(variable)
                                 : preferences.leftJoinVariables.add(variable);
@@ -1403,9 +1416,10 @@ export class ModalDatamart {
                         id: 'rightColumns',
                         items: selectedResult.metadata.variables.map(variable => variable.name),
                         colors: {
-                            [app.hexToRgba(common.selVarColor)]: [...preferences.rightJoinVariables]
+                            [app.hexToRgba(preferences.isAugmenting ? common.grayColor : common.selVarColor)]: [...preferences.rightJoinVariables]
                         },
                         callback: variable => {
+                            if (preferences.isAugmenting) return;
                             preferences.rightJoinVariables.has(variable)
                                 ? preferences.rightJoinVariables.delete(variable)
                                 : preferences.rightJoinVariables.add(variable);
