@@ -1335,7 +1335,7 @@ export class ModalDatamart {
 
                             let sourceMode = preferences.sourceMode;
 
-                            let originalLeftColumns = app.getRavenConfig().variablesInitial;
+                            let originalLeftColumns = app.workspace.raven_config.variablesInitial;
                             let originalRightColumns = preferences.selectedResult.metadata.variables.map(row => row.name);
 
                             let joinLeftColumns = [];
