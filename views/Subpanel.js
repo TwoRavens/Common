@@ -14,12 +14,18 @@ import Button from "./Button";
 // A box with a header. The header has a glyphicon chevron that shows/hides the contents.
 
 export default class Subpanel {
-    oninit() {
-        this.shown = true;
+    oninit({attrs}) {
+        if (attrs.defaultShown !== undefined)
+            this.shown = attrs.defaultShown;
+        else this.shown = true;
+        this.id = attrs.id;
     }
 
     view({attrs, children}) {
-        let {id, header, shown, setShown} = attrs;
+        let {id, header, shown, setShown, attrsBody} = attrs;
+
+        // if id is set, re-init if changed (side effect of dom node reuse)
+        if (this.id !== id) this.oninit({attrs});
 
         setShown = setShown || (state => this.shown = state);
 
@@ -41,7 +47,7 @@ export default class Subpanel {
                     //     'href': `#${id}Body`,
                     //     onclick: () => this.show = !this.show
                     // }))),
-            m(`div#${id}Body`, this.shown && m('div.card-body', children))
+            m(`div#${id}Body`, this.shown && m('div.card-body', attrsBody, children))
         );
     }
 }

@@ -154,6 +154,8 @@ function getScrollbarWidth() {
 export let deepCopy = value => {
     if (['undefined', 'number', 'string', 'boolean'].includes(typeof value))
         return value;
+
+    if (value instanceof Set) return new Set([...value].map(deepCopy));
     if (Array.isArray(value)) return value.map(deepCopy);
     if (typeof value === 'object') return Object.keys(value)
         .reduce((out, key) => Object.assign(out, {[key]: deepCopy(value[key])}), {});
