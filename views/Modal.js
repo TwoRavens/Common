@@ -44,7 +44,7 @@ export default class Modal {
                   m(".modal-body",
                     m("p", text)),
                   m(".modal-footer",
-                    m("button.btn.btn-default[type=button]",
+                    m("button.btn.btn-primary[type=button]",
                       {style: {display: btnDisplay, float: 'right'},
                         onclick: _ => {
                            if (close) {
