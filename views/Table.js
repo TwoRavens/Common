@@ -93,8 +93,6 @@ export default class Table {
             // sticky css applied on `th` for chrome compatibility https://bugs.chromium.org/p/chromium/issues/detail?id=702927
             style: {'font-weight': 'bold', 'z-index': 5, background: 'rgba(220,220,220,0.8)', padding: '0 .5em'},
             onclick: () => {
-                console.warn("#debug header");
-                console.log(header);
                 if (!sortable) return;
                 if (header === this.sortHeader) {
                     if (!this.sortDescending) this.setSortDescending(true);
