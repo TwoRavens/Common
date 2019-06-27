@@ -80,9 +80,11 @@ export default class ButtonRadio {
             }
         };
 
+        onclick = onclick || (state => this.active = state);
         this.active = activeSection || this.active;
+
         // Button bar
-        return m(`div#${id}.btn-group.btn-group-toggle${vertical ? '.btn-group-vertical' : ''}[role=group][data-toggle=buttons]`,
+        return m(`div#${id}.btn-group.btn-group-toggle${vertical ? '.btn-group-vertical' : ''}[role=group]`,
             mergeAttributes({style: {'width': '100%'}}, attrsAll),
             sections.map(section =>
                 // Individual buttons
@@ -95,8 +97,7 @@ export default class ButtonRadio {
                         style: {width: getWidth(section.value)},
                         onclick: (e) => {
                             e.preventDefault();
-                            this.active = section.value;
-                            onclick && onclick(section.value);
+                            onclick(section.value);
                         }
                     }, attrsButtons, section.attrsInterface),
                     [
