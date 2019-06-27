@@ -80,11 +80,6 @@ export let canvasScroll = {
     horizontal: false
 };
 
-export let glyph = (icon, attrs) => m(`span.glyphicon.glyphicon-${icon}`, mergeAttributes({
-    style: {color: '#818181', 'font-size': '1em', 'pointer-events': 'none'}
-}, attrs));
-
-
 // If scroll bar has been added or removed from canvas, update state and return true.
 export function scrollBarChanged() {
     let canvas = document.getElementById('canvas');

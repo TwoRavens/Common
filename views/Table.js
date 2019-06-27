@@ -1,6 +1,7 @@
 import m from 'mithril';
 
 import {selVarColor, mergeAttributes} from "../common";
+import Icon from "./Icon";
 
 // Interface specification
 //
@@ -55,8 +56,14 @@ export default class Table {
         let {attrsAll, attrsRows, attrsCells, tableTags} = vnode.attrs;
 
         // sorting
-        let {sortable, sortHeader, sortDescending, sortFunction} = vnode.attrs;
+        let {sortable, sortHeader, setSortHeader, sortDescending, setSortDescending, sortFunction} = vnode.attrs;
         sortFunction = sortFunction || omniSort;
+
+        this.sortHeader = sortHeader || this.sortHeader;
+        this.setSortHeader = setSortHeader || (header => this.sortHeader = header);
+
+        this.sortDescending = sortDescending || this.sortDescending;
+        this.setSortDescending = setSortDescending || (state => this.sortDescending = state);
 
         // optionally evaluate function to get data
         if (typeof data === 'function') data = data();
@@ -77,24 +84,26 @@ export default class Table {
         showUID = showUID !== false; // Default is 'true'
 
         let sortIcon = header => {
-            if (header !== sortHeader) return header;
+            if (header !== this.sortHeader) return header;
             return m('[style=text-align:center]', header, m('br'),
-                m(`span.glyphicon.glyphicon-chevron-${sortDescending ? 'up' : 'down'}[style=color: #818181; font-size: 1em; pointer-events: none]`));
+                m(Icon, {name: `triangle-${this.sortDescending ? 'up' : 'down'}`, style: 'color: #818181; font-size: 1em; pointer-events: none'}));
         };
 
         let valueHeader = header => m('th.table-header-sticky', {
             // sticky css applied on `th` for chrome compatibility https://bugs.chromium.org/p/chromium/issues/detail?id=702927
             style: {'font-weight': 'bold', 'z-index': 5, background: 'rgba(220,220,220,0.8)', padding: '0 .5em'},
             onclick: () => {
+                console.warn("#debug header");
+                console.log(header);
                 if (!sortable) return;
-                if (header === sortHeader) {
-                    if (!sortDescending) sortDescending = true;
+                if (header === this.sortHeader) {
+                    if (!this.sortDescending) this.setSortDescending(true);
                     else {
-                        sortDescending = undefined;
-                        sortHeader = undefined;
+                        this.setSortDescending(undefined);
+                        this.setSortHeader(undefined);
                     }
                 }
-                else sortHeader = header
+                else this.setSortHeader(header)
             }
         }, sortIcon(value(header)));
 
@@ -127,10 +136,10 @@ export default class Table {
             else return item;
         };
 
-        if (sortHeader) {
-            let index = data.some(row => !Array.isArray(row)) ? sortHeader : headers.indexOf(sortHeader);
+        if (this.sortHeader) {
+            let index = data.some(row => !Array.isArray(row)) ? this.sortHeader : headers.indexOf(this.sortHeader);
             data = data.sort((a, b) => sortFunction(a[index], b[index]));
-            if (sortDescending) data = data.slice().reverse();
+            if (this.sortDescending) data = data.slice().reverse();
         }
 
         return m(`table.table${id ? '#' + id : ''}`, mergeAttributes({style: {width: '100%'}}, attrsAll), [

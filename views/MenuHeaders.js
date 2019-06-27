@@ -26,3 +26,6 @@ export default class MenuHeaders {
         )
     }
 }
+
+let getSectionId = (value, index) => `bin${typeof value === 'string' ? value.replace(/\W/g, '_') : index}`
+

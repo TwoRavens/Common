@@ -4,9 +4,9 @@ import Table from "./Table";
 import TextField from "./TextField";
 import Dropdown from "./Dropdown";
 import TextFieldSuggestion from "./TextFieldSuggestion";
-import {glyph, deepCopy} from '../common.js';
+import {deepCopy} from '../common.js';
 import m from "mithril";
-import Icon from "../../app/views/Icon";
+import Icon from "./Icon";
 
 let nestedStyle = {
     style: {

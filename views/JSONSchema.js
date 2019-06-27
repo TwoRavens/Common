@@ -4,8 +4,8 @@ import Table from "./Table";
 import TextField from "./TextField";
 import Dropdown from "./Dropdown";
 import TextFieldSuggestion from "./TextFieldSuggestion";
-import {glyph, deepCopy} from '../common.js';
-import Icon from "../../app/views/Icon";
+import {deepCopy} from '../common.js';
+import Icon from "./Icon";
 
 // Generic component that constructs menus that mutate an instance of a JSON schema
 // There are a number of features in the JSON schema spec that aren't supported... but this is a good start

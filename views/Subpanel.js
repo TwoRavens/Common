@@ -1,6 +1,6 @@
 import m from 'mithril';
 import {mergeAttributes} from "../common";
-import Icon from "../../app/views/Icon";
+import Icon from "./Icon";
 import Button from "./Button";
 
 // ```
@@ -11,7 +11,7 @@ import Button from "./Button";
 // }, contents)
 // ```
 
-// A box with a header. The header has a glyphicon chevron that shows/hides the contents.
+// A box with a header. The header has a chevron that shows/hides the contents.
 
 export default class Subpanel {
     oninit({attrs}) {
@@ -38,15 +38,10 @@ export default class Subpanel {
             attrs),
             m(".card-header", {onclick: () => setShown(!this.shown)},
                 m("h4.card-title", {style: {'margin-bottom': '0'}}, header,
-                    m(Icon, {style: 'margin:.25em 0 0 .5em;float:right', name: 'triangle-' + (this.shown ? 'down' : 'up')}))),
-
-                    // m(`span.glyphicon.glyphicon-large.glyphicon-chevron-${this.show ? 'down' : 'up'}`, {
-                    //     style: {float: 'right', 'margin-left': '.5em'},
-                    //     'data-toggle': 'collapse',
-                    //     'data-target': `#${id}Body`,
-                    //     'href': `#${id}Body`,
-                    //     onclick: () => this.show = !this.show
-                    // }))),
+                    m(Icon, {
+                        style: 'margin:.25em 0 0 .5em;float:right',
+                        name: 'triangle-' + (this.shown ? 'down' : 'up')
+                    }))),
             m(`div#${id}Body`, this.shown && m('div.card-body', attrsBody, children))
         );
     }

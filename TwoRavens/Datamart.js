@@ -11,7 +11,7 @@ import ModalVanilla from "../views/ModalVanilla";
 import PanelList from "../views/PanelList";
 import TextField from "../views/TextField";
 import Dropdown from "../views/Dropdown";
-import Icon from "../../app/views/Icon";
+import Icon from "../views/Icon";
 import ButtonLadda from "../../app/views/LaddaButton";
 
 // maximum number of records to display at once

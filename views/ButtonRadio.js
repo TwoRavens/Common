@@ -96,7 +96,7 @@ export default class ButtonRadio {
                         onclick: (e) => {
                             e.preventDefault();
                             this.active = section.value;
-                            onclick(section.value);
+                            onclick && onclick(section.value);
                         }
                     }, attrsButtons, section.attrsInterface),
                     [
