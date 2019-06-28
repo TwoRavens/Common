@@ -134,10 +134,12 @@ export default class Table {
             else return item;
         };
 
-        if (this.sortHeader) {
+        if (headers && this.sortHeader) {
             let index = data.some(row => !Array.isArray(row)) ? this.sortHeader : headers.indexOf(this.sortHeader);
-            data = data.sort((a, b) => sortFunction(a[index], b[index]));
-            if (this.sortDescending) data = data.slice().reverse();
+            if (index >= 0) {
+                data = data.sort((a, b) => sortFunction(a[index], b[index]));
+                if (this.sortDescending) data = data.slice().reverse();
+            }
         }
 
         return m(`table.table${id ? '#' + id : ''}`, mergeAttributes({style: {width: '100%'}}, attrsAll), [
