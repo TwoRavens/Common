@@ -33,7 +33,10 @@ export default class Dropdown {
                         this.isDropped = !this.isDropped;
                     },
                     onblur: () => {
-                        setTimeout(() => this.isDropped = false, 100);
+                        setTimeout(() => {
+                            this.isDropped = false;
+                            m.redraw();
+                        }, 100);
                     },
                     'data-toggle': 'dropdown'
                 }), [
