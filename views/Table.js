@@ -59,10 +59,10 @@ export default class Table {
         let {sortable, sortHeader, setSortHeader, sortDescending, setSortDescending, sortFunction} = vnode.attrs;
         sortFunction = sortFunction || omniSort;
 
-        this.sortHeader = sortHeader || this.sortHeader;
+        if (sortHeader !== undefined) this.sortHeader = sortHeader;
         this.setSortHeader = setSortHeader || (header => this.sortHeader = header);
 
-        this.sortDescending = sortDescending || this.sortDescending;
+        if (sortDescending !== undefined) this.sortDescending = sortDescending;
         this.setSortDescending = setSortDescending || (state => this.sortDescending = state);
 
         // optionally evaluate function to get data
@@ -136,7 +136,7 @@ export default class Table {
 
         if (headers && this.sortHeader) {
             let index = data.some(row => !Array.isArray(row)) ? this.sortHeader : headers.indexOf(this.sortHeader);
-            if (index >= 0) {
+            if (typeof index === 'string' || index >= 0) {
                 data = data.sort((a, b) => sortFunction(a[index], b[index]));
                 if (this.sortDescending) data = data.slice().reverse();
             }
