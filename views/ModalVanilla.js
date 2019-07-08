@@ -11,8 +11,22 @@ import * as common from '../common';
 // I wrote this because I wanted a non-jquery alternative with a less-specific specification -Shoeboxam
 
 export default class ModalVanilla {
+    oninit(vnode) {
+        this.setDisplay = vnode.attrs.setDisplay;
+        this.escapeKeyCallback = e => {
+            if (!['Escape', 'Esc'].includes(e.key)) return;
+            this.setDisplay(false);
+            m.redraw()
+        };
+        window.addEventListener('keydown', this.escapeKeyCallback, true);
+    }
+
+    onbeforeremove() {
+        window.removeEventListener("keydown", this.escapeKeyCallback, true);
+    }
+
     view(vnode) {
-        let {id, setDisplay} = vnode.attrs;
+        let {id} = vnode.attrs;
 
         return m(`div#modalBackground${id}`, {
             style: {
@@ -26,7 +40,7 @@ export default class ModalVanilla {
                 overflow: 'auto',
                 'background-color': 'rgba(0,0,0,0.4)'
             },
-            onclick: () => setDisplay(false)
+            onclick: () => this.setDisplay(false)
         }, m(`div#modalBox${id}`, {
             style: {
                 'background-color': common.menuColor,
@@ -38,7 +52,7 @@ export default class ModalVanilla {
             },
             onclick: (e) => e.stopPropagation()
         }, m(`div#modalCancel${id}`, {
-            onclick: () => setDisplay(false),
+            onclick: () => this.setDisplay(false),
             style: {
                 display: 'inline-block',
                 'margin-right': '0.5em',
