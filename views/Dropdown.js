@@ -54,7 +54,8 @@ export default class Dropdown {
                 },
                 items.map((item) => m('li.dropdown-item', {
                     value: item,
-                    onclick: () => {
+                    // using mousedown because onclick stopped registering clicks?
+                    onmousedown: () => {
                         this.activeItem = item;
                         this.isDropped = false;
                         onclickChild(item);
