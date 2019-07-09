@@ -29,7 +29,7 @@ export default class PopperWrapper {
     }
 
     view({attrs, children}) {
-        attrs.popperDuration = attrs.popperDuration || 100;
+        attrs.popperDuration = attrs.popperDuration || 1000;
 
         // don't bother setting up the popper if the popper has no content
         if (!attrs.content) return children;
@@ -63,8 +63,10 @@ export default class PopperWrapper {
                 onmouseover: () => {
                     clearTimeout(this.timeout);
                     this.timeout = setTimeout(
-                        () => this.popper = this.popper || new Popper(
-                            this.popperRoot, this.popperDom, attrs.options))
+                        () => {
+                            this.popper = this.popper || new Popper(this.popperRoot, this.popperDom, attrs.options);
+                            m.redraw()
+                        }, attrs.popperDuration)
                 },
                 onmouseout: () => this.timeout = setTimeout(() => {
                     this.popper = undefined;
