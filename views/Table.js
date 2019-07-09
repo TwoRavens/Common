@@ -18,6 +18,7 @@ import Icon from "./Icon";
 //     attrsRows: { apply attributes to each row }, (optional)
 //     attrsCells: { apply attributes to each cell } (optional)
 //     tableTags: [ m('colgroup', ...), m('caption', ...), m('tfoot', ...)]
+//     rowClasses: {[class]: ['id1', 'id2']}, (optional)
 //     abbreviation: (int),
 //     sortable: (boolean)
 //     })
@@ -53,7 +54,7 @@ export default class Table {
         let {id, data, headers, activeRow, onclick, showUID, abbreviation} = vnode.attrs;
 
         // Interface custom attributes
-        let {attrsAll, attrsRows, attrsCells, tableTags} = vnode.attrs;
+        let {attrsAll, attrsRows, attrsCells, tableTags, rowClasses} = vnode.attrs;
 
         // sorting
         let {sortable, sortHeader, setSortHeader, sortDescending, setSortDescending, sortFunction} = vnode.attrs;
@@ -64,6 +65,11 @@ export default class Table {
 
         if (sortDescending !== undefined) this.sortDescending = sortDescending;
         this.setSortDescending = setSortDescending || (state => this.sortDescending = state);
+
+        let viewClass = Object.create(null); // need object without default prototypal inheritance
+        for (let css of Object.keys(rowClasses || {}))
+            for (let item of rowClasses[css])
+                viewClass[item] ? viewClass[item].push(css) : viewClass[item] = [css];
 
         // optionally evaluate function to get data
         if (typeof data === 'function') data = data();
@@ -159,7 +165,8 @@ export default class Table {
 
                     return m('tr', mergeAttributes(
                         i % 2 === 1 ? {style: {background: 'rgba(0,0,0,.02)'}} : {},
-                        isActive ? {style: {'background': selVarColor}} : {}, attrsRows),
+                        isActive ? {style: {'background': selVarColor}} : {}, attrsRows,
+                        (row[0] in viewClass) ? {class: viewClass[row[0]]} : {}),
                         row.filter((item, j) => j !== 0 || showUID).map((item, j) =>
                             m('td', mergeAttributes(onclick ? {onclick: () => onclick(row[0], j)} : {}, attrsCells), value(item)))
                     )
