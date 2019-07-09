@@ -80,8 +80,8 @@ export default class ButtonRadio {
             }
         };
 
-        onclick = onclick || (state => this.active = state);
-        this.active = activeSection || this.active;
+        onclick = onclick || (state => this.active = String(state));
+        if (activeSection !== undefined) this.active = String(activeSection);
 
         // Button bar
         return m(`div#${id}.btn-group.btn-group-toggle${vertical ? '.btn-group-vertical' : ''}[role=group]`,
@@ -89,12 +89,12 @@ export default class ButtonRadio {
             sections.map(section =>
                 // Individual buttons
                 m(`#${section.id || 'btn' + section.value}.btn.btn-secondary${
-                    section.value.toLowerCase() === (activeSection || this.active).toLowerCase() ? '.active' : ''}`,
+                    String(section.value).toLowerCase() === this.active.toLowerCase() ? '.active' : ''}`,
                     mergeAttributes({
-                        class: section.value.toLowerCase() === (activeSection || this.active).toLowerCase() ? ['active'] : [''],
-                        onmouseover: () => this.hovered = section.value,
+                        class: String(section.value).toLowerCase() === this.active.toLowerCase() ? ['active'] : [''],
+                        onmouseover: () => this.hovered = String(section.value),
                         onmouseout: () => this.hovered = undefined,
-                        style: {width: getWidth(section.value)},
+                        style: {width: getWidth(String(section.value))},
                         onclick: (e) => {
                             e.preventDefault();
                             onclick(section.value);
