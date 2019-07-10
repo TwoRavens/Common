@@ -19,12 +19,13 @@ export default class Dropdown {
     oninit(vnode) {
         let {activeItem, items} = vnode.attrs;
         this.isDropped = false;
-        this.activeItem = activeItem || items[0];
+        if (activeItem === undefined) this.activeItem = items[0];
+        else this.activeItem = activeItem
     }
 
     view(vnode) {
         let {id, items, activeItem, onclickChild, dropWidth} = vnode.attrs;
-        this.activeItem = activeItem || this.activeItem;
+        if (activeItem !== undefined) this.activeItem = activeItem;
 
         return m('.dropdown[style=display: block]', [
             m('button.btn.btn-secondary.dropdown-toggle',
