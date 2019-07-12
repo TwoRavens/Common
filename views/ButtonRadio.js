@@ -39,6 +39,7 @@ export default class ButtonRadio {
         let {activeSection, defaultSection, sections} = vnode.attrs;
         // Attempt to set active on initial load based on options
         this.active = activeSection || defaultSection || sections.length !== 0 ? sections[0].value : undefined;
+        if (this.active) this.active = String(this.active);
     }
 
     view(vnode) {
