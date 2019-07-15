@@ -80,6 +80,9 @@ export default class Table {
         // optionally render Objects as tables of key and value columns
         if (!Array.isArray(data)) data = Object.keys(data).map(key => [key, data[key]]);
 
+        // drop invalid rows
+        data = data.filter(row => row !== undefined && row !== null);
+
         // deduce headers if passed an array of objects
         if (headers === undefined && data.some(row => !Array.isArray(row))) {
             let headersTemp = new Set();
@@ -155,8 +158,6 @@ export default class Table {
             ]),
 
             ...data.map((row, i) => {
-                    if (row === null || row === undefined) return;
-
                     // if a row is an Object of "header": "value" items, then convert to array with proper spacing
                     if (headers && !Array.isArray(row)) row = headers.map(header => row[header]);
 
