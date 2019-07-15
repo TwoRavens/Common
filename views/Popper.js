@@ -12,15 +12,22 @@ import * as common from '../common';
 //     }, 'child content')
 // ```
 
+// only display one popper at a time
+let globalPopperId;
+let popperCount = 0;
+
 export default class PopperWrapper {
     constructor() {
         this.popper = undefined;
         this.popperDom = undefined;
         this.popperRoot = undefined;
         this.timeout = undefined;
+        this.popperId = popperCount++;
     }
 
     onupdate() {
+        // recompute best position of popper
+        // deterministic, will only find better location if page layout has changed
         if (this.popper) this.popper.update()
     }
 
@@ -29,18 +36,19 @@ export default class PopperWrapper {
     }
 
     view({attrs, children}) {
-        attrs.popperDuration = attrs.popperDuration || 1000;
+        attrs.popperDuration = attrs.popperDuration || 200;
 
         // don't bother setting up the popper if the popper has no content
         if (!attrs.content) return children;
 
-        return m('div',
-            m('div', {
+        return [
+            // ACTUAL POPPER
+            m('div#popper', {
                 style: {
                     // animations
                     position: 'absolute',
-                    visibility: this.popper ? 'visible' : 'hidden',
-                    opacity: this.popper ? 1 : 0,
+                    visibility: this.popperId === globalPopperId && this.popper ? 'visible' : 'hidden',
+                    opacity: this.popperId === globalPopperId && this.popper ? 1 : 0,
                     'margin-top': this.popper ? '0px' : '10px',
                     'transition': 'opacity 0.4s ease, margin-top 0.4s ease',
 
@@ -52,27 +60,38 @@ export default class PopperWrapper {
                     'z-index': 10000
                 },
                 oncreate: ({dom}) => this.popperDom = dom,
+                // don't clear popper if mouse is over popper
                 onmouseover: () => clearTimeout(this.timeout),
                 onmouseout: () => this.timeout = setTimeout(() => {
                     this.popper = undefined;
                     m.redraw()
                 }, attrs.popperDuration)
             }, this.popper && attrs.content()),
-            m('div', {
+
+            // WRAPPED ELEMENT, popper appears when hovered over
+            m('div#popperWrapper', {
                 oncreate: ({dom}) => this.popperRoot = dom,
                 onmouseover: () => {
+                    // potentially disable pending timer for turning off popup
                     clearTimeout(this.timeout);
+                    // wait to enable popper, because immediately showing popper is annoying
                     this.timeout = setTimeout(
                         () => {
+                            globalPopperId = this.popperId;
                             this.popper = this.popper || new Popper(this.popperRoot, this.popperDom, attrs.options);
                             m.redraw()
                         }, attrs.popperDuration)
                 },
-                onmouseout: () => this.timeout = setTimeout(() => {
-                    this.popper = undefined;
-                    m.redraw()
-                }, attrs.popperDuration)
+                onmouseout: () => {
+                    // potentially disable pending timer for turning on popup
+                    clearTimeout(this.timeout);
+                    // wait to disable popper, for moving cursor to popper diagonally
+                    this.timeout = setTimeout(() => {
+                        this.popper = undefined;
+                        m.redraw()
+                    }, attrs.popperDuration)
+                }
             }, children)
-        )
+        ]
     }
 }
