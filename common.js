@@ -155,3 +155,20 @@ export let deepCopy = value => {
     if (typeof value === 'object') return Object.keys(value)
         .reduce((out, key) => Object.assign(out, {[key]: deepCopy(value[key])}), {});
 };
+
+export let loader = id => m('div', {
+        style: {height: '120px', margin: 'auto calc(50% - 60px)'}
+    },
+    m(`#loading${id}.loader`, {
+        style: {position: 'relative', transform: 'translateY(-50%)'}
+    }));
+
+export let loaderSmall = id => m(`#loading${id}.loader-small`, {
+    style: {
+        display: 'inline-block',
+        margin: 'auto',
+        position: 'relative',
+        top: '40%',
+        transform: 'translateY(-50%)'
+    }
+});
