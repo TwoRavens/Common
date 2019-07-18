@@ -81,7 +81,7 @@ export default class Table {
         if (!Array.isArray(data)) data = Object.keys(data).map(key => [key, data[key]]);
 
         // drop invalid rows
-        data = data.filter(row => row !== undefined && row !== null);
+        data = data.filter(row => row !== undefined && row !== null && row !== false);
 
         // deduce headers if passed an array of objects
         if (headers === undefined && data.some(row => !Array.isArray(row))) {
