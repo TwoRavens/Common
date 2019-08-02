@@ -10,7 +10,7 @@ import {mergeAttributes} from "../common";
 export default class Checkbox {
     view({attrs}) {
         return m('input[type=checkbox]', mergeAttributes({}, attrs, {
-            onclick: () => attrs.onclick(!attrs.checked)
+            onclick: () => (attrs.onclick || (_ => _))(!attrs.checked)
         }))
     }
 }
