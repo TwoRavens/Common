@@ -57,7 +57,7 @@ export default class MenuTabbed {
                 height: '100%'
             }
         }, attrsAll), [
-            m(ButtonRadio, {
+            visibleButtons.length > 0 && m(ButtonRadio, {
                 id: id + 'ButtonBar',
                 onclick: callback,
                 sections: visibleButtons,
@@ -66,7 +66,7 @@ export default class MenuTabbed {
                 activeSection: this.currentTab,
                 selectWidth: selectWidth
             }),
-            m(ButtonRadio, {
+            invisibleButtons.length > 0 && m(ButtonRadio, {
                 id: id + 'ButtonBarHidden',
                 onclick: callback,
                 sections: invisibleButtons,
