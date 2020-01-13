@@ -9,17 +9,23 @@ export let heightFooter = '50px';
 export let menuColor = '#f9f9f9';
 export let borderColor = '1px solid #bfbfbf';
 
-export let csColor = '#419641';
-export let dvColor = '#28a4c9';
 export let gr1Color = '#14bdcc';  // initially was #24a4c9', but that is dvColor, and we track some properties by color assuming them unique
-export let gr2Color = '#ffcccc';
+export let gr2Color = '#79af4f';
 
 export let grayColor = '#c0c0c0';
+
 export let nomColor = '#ff6600';
-export let varColor = '#f0f8ff'; // d3.rgb("aliceblue");
-export let taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
+export let csColor = '#419641';
+export let boundaryColor = '#3cc394';
+export let locationColor = '#d23e3e';
 export let timeColor = '#2d6ca2';
 export let weightColor = '#bf4d66';
+export let indexColor = '#797478';
+export let matchedColor = '#330b0b';
+export let privilegedColor = '#9a55c0';
+
+export let taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
+export let varColor = '#f0f8ff'; // d3.rgb("aliceblue");
 
 export let d3Color = '#1f77b4'; // d3's default blue
 export let selVarColor = '#fa8072'; // d3.rgb("salmon");
