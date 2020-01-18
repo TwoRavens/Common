@@ -23,6 +23,7 @@ export let weightColor = '#bf4d66';
 export let indexColor = '#797478';
 export let matchedColor = '#330b0b';
 export let privilegedColor = '#9a55c0';
+export let exogenousColor = '#C03D3E';
 
 export let taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
 export let varColor = '#f0f8ff'; // d3.rgb("aliceblue");
