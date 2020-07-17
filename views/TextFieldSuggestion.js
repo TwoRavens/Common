@@ -47,7 +47,8 @@ export default class TextFieldSuggestion {
                     style: {'margin': '5px 0', 'width': '100%'},
                     onfocus: function () {
                         setIsDropped(true);
-                        m.withAttr('value', (vnode.attrs.onfocus || Function));
+                        if ('onfocus' in vnode.attrs)
+                            vnode.attrs.onfocus(this.value)
                     },
                     oninput: function () {
                         setValue(this.value);

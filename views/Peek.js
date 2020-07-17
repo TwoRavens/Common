@@ -116,7 +116,7 @@ function updatePeek() {
     m.request({
         method: 'POST',
         url: data_url,
-        data: {
+        body: {
             skip: peekSkip,
             limit: peekBatchSize,
         }

@@ -19,8 +19,8 @@ export default class TextField {
             },
             vnode.attrs,
             {
-                oninput: vnode.attrs.oninput && m.withAttr('value', vnode.attrs.oninput),
-                onblur: vnode.attrs.onblur && m.withAttr('value', vnode.attrs.onblur)
+                oninput: vnode.attrs.oninput && function() {vnode.attrs.oninput(this.value)},
+                onblur: vnode.attrs.onblur && function() {vnode.attrs.onblur(this.value)}
             })
         );
     }
