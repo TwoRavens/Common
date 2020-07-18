@@ -24,7 +24,7 @@ import Popper from './Popper';
 
 export default class PanelList {
     view(vnode) {
-        let {id, items, colors, classes, callback, popup, popupOptions, attrsAll, attrsItems} = vnode.attrs;
+        let {id, items, colors, classes, callback, popup, popupOptions, attrsAll, attrsItems, eventsItems} = vnode.attrs;
 
         // set alternate background-color if defined
         let viewColor = Object.create(null); // need object without default prototypal inheritance (avoids collisions)
@@ -54,6 +54,10 @@ export default class PanelList {
                     'class': (viewClass[item] || []).join(' '),
                     onclick: () => (callback || Function)(item)
                 },
+                Object.entries(eventsItems || {})
+                    .reduce((out, entry) =>
+                        Object.assign(out, {[entry[0]]: () => entry[1](item)}),
+                        {}),
                 // add any additional attributes if passed
                 attrsItems
             ), item))));
