@@ -1,5 +1,6 @@
 import m from 'mithril';
 import {heightHeader, mergeAttributes} from '../common';
+import Popper from './Popper.js'
 
 // ```
 // m(Header, {
@@ -16,7 +17,6 @@ import {heightHeader, mergeAttributes} from '../common';
 
 export default class Header {
     oninit() {
-        this.about = false;
         this.mobileHeader = false;
     }
 
@@ -33,14 +33,13 @@ export default class Header {
                 padding: '0px 1rem'
             }
         }, attrsInterface), [
-            m("img.navbar-brand[alt=TwoRavens]", {
+
+            m(Popper, {
+                content: () => m('div[style=max-width:500px]', aboutText)
+            }, m("img.navbar-brand[alt=TwoRavens]", {
                 style: {height: '100%', 'max-height': `calc(${heightHeader} - 16px)`, 'max-width': '140px'},
-                onmouseover: _ => this.about = true,
-                onmouseout: _ => this.about = false,
                 src: image
-            }),
-            m(`#about.about[style=display: ${this.about ? 'block' : 'none'}; top: 10px; left: 140px; position: absolute; width: 500px; z-index: 50]`,
-                aboutText),
+            })),
 
             // This styling is partially and conditionally overwritten via common.css @media queries for mobile formatting
             m('div#hamburger.show-mobile', {
