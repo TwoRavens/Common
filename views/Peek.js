@@ -66,7 +66,7 @@ export default class Peek {
                     headers: this.tableHeaders,
                     data: this.tableData,
                     abbreviation: 25,
-                    attrsAll: {style: {overflow: 'auto'}}
+                    style: {overflow: 'auto'}
                 })
             )
         ]

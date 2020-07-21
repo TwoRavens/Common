@@ -22,7 +22,7 @@ export default class Subpanel {
     }
 
     view({attrs, children}) {
-        let {id, header, shown, setShown, attrsBody} = attrs;
+        let {id, header, shown, setShown, attrsBody, ...attrsAll} = attrs;
 
         // if id is set, re-init if changed (side effect of dom node reuse)
         if (this.id !== id) this.oninit({attrs});
@@ -35,7 +35,7 @@ export default class Subpanel {
         return m(`div.card`, mergeAttributes({
                 style: {'margin-bottom': '0px'}
             },
-            attrs),
+            attrsAll),
             m(".card-header", {onclick: () => setShown(!this.shown)},
                 m("h4.card-title", {style: {'margin-bottom': '0'}}, header,
                     m(Icon, {

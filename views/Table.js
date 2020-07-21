@@ -14,7 +14,6 @@ import Icon from "./Icon";
 //     onclick: (uid, colID) => console.log(uid + " row was clicked, column number " + colID + " was clicked"), (optional)
 //     showUID: true | false, (optional)
 
-//     attrsAll: { apply attributes to all divs },(optional)
 //     attrsRows: { apply attributes to each row }, (optional)
 //     attrsCells: { apply attributes to each cell } (optional)
 //     tableTags: [ m('colgroup', ...), m('caption', ...), m('tfoot', ...)]
@@ -51,10 +50,11 @@ let nestedStyle = {
 
 export default class Table {
     view(vnode) {
-        let {id, data, headers, activeRow, onclick, showUID, abbreviation} = vnode.attrs;
-
-        // Interface custom attributes
-        let {attrsAll, attrsRows, attrsCells, tableTags, rowClasses} = vnode.attrs;
+        let {
+            id, data, headers, activeRow, onclick, showUID, abbreviation,
+            // Interface custom attributes
+            attrsRows, attrsCells, tableTags, rowClasses, ...attrsAll
+        } = vnode.attrs;
 
         // sorting
         let {sortable, sortHeader, setSortHeader, sortDescending, setSortDescending, sortFunction} = vnode.attrs;
@@ -120,8 +120,8 @@ export default class Table {
             if (Array.isArray(item))
                 return m(Table, {
                     data: item.map(elem => natives.has(typeof elem) ? [elem] : elem),
-                    attrsAll: nestedStyle,
-                    abbreviation, attrsRows, attrsCells, sortable
+                    abbreviation, attrsRows, attrsCells, sortable,
+                    ...nestedStyle
                 });
 
             if (typeof item === 'object') {
@@ -130,8 +130,8 @@ export default class Table {
 
                 return m(Table, {
                     data: item,
-                    attrsAll: nestedStyle,
-                    abbreviation, attrsRows, attrsCells, sortable
+                    abbreviation, attrsRows, attrsCells, sortable,
+                    ...nestedStyle
                 });
             }
 

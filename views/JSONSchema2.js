@@ -100,9 +100,9 @@ export default class Schema {
             ];
 
             return m(Table, {
+                data: content,
                 attrsCells: {valign: "top"},
-                attrsAll: nestedStyle,
-                data: content
+                ...nestedStyle
             })
         }
     }

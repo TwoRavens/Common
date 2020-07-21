@@ -234,7 +234,6 @@ m(PanelList, {
         callback: (item) => console.log(item + " clicked."),
         popup: (item) => { return 'PopupContent'}, (optional)
 
-        attrsAll: {... additional attributes for the entire list},
         attrsItems: {... additional attributes for each item}
     })
 ```
@@ -281,7 +280,6 @@ m(Table, {
     onclick: (uid, colID) => console.log(uid + " row was clicked, column number " + colID + " was clicked"), (optional)
     showUID: true | false, (optional)
 
-    attrsAll: { apply attributes to all divs },(optional)
     attrsRows: { apply attributes to each row }, (optional)
     attrsCells: { apply attributes to each cell } (optional)
     tableTags: [ m('colgroup', ...), m('caption', ...), m('tfoot', ...)]

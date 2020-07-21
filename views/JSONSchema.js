@@ -96,7 +96,6 @@ export default class Schema {
 
             return m(Table, {
                 attrsCells: {valign: "top"},
-                attrsAll: nestedStyle,
                 data: schema.type === 'array' && 'items' in schema ? [
                     ...data.map((elem, i) => [
                         value(i),
@@ -129,12 +128,12 @@ export default class Schema {
                         m('div', {onclick: () => data.splice(i, 1)}, m(Icon, {name: 'x', style: {margin: '1em 1em 1em 0em'}}))
                     ]),
                     [m(TextField, {value: '', oninput: val => data.push(val)}), undefined]
-                ]
+                ],
+                ...nestedStyle
             });
         }
 
         if (typeof data === 'object') return m(Table, {
-            attrsAll: nestedStyle,
             attrsCells: {valign: "top"},
             data: Object.keys(data).filter(key => key in schema).map(key => [
                 m('div', {
@@ -169,7 +168,8 @@ export default class Schema {
                         }[type]
                     }
                 }), undefined, undefined
-            ]])
+            ]]),
+            ...nestedStyle
         });
     }
 }
