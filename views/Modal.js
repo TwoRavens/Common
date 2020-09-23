@@ -41,7 +41,7 @@ export default class Modal {
               m(".modal-content", [
                   m(".modal-header",
                     m("h4.modal-title", header)),
-                  m(".modal-body",
+                  m(".modal-body[style=word-wrap:break-word]",
                     m("p", text)),
                   m(".modal-footer",
                     m("button.btn.btn-primary[type=button]",
