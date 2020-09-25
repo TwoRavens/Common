@@ -100,7 +100,7 @@ export default class Table {
 
         let valueHeader = header => m('th.table-header-sticky', {
             // sticky css applied on `th` for chrome compatibility https://bugs.chromium.org/p/chromium/issues/detail?id=702927
-            style: {'font-weight': 'bold', 'z-index': 5, background: 'rgba(220,220,220,0.8)', padding: '0 .5em'},
+            style: {'font-weight': 'bold', 'z-index': 5, background: 'rgba(220,220,220,0.8)', padding: '0 .5em', 'border-top': '1px'},
             onclick: () => {
                 if (!sortable) return;
                 if (header === this.sortHeader) {
