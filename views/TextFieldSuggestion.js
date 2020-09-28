@@ -34,31 +34,33 @@ export default class TextFieldSuggestion {
     view(vnode) {
         let {id, suggestions, value, enforce, limit, dropWidth, attrsAll} = vnode.attrs;
 
+        // To break out of 'this' context
+        let that = this;
+
         // overwrite internal value if passed
         this.value = value === undefined ? this.value : value;
-
-        // To break out of 'this' context. Redundant when value attribute is passed
-        let setValue = (val) => this.value = val;
-        let setIsDropped = (state) => this.isDropped = state;
 
         return [
             m(`input#${id}.form-control`, mergeAttributes({
                     value: this.value,
                     style: {'margin': '5px 0', 'width': '100%'},
+                    autocomplete: 'off',
                     onfocus: function () {
-                        setIsDropped(true);
+                        that.isDropped = true;
+                        that.dropSelected = false;
                         if ('onfocus' in vnode.attrs)
                             vnode.attrs.onfocus(this.value)
                     },
                     oninput: function () {
-                        setValue(this.value);
+                        that.value = this.value;
                         (vnode.attrs.oninput || Function)(this.value)
                     },
                     onblur: function() {
-                        setTimeout(() => setIsDropped(false), 100);
+                        setTimeout(() => that.isDropped = false, 100);
+                        if (that.dropSelected) return;
                         if (enforce && this.value !== '') {
                             this.value = distanceSort(suggestions, this.value)[0];
-                            setValue(this.value);
+                            that.value = this.value;
                         }
                         (vnode.attrs.onblur || Function)(this.value);
                     }
@@ -77,9 +79,10 @@ export default class TextFieldSuggestion {
                 distanceSort(suggestions, this.value).slice(0, limit).map((item) =>
                     m('li.dropdown-item', {
                         value: item,
-                        onclick: () => {
-                            setValue(item);
-                            (vnode.attrs.oninput || Function)(item);
+                        onmousedown: () => {
+                            this.value = item;
+                            this.dropSelected = true;
+                            (vnode.attrs.onblur || Function)(item);
                         },
                         style: {'padding-left': '10px', 'z-index': 200}
                     }, item))

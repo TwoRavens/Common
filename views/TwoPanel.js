@@ -36,6 +36,7 @@ export default class TwoPanel {
 
         document.getElementById('leftView').style.right = this.leftpanelSize + "%";
         document.getElementById('rightView').style.width = this.leftpanelSize + "%";
+        m.redraw();
     }
 
     oncreate({dom}) {

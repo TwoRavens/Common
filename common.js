@@ -28,7 +28,8 @@ export let exogenousColor = '#C03D3E';
 export let taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
 export let varColor = '#f0f8ff'; // d3.rgb("aliceblue");
 
-export let d3Color = '#1f77b4'; // d3's default blue
+export let d3Color = '#50a1db'; // d3's default blue
+export let steelBlue = '#1f77b4';
 export let selVarColor = '#fa8072'; // d3.rgb("salmon");
 
 export let warnColor = '#ffd442';
