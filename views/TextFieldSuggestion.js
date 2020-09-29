@@ -56,7 +56,10 @@ export default class TextFieldSuggestion {
                         (vnode.attrs.oninput || Function)(this.value)
                     },
                     onblur: function() {
-                        setTimeout(() => that.isDropped = false, 100);
+                        setTimeout(() => {
+                            that.isDropped = false;
+                            m.redraw()
+                        }, 100);
                         if (that.dropSelected) return;
                         if (enforce && this.value !== '') {
                             this.value = distanceSort(suggestions, this.value)[0];
