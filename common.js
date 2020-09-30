@@ -16,6 +16,7 @@ export let grayColor = '#c0c0c0';
 
 export let nomColor = '#ff6600';
 export let csColor = '#419641';
+export let ordinalColor = '#ffb700';
 export let boundaryColor = '#3cc394';
 export let locationColor = '#d23e3e';
 export let timeColor = '#2d6ca2';
