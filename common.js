@@ -20,6 +20,7 @@ export let ordinalColor = '#ffb700';
 export let boundaryColor = '#3cc394';
 export let locationColor = '#d23e3e';
 export let timeColor = '#2d6ca2';
+export let orderColor = '#2d6ca2';
 export let weightColor = '#bf4d66';
 export let indexColor = '#797478';
 export let matchedColor = '#330b0b';

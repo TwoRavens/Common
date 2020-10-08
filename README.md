@@ -154,12 +154,13 @@ m(ListTags, {
     tags: ['value 1', 'value 2', 'value 3'],
     attrsTags: {}, (attributes to apply to each tag)
     ondelete: (tag) => console.log(tag + " was deleted"),
-    readonly: boolean
+    reorderable: bool
 })
 ```
 
 Returns an inline array of elements with bubbles around them
-Each bubble contains the tag and a cancel button (if not readonly)
+Each bubble contains the tag. If onremove passed, then a cancel button. 
+If reorderable is true, then dragging the pills mutates the tag array. 
 
 
 ## MenuHeaders

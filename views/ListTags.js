@@ -8,7 +8,7 @@ import {mergeAttributes} from "../common";
 //     tags: ['value 1', 'value 2', 'value 3'],
 //     attrsTags: {}, (attributes to apply to each tag)
 //     ondelete: (tag) => console.log(tag + " was deleted"),
-//     readonly: boolean
+//     reorderable: bool
 // })
 // ```
 
@@ -17,9 +17,9 @@ import {mergeAttributes} from "../common";
 
 export default class ListTags {
     view(vnode) {
-        let {tags, attrsTags, ondelete, readonly} = vnode.attrs;
+        let {tags, attrsTags, onclick, ondelete, reorderable} = vnode.attrs;
 
-        return tags.map(tag => m('div', mergeAttributes({
+        return tags.map((tag, dataId) => m('div', mergeAttributes({
                 style: {
                     display: 'inline-block',
                     margin: '5px',
@@ -27,8 +27,29 @@ export default class ListTags {
                     padding: '4px 8px',
                     background: common.grayColor
                 }
-            }, attrsTags), [
-                !readonly && m('div', {
+            },
+            onclick && {
+                onclick: () => onclick(tag)
+            },
+            reorderable && {
+                dataId,
+                draggable: true,
+                ondragstart: e => {
+                    this.from = Number(e.currentTarget.getAttribute("dataid"));
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/html', null);
+                },
+                ondragover: e => {
+                    e.preventDefault();
+                    this.to = Number(e.currentTarget.getAttribute("dataid"))
+                },
+                ondragend: () => {
+                    tags.splice(this.to, 0, tags.splice(this.from, 1)[0])
+                    m.redraw()
+                },
+            },
+            attrsTags), [
+                ondelete && m('div', {
                     onclick: () => ondelete(tag),
                     style: {
                         display: 'inline-block',
