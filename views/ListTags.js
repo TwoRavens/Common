@@ -17,7 +17,7 @@ import {mergeAttributes} from "../common";
 
 export default class ListTags {
     view(vnode) {
-        let {tags, attrsTags, onclick, ondelete, reorderable} = vnode.attrs;
+        let {tags, attrsTags, onclick, ondelete, reorderable, onreorder} = vnode.attrs;
 
         return tags.map((tag, dataId) => m('div', mergeAttributes({
                 style: {
@@ -45,6 +45,7 @@ export default class ListTags {
                 },
                 ondragend: () => {
                     tags.splice(this.to, 0, tags.splice(this.from, 1)[0])
+                    (onreorder || Function)()
                     m.redraw()
                 },
             },
