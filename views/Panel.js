@@ -4,7 +4,7 @@ import {
     panelOpen,
     togglePanelOpen,
     menuColor,
-    borderColor,
+    lightGrayColor,
     heightHeader,
     heightFooter,
     panelMargin,
@@ -54,7 +54,7 @@ export default class Panel {
         }, attrsAll), [
             // Panel handle
             m(`#toggle${side === 'left' ? 'L' : 'R'}panelicon.panelbar`, {
-                    style: {height: '100%', [side]: 'calc(100% - 16px)'}
+                    style: {height: '100%', [side]: 'calc(100% - 16px)', background: lightGrayColor}
                 },
                 m('span', {onclick: () => togglePanelOpen(side)}, dot, dot, dot, dot)),
 

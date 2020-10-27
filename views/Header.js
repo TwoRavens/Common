@@ -1,5 +1,5 @@
 import m from 'mithril';
-import {heightHeader, mergeAttributes} from '../common';
+import {heightHeader, menuColor, mergeAttributes, setDarkTheme, setLightTheme, theme} from '../common';
 import Popper from './Popper.js'
 
 // ```
@@ -23,14 +23,15 @@ export default class Header {
     view(vnode) {
         let {image, aboutText, attrsInterface} = vnode.attrs;
 
-        return m('nav.navbar.navbar-expand-lg.fixed-top.bg-light', mergeAttributes({
+        return m('nav.navbar.navbar-expand-lg.fixed-top', mergeAttributes({
             style: {
                 'min-height': heightHeader,
                 'box-shadow': '0 0 4px #888',
                 'z-index': 1000,
                 'height': 'auto',
                 'margin-bottom': '0px',
-                padding: '0px 1rem'
+                padding: '0px 1rem',
+                'background': menuColor
             }
         }, attrsInterface), [
 
@@ -38,6 +39,13 @@ export default class Header {
                 content: () => m('div[style=max-width:500px]', aboutText)
             }, m("img.navbar-brand[alt=TwoRavens]", {
                 style: {height: '100%', 'max-height': `calc(${heightHeader} - 16px)`, 'max-width': '140px'},
+                onclick: () => {
+                    document.documentElement.classList.add('color-theme-in-transition')
+                    theme === "light" ? setDarkTheme() : setLightTheme()
+                    window.setTimeout(function() {
+                        document.documentElement.classList.remove('color-theme-in-transition')
+                    }, 750)
+                },
                 src: image
             })),
 

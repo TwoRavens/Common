@@ -1,7 +1,45 @@
+:root {
+    --btn-background: #fff;
+    --text-color: #444;
+    --pre-color: #212121;
+    --card-background-color: #fff;
+}
+
+html.color-theme-in-transition,
+html.color-theme-in-transition *,
+html.color-theme-in-transition *:before,
+html.color-theme-in-transition *:after {
+    transition: all 750ms !important;
+    transition-delay: 0ms !important;
+}
+
 .table-header-sticky {
     position: sticky;
     position: -webkit-sticky;
     top: 0;
+}
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: var(--text-color);
+    opacity: 0.8; /* Firefox */
+}
+pre {
+    color: var(--pre-color);
+}
+.btn {
+    background: var(--btn-background);
+    color: var(--text-color);
+}
+.card {
+    background-color: var(--card-background-color);
+}
+
+.h4,.table,.form-control {
+    color: var(--text-color);
+}
+
+* {
+    color: var(--text-color);
 }
 
 /* styling for header about */
@@ -30,7 +68,6 @@ div.sidepanel div.panelbar span {
     align-items: center;
     font-size: .75em;
     color: #ADADAD;
-    background: #eee;
 }
 
 /* used for ModalVanilla */

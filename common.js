@@ -6,14 +6,17 @@ export let panelMargin = '10px';
 export let heightHeader = '88px';
 export let heightFooter = '50px';
 
+export let theme = 'light';
+export let textColor = '#444';
+export let baseColor = '#f0f0f0';
 export let menuColor = '#f9f9f9';
 export let borderColor = '1px solid #bfbfbf';
 
-export let gr1Color = '#14bdcc';  // initially was #24a4c9', but that is dvColor, and we track some properties by color assuming them unique
+export let gr1Color = '#14bdcc';
 export let gr2Color = '#79af4f';
 
 export let grayColor = '#c0c0c0';
-
+export let lightGrayColor = '#eee'
 export let nomColor = '#ff6600';
 export let csColor = '#419641';
 export let ordinalColor = '#ffb700';
@@ -218,3 +221,53 @@ export let loaderSmall = id => m(`#loading${id}.loader-small`, {
         transform: 'translateY(-50%)'
     }
 });
+
+export let setDarkTheme = () => {
+    localStorage.setItem('plotTheme', 'dark');
+    document.documentElement.style.setProperty('--btn-background', '#555555');
+    document.documentElement.style.setProperty('--text-color', '#f5f5f5');
+    document.documentElement.style.setProperty('--pre-color', '#d2d2d2');
+    document.documentElement.style.setProperty('--card-background-color', '#545454');
+    theme = 'dark';
+
+    textColor = '#f5f5f5';
+    baseColor = 'dimgray';
+    menuColor = '#474747';
+    borderColor = '1px solid #393939';
+
+    grayColor = '#c0c0c0';
+    lightGrayColor = '#545454'
+
+    taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
+    varColor = '#606366'; // d3.rgb("aliceblue");
+
+    d3Color = '#50a1db'; // d3's default blue
+    steelBlue = '#1f77b4';
+    selVarColor = '#d26c60'; // d3.rgb("salmon");
+}
+if (localStorage.getItem('plotTheme') === 'dark')
+    setDarkTheme()
+
+export let setLightTheme = () => {
+    localStorage.setItem('plotTheme', 'default');
+    document.documentElement.style.setProperty('--btn-background', '#f0f0f0');
+    document.documentElement.style.setProperty('--text-color', '#404040');
+    document.documentElement.style.setProperty('--pre-color', '#212121');
+    document.documentElement.style.setProperty('--card-background-color', '#fff');
+    theme = 'light';
+
+    textColor = '#444';
+    baseColor = '#f0f0f0';
+    menuColor = '#f9f9f9';
+    borderColor = '1px solid #bfbfbf';
+
+    grayColor = '#c0c0c0';
+    lightGrayColor = '#eee'
+
+    taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
+    varColor = '#f0f8ff'; // d3.rgb("aliceblue");
+
+    d3Color = '#50a1db'; // d3's default blue
+    steelBlue = '#1f77b4';
+    selVarColor = '#fa8072'; // d3.rgb("salmon");
+}
