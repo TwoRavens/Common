@@ -223,13 +223,6 @@ export let loaderSmall = id => m(`#loading${id}.loader-small`, {
 });
 
 export let setDarkTheme = () => {
-    localStorage.setItem('plotTheme', 'dark');
-    document.documentElement.style.setProperty('--btn-background', '#555555');
-    document.documentElement.style.setProperty('--text-color', '#f5f5f5');
-    document.documentElement.style.setProperty('--pre-color', '#d2d2d2');
-    document.documentElement.style.setProperty('--card-background-color', '#545454');
-    theme = 'dark';
-
     textColor = '#f5f5f5';
     baseColor = 'dimgray';
     menuColor = '#474747';
@@ -244,17 +237,20 @@ export let setDarkTheme = () => {
     d3Color = '#50a1db'; // d3's default blue
     steelBlue = '#1f77b4';
     selVarColor = '#d26c60'; // d3.rgb("salmon");
+
+    localStorage.setItem('plotTheme', 'dark');
+    document.documentElement.style.setProperty('--btn-background', lightGrayColor);
+    document.documentElement.style.setProperty('--text-color', textColor);
+    document.documentElement.style.setProperty('--pre-color', '#d2d2d2');
+    document.documentElement.style.setProperty('--card-background-color', lightGrayColor);
+    document.documentElement.style.setProperty('--btn-active-background', '#999');
+    document.documentElement.style.setProperty('--btn-active-box-shadow', 'inset 0px 0px 8px #606060', 'important');
+    theme = 'dark';
 }
 if (localStorage.getItem('plotTheme') === 'dark')
     setDarkTheme()
 
 export let setLightTheme = () => {
-    localStorage.setItem('plotTheme', 'default');
-    document.documentElement.style.setProperty('--btn-background', '#f0f0f0');
-    document.documentElement.style.setProperty('--text-color', '#404040');
-    document.documentElement.style.setProperty('--pre-color', '#212121');
-    document.documentElement.style.setProperty('--card-background-color', '#fff');
-    theme = 'light';
 
     textColor = '#444';
     baseColor = '#f0f0f0';
@@ -270,4 +266,13 @@ export let setLightTheme = () => {
     d3Color = '#50a1db'; // d3's default blue
     steelBlue = '#1f77b4';
     selVarColor = '#fa8072'; // d3.rgb("salmon");
+
+    localStorage.setItem('plotTheme', 'default');
+    document.documentElement.style.setProperty('--btn-background', lightGrayColor);
+    document.documentElement.style.setProperty('--text-color', textColor);
+    document.documentElement.style.setProperty('--pre-color', '#212121');
+    document.documentElement.style.setProperty('--card-background-color', lightGrayColor);
+    document.documentElement.style.setProperty('--btn-active-background', '#e6e5e5');
+    document.documentElement.style.setProperty('--btn-active-box-shadow', 'inset 0px 0px 8px #b0b0b0', 'important');
+    theme = 'light';
 }

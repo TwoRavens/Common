@@ -1,8 +1,10 @@
 :root {
-    --btn-background: #fff;
+    --btn-background: #f0f0f0;
     --text-color: #444;
     --pre-color: #212121;
     --card-background-color: #fff;
+    --btn-active-background: #e6e5e5;
+    --btn-active-box-shadow: inset 0px 0px 8px #b0b0b0;
 }
 
 html.color-theme-in-transition,
@@ -36,6 +38,12 @@ pre {
 
 .h4,.table,.form-control {
     color: var(--text-color);
+}
+.btn-secondary:not(:disabled):not(.disabled):active, .btn-secondary:not(:disabled):not(.disabled).active {
+    background: var(--btn-active-background);
+}
+.btn.active {
+    box-shadow: var(--btn-active-box-shadow) !important;
 }
 
 * {

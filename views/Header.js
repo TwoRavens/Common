@@ -1,6 +1,7 @@
 import m from 'mithril';
 import {heightHeader, menuColor, mergeAttributes, setDarkTheme, setLightTheme, theme} from '../common';
 import Popper from './Popper.js'
+import * as common from "../common";
 
 // ```
 // m(Header, {
@@ -38,7 +39,12 @@ export default class Header {
             m(Popper, {
                 content: () => m('div[style=max-width:500px]', aboutText)
             }, m("img.navbar-brand[alt=TwoRavens]", {
-                style: {height: '100%', 'max-height': `calc(${heightHeader} - 16px)`, 'max-width': '140px'},
+                style: {
+                    height: '100%',
+                    'max-height': `calc(${heightHeader} - 16px)`,
+                    'max-width': '140px',
+                    filter: `invert(${{light: 0, dark: .9}[common.theme]})`
+                },
                 onclick: () => {
                     document.documentElement.classList.add('color-theme-in-transition')
                     theme === "light" ? setDarkTheme() : setLightTheme()
