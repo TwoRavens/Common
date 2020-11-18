@@ -14,33 +14,36 @@ import {mergeAttributes, borderColor} from "../common";
 
 
 export default class TwoPanel {
-    oninit() {
+    oninit({rightPanelSize}) {
         this.focus = 'left';
         this.previous = this.focus;
         this.isResizingMenu = false;
 
         // window resizing
-        this.leftpanelSize = 50;
+        if (rightPanelSize !== undefined)
+            this.rightPanelSize = rightPanelSize;
+        else this.rightPanelSize = 50;
     }
 
 
-    resizeMenu(e, dom) {
+    resizeMenu(e, dom, setRightPanelSize) {
         this.isResizingMenu = true;
         document.body.classList.add('no-select');
-        this.resizeMenuTick(e, dom);
+        this.resizeMenuTick(e, dom, setRightPanelSize);
     }
 
-    resizeMenuTick(e, dom) {
+    resizeMenuTick(e, dom, setRightPanelSize) {
         if (!dom) return;
-        this.leftpanelSize = (1 - e.clientX / dom.clientWidth) * 100;
+        this.rightPanelSize = (1 - e.clientX / dom.clientWidth) * 100;
+        if (setRightPanelSize) setRightPanelSize(this.rightPanelSize);
 
-        document.getElementById('leftView').style.right = this.leftpanelSize + "%";
-        document.getElementById('rightView').style.width = this.leftpanelSize + "%";
+        document.getElementById('leftView').style.right = this.rightPanelSize + "%";
+        document.getElementById('rightView').style.width = this.rightPanelSize + "%";
         m.redraw();
     }
 
-    oncreate({dom}) {
-        dom.addEventListener('mousemove', e => this.isResizingMenu && this.resizeMenuTick(e, dom));
+    oncreate({dom, attrs}) {
+        dom.addEventListener('mousemove', e => this.isResizingMenu && this.resizeMenuTick(e, dom, attrs.setRightPanelSize));
 
         dom.addEventListener('mouseup', () => {
             if (this.isResizingMenu) {
@@ -51,7 +54,10 @@ export default class TwoPanel {
     }
 
     view(vnode) {
-        let {left, right} = vnode.attrs;
+        let {left, right, rightPanelSize, setRightPanelSize} = vnode.attrs;
+
+        if (rightPanelSize !== undefined)
+            this.rightPanelSize = rightPanelSize;
 
         let animate = this.focus !== this.previous;
         this.previous = this.focus;
@@ -69,7 +75,7 @@ export default class TwoPanel {
                     left: 0,
                     top: 0,
                     bottom: 0,
-                    right: this.leftpanelSize + '%',
+                    right: this.rightPanelSize + '%',
                     'overflow-y': 'auto',
                     'animation-duration': '.4s'
                 }
@@ -85,7 +91,7 @@ export default class TwoPanel {
                     right: 0,
                     top: 0,
                     bottom: 0,
-                    width: this.leftpanelSize + '%',
+                    width: this.rightPanelSize + '%',
                     'overflow-y': 'auto',
                     'animation-duration': '.4s'
                 }
@@ -100,7 +106,7 @@ export default class TwoPanel {
                         width: '12px',
                         cursor: 'w-resize'
                     },
-                    onmousedown: e => this.resizeMenu(e, vnode.dom)
+                    onmousedown: e => this.resizeMenu(e, vnode.dom, setRightPanelSize)
                 }),
                 right
             ])
