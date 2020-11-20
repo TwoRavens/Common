@@ -11,24 +11,8 @@ export let textColor = '#444';
 export let baseColor = '#f0f0f0';
 export let menuColor = '#f9f9f9';
 export let borderColor = '1px solid #bfbfbf';
-
-export let gr1Color = '#14bdcc';
-export let gr2Color = '#79af4f';
-
 export let grayColor = '#c0c0c0';
 export let lightGrayColor = '#eee'
-export let nomColor = '#ff6600';
-export let csColor = '#419641';
-export let ordinalColor = '#ffb700';
-export let boundaryColor = '#3cc394';
-export let locationColor = '#d23e3e';
-export let timeColor = '#2d6ca2';
-export let orderColor = '#2d6ca2';
-export let weightColor = '#bf4d66';
-export let indexColor = '#797478';
-export let matchedColor = '#330b0b';
-export let privilegedColor = '#9a55c0';
-export let exogenousColor = '#C03D3E';
 
 export let taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
 export let varColor = '#f0f8ff'; // d3.rgb("aliceblue");
@@ -37,6 +21,7 @@ export let d3Color = '#50a1db'; // d3's default blue
 export let steelBlue = '#1f77b4';
 export let selVarColor = '#fa8072'; // d3.rgb("salmon");
 
+export let successColor = '#419641'; // should be similar to nominal
 export let warnColor = '#ffd442';
 export let errorColor = '#fa8072';
 
@@ -268,7 +253,7 @@ export let setLightTheme = () => {
     selVarColor = '#fa8072'; // d3.rgb("salmon");
 
     localStorage.setItem('plotTheme', 'default');
-    document.documentElement.style.setProperty('--btn-background', lightGrayColor);
+    document.documentElement.style.setProperty('--btn-background', '#f6f6f6');
     document.documentElement.style.setProperty('--text-color', textColor);
     document.documentElement.style.setProperty('--pre-color', '#212121');
     document.documentElement.style.setProperty('--card-background-color', lightGrayColor);
