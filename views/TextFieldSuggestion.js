@@ -28,7 +28,7 @@ let distanceSort = (array, value) => array
 export default class TextFieldSuggestion {
     oninit(vnode) {
         this.value = vnode.attrs.defaultValue || '';
-        this.isDropped = false;
+        this.isDropped = vnode.attrs.isDropped;
     }
 
     view(vnode) {

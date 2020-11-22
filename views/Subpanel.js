@@ -32,10 +32,8 @@ export default class Subpanel {
         // set state from attrs if defined
         if (shown !== undefined) this.shown = shown;
 
-        return m(`div.card`, mergeAttributes({
-                style: {'margin-bottom': '0px'}
-            },
-            attrsAll),
+        return m(`div.card`,
+            mergeAttributes({style: {'margin-bottom': '0px'}}, attrsAll),
             m(".card-header", {onclick: () => setShown(!this.shown)},
                 m("h4.card-title", {style: {'margin-bottom': '0'}}, header,
                     m(Icon, {
