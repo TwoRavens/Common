@@ -53,6 +53,8 @@ export default class ButtonRadio {
 
         // Sorry about the complexity here. Got stuck with a lot of cases
         let getWidth = (value) => {
+            if (typeof value === 'object') return
+            value = String(value)
             if (vertical) return '100%';
 
             // Evenly spaced
@@ -84,25 +86,26 @@ export default class ButtonRadio {
         onclick = onclick || (state => this.active = String(state));
         if (activeSection !== undefined) this.active = String(activeSection);
 
+        let formatValue = value => typeof value === 'string' ? value.toLowerCase() : value;
         // Button bar
         return m(`div#${id}.btn-group.btn-group-toggle${vertical ? '.btn-group-vertical' : ''}[role=group]`,
             mergeAttributes({style: {'width': '100%'}}, attrsAll),
             sections.filter(_=>_).map(section =>
                 // Individual buttons
                 m(`#${section.id || 'btn' + section.value}.btn.btn-secondary${
-                    String(section.value).toLowerCase() === this.active.toLowerCase() ? '.active' : ''}`,
+                    formatValue(section.value) === formatValue(this.active) ? '.active' : ''}`,
                     mergeAttributes({
                         class: String(section.value).toLowerCase() === this.active.toLowerCase() ? ['active'] : [''],
-                        onmouseover: () => this.hovered = String(section.value),
+                        onmouseover: () => this.hovered = formatValue(section.value),
                         onmouseout: () => this.hovered = undefined,
-                        style: {width: getWidth(String(section.value))},
+                        style: {width: getWidth(section.value)},
                         onclick: (e) => {
                             e.preventDefault();
                             onclick(section.value);
                         }
                     }, attrsButtons, section.attrsInterface),
                     [
-                        m(`input#${id}${section.value}`, {'name': id, 'title': section.title, 'type': 'radio'}),
+                        m(`input#${id}${section.id || section.value}`, {'name': id, 'title': section.title, 'type': 'radio'}),
                         section.value
                     ]
                 )
