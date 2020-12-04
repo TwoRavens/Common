@@ -175,7 +175,7 @@ export default class Table {
                             m('td', mergeAttributes(onclick ? {onclick: () => onclick(row[0], j)} : {}, attrsCells), value(item)))
                     )
                 }
-            )]
+            )].filter(_=>_)
         );
     };
 }
