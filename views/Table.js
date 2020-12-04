@@ -1,6 +1,6 @@
 import m from 'mithril';
 
-import {selVarColor, mergeAttributes, lightGrayColor} from "../common";
+import {lightGrayColor, mergeAttributes, selVarColor} from "../common";
 import Icon from "./Icon";
 
 // Interface specification
@@ -16,7 +16,7 @@ import Icon from "./Icon";
 
 //     attrsRows: { apply attributes to each row }, (optional)
 //     attrsCells: { apply attributes to each cell } (optional)
-//     tableTags: [ m('colgroup', ...), m('caption', ...), m('tfoot', ...)]
+//     tableTags: [ m('colgroup', ...), m('caption', ...), m('tfoot', ...)] // these must have a key attribute for mithril
 //     rowClasses: {[class]: ['id1', 'id2']}, (optional)
 //     abbreviation: (int),
 //     sortable: (boolean)
@@ -152,8 +152,10 @@ export default class Table {
         }
 
         return m(`table.table${id ? '#' + id : ''}`, mergeAttributes({style: {width: '100%'}}, attrsAll), [
-            tableTags,
-            headers && m('thead', {style: {width: '100%'}}, [
+            // ensure vnode.tag of each tableTag(s) are at root level, not behind a pseudo vnode array element
+            ...Array.isArray(tableTags) ? tableTags : tableTags ? [tableTags] : [],
+
+            headers && m('thead', {style: {width: '100%'}, key: 'header'}, [
                 ...(showUID ? headers : headers.slice(1)).map(valueHeader)
             ]),
 
@@ -167,7 +169,8 @@ export default class Table {
                     return m('tr', mergeAttributes(
                         i % 2 === 1 ? {style: {background: 'rgba(0,0,0,.02)'}} : {},
                         isActive ? {style: {'background': selVarColor}} : {}, attrsRows,
-                        (row[0] in viewClass) ? {class: viewClass[row[0]]} : {}),
+                        (row[0] in viewClass) ? {class: viewClass[row[0]]} : {},
+                        {key: row}),
                         row.filter((item, j) => j !== 0 || showUID).map((item, j) =>
                             m('td', mergeAttributes(onclick ? {onclick: () => onclick(row[0], j)} : {}, attrsCells), value(item)))
                     )
