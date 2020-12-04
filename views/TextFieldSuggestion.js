@@ -34,9 +34,6 @@ export default class TextFieldSuggestion {
     view(vnode) {
         let {id, suggestions, value, enforce, limit, dropWidth, attrsAll} = vnode.attrs;
 
-        // To break out of 'this' context
-        let that = this;
-
         // overwrite internal value if passed
         this.value = value === undefined ? this.value : value;
 
@@ -46,30 +43,29 @@ export default class TextFieldSuggestion {
                     style: {'margin': '5px 0', 'width': '100%'},
                     autocomplete: 'off',
                     onfocus: function () {
-                        that.isDropped = true;
-                        that.dropSelected = false;
+                        vnode.state.isDropped = true;
+                        vnode.state.dropSelected = false;
                         if ('onfocus' in vnode.attrs)
                             vnode.attrs.onfocus(this.value)
                     },
                     oninput: function () {
-                        that.value = this.value;
+                        vnode.state.value = this.value;
                         (vnode.attrs.oninput || Function)(this.value)
                     },
                     onblur: function() {
                         setTimeout(() => {
-                            that.isDropped = false;
+                            vnode.state.isDropped = false;
                             m.redraw()
                         }, 100);
-                        if (that.dropSelected) return;
+                        if (vnode.state.dropSelected) return;
                         if (enforce && this.value !== '') {
-                            this.value = distanceSort(suggestions, this.value)[0];
-                            that.value = this.value;
+                            vnode.state.value = this.value = distanceSort(suggestions, this.value)[0];
                         }
                         (vnode.attrs.onblur || Function)(this.value);
                     },
                     onkeypress: function(e) {
                         if (e.key === 'Enter') {
-                            that.value = this.value = distanceSort(suggestions, this.value)[0];
+                            vnode.state.value = this.value = distanceSort(suggestions, this.value)[0];
                             e.target.blur()
                         }
                     }
