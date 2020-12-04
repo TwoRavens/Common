@@ -66,6 +66,12 @@ export default class TextFieldSuggestion {
                             that.value = this.value;
                         }
                         (vnode.attrs.onblur || Function)(this.value);
+                    },
+                    onkeypress: function(e) {
+                        if (e.key === 'Enter') {
+                            that.value = this.value = distanceSort(suggestions, this.value)[0];
+                            e.target.blur()
+                        }
                     }
                 }, attrsAll)
             ),
