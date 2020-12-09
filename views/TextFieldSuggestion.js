@@ -20,7 +20,7 @@ import levenshtein from 'js-levenshtein'
 // Can pass attributes directly, for example 'placeholder' or 'oninput'
 
 
-let distanceSort = (array, value) => array
+let distanceSort = (array, value) => value.length === 0 ? array : array
     .map(item => [item, levenshtein(item, value)])
     .sort((a, b) => a[1] - b[1])
     .map(item => item[0]);
@@ -29,6 +29,7 @@ export default class TextFieldSuggestion {
     oninit(vnode) {
         this.value = vnode.attrs.defaultValue || '';
         this.isDropped = vnode.attrs.isDropped;
+        this.selectIndex = 0;
     }
 
     view(vnode) {
@@ -50,6 +51,7 @@ export default class TextFieldSuggestion {
                     },
                     oninput: function () {
                         vnode.state.value = this.value;
+                        vnode.state.selectIndex = 0;
                         (vnode.attrs.oninput || Function)(this.value)
                     },
                     onblur: function() {
@@ -61,12 +63,29 @@ export default class TextFieldSuggestion {
                         if (enforce && this.value !== '') {
                             vnode.state.value = this.value = distanceSort(suggestions, this.value)[0];
                         }
+                        vnode.state.selectIndex = 0;
                         (vnode.attrs.onblur || Function)(this.value);
                     },
-                    onkeypress: function(e) {
+                    onkeydown: function(e) {
+                        // key up
+                        if (e.key === 'ArrowUp') {
+                            vnode.state.selectIndex = Math.max(0, vnode.state.selectIndex - 1);
+                        }
+                        // key down
+                        if (e.key === 'ArrowDown') {
+                            vnode.state.selectIndex = Math.min(
+                                limit || suggestions.length,
+                                suggestions.length - 1,
+                                vnode.state.selectIndex + 1);
+                        }
                         if (e.key === 'Enter') {
-                            vnode.state.value = this.value = distanceSort(suggestions, this.value)[0];
+                            vnode.state.value = this.value = distanceSort(suggestions, this.value)[vnode.state.selectIndex];
+                            vnode.state.selectIndex = 0;
                             e.target.blur()
+                        }
+                        if (e.key === 'Escape') {
+                            vnode.state.selectIndex = 0;
+                            e.target.blur();
                         }
                     }
                 }, attrsAll)
@@ -81,7 +100,7 @@ export default class TextFieldSuggestion {
                         display: this.isDropped ? 'block' : 'none'
                     }
                 },
-                distanceSort(suggestions, this.value).slice(0, limit).map((item) =>
+                distanceSort(suggestions, this.value).slice(0, limit).map((item, i) =>
                     m('li.dropdown-item', {
                         value: item,
                         onmousedown: () => {
@@ -89,7 +108,7 @@ export default class TextFieldSuggestion {
                             this.dropSelected = true;
                             (vnode.attrs.onblur || Function)(item);
                         },
-                        style: {'padding-left': '10px', 'z-index': 200}
+                        style: {'padding-left': '10px', 'z-index': 200, 'font-weight': this.selectIndex === i ? 'bold' : 'normal'}
                     }, item))
             )
         ];
