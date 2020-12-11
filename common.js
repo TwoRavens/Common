@@ -256,7 +256,7 @@ export let setLightTheme = () => {
     document.documentElement.style.setProperty('--btn-background', '#f6f6f6');
     document.documentElement.style.setProperty('--text-color', textColor);
     document.documentElement.style.setProperty('--pre-color', '#212121');
-    document.documentElement.style.setProperty('--card-background-color', lightGrayColor);
+    document.documentElement.style.setProperty('--card-background-color', "#fff");
     document.documentElement.style.setProperty('--btn-active-background', '#e6e5e5');
     document.documentElement.style.setProperty('--btn-active-box-shadow', 'inset 0px 0px 8px #b0b0b0', 'important');
     theme = 'light';

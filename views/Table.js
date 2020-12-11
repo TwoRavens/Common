@@ -170,7 +170,7 @@ export default class Table {
                         i % 2 === 1 ? {style: {background: 'rgba(0,0,0,.02)'}} : {},
                         isActive ? {style: {'background': selVarColor}} : {}, attrsRows,
                         (row[0] in viewClass) ? {class: viewClass[row[0]]} : {},
-                        {key: row[0]}),
+                        {key: JSON.stringify(row[0])}),
                         row.filter((item, j) => j !== 0 || showUID).map((item, j) =>
                             m('td', mergeAttributes(onclick ? {onclick: () => onclick(row[0], j)} : {}, attrsCells), value(item)))
                     )
