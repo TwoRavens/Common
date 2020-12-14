@@ -51,7 +51,7 @@ let nestedStyle = {
 export default class Table {
     view(vnode) {
         let {
-            id, data, headers, activeRow, onclick, showUID, abbreviation,
+            id, data, headers, activeRow, onclick, showUID, abbreviation, keyed,
             // Interface custom attributes
             attrsRows, attrsCells, tableTags, rowClasses, ...attrsAll
         } = vnode.attrs;
@@ -155,7 +155,7 @@ export default class Table {
             // ensure vnode.tag of each tableTag(s) are at root level, not behind a pseudo vnode array element
             ...Array.isArray(tableTags) ? tableTags : tableTags ? [tableTags] : [],
 
-            headers && m('thead', {style: {width: '100%'}, key: 'header'}, [
+            headers && m('thead', Object.assign({style: {width: '100%'}}, keyed ? {key: '__header'} : {}), [
                 ...(showUID ? headers : headers.slice(1)).map(valueHeader)
             ]),
 
@@ -170,7 +170,7 @@ export default class Table {
                         i % 2 === 1 ? {style: {background: 'rgba(0,0,0,.02)'}} : {},
                         isActive ? {style: {'background': selVarColor}} : {}, attrsRows,
                         (row[0] in viewClass) ? {class: viewClass[row[0]]} : {},
-                        {key: JSON.stringify(row[0])}),
+                        keyed ? {key: JSON.stringify(row[0])} : {}),
                         row.filter((item, j) => j !== 0 || showUID).map((item, j) =>
                             m('td', mergeAttributes(onclick ? {onclick: () => onclick(row[0], j)} : {}, attrsCells), value(item)))
                     )
