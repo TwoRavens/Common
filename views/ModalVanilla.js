@@ -8,7 +8,8 @@ import * as common from '../common';
 // }, content)
 // ```
 
-// I wrote this because I wanted a non-jquery alternative with a less-specific specification -Shoeboxam
+// I wrote this because I wanted a non-jquery alternative with a less-specific specification -Michael Shoemate
+// The content within is also part of the mithril redraw loop, instead of being static
 
 export default class ModalVanilla {
     oninit(vnode) {
