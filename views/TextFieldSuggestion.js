@@ -1,9 +1,9 @@
 import m from 'mithril';
 import {mergeAttributes} from "../common";
-import levenshtein from 'js-levenshtein'
+import distance from 'jaro-winkler'
 
-// NOTE this requires js-levenshtein to be installed from npm. Tested with version 1.1.3.
-// npm install --save js-levenshtein
+// NOTE this requires jaro-winkler to be installed from npm. Tested with version 1.1.3.
+// npm install --save jaro-winkler
 
 // ```
 // m(TextField, {
@@ -21,7 +21,7 @@ import levenshtein from 'js-levenshtein'
 
 
 let distanceSort = (array, value) => value.length === 0 ? array : array
-    .map(item => [item, levenshtein(item, value)])
+    .map(item => [item, -distance(item, value)])
     .sort((a, b) => a[1] - b[1])
     .map(item => item[0]);
 
