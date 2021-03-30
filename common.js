@@ -15,7 +15,7 @@ export let grayColor = '#c0c0c0';
 export let lightGrayColor = '#eee'
 
 export let taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
-export let varColor = '#f0f8ff'; // d3.rgb("aliceblue");
+export let varColor = '#f7f7f7'; // d3.rgb("aliceblue"); // #f0f8ff'
 
 export let d3Color = '#50a1db'; // d3's default blue
 export let steelBlue = '#1f77b4';
@@ -246,7 +246,7 @@ export let setLightTheme = () => {
     lightGrayColor = '#eee'
 
     taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
-    varColor = '#f0f8ff'; // d3.rgb("aliceblue");
+    varColor = '#f7f7f7'; // d3.rgb("aliceblue");
 
     d3Color = '#50a1db'; // d3's default blue
     steelBlue = '#1f77b4';
