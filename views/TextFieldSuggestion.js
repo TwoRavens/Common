@@ -20,10 +20,15 @@ import distance from 'jaro-winkler'
 // Can pass attributes directly, for example 'placeholder' or 'oninput'
 
 
-let distanceSort = (array, value) => value.length === 0 ? array : array
-    .map(item => [item, -distance(item, value)])
-    .sort((a, b) => a[1] - b[1])
-    .map(item => item[0]);
+let distanceSort = (array, value) => {
+    array = array.map(item => Array.isArray(item) ? item : [item, item]);
+    if (value.length === 0) return array
+    return array
+        .map(item => Array.isArray(item) ? item : [item, item])
+        .map(([id, display]) => [[id, display], distance(id, value)])
+        .sort((a, b) => b[1] - a[1])
+        .map(item => item[0]);
+}
 
 export default class TextFieldSuggestion {
     oninit(vnode) {
@@ -33,7 +38,7 @@ export default class TextFieldSuggestion {
     }
 
     view(vnode) {
-        let {id, suggestions, value, enforce, limit, dropWidth, attrsAll} = vnode.attrs;
+        let {id, suggestions, value, enforce, limit, dropWidth, attrsAll, attrsDropped} = vnode.attrs;
 
         // overwrite internal value if passed
         this.value = value === undefined ? this.value : value;
@@ -61,7 +66,7 @@ export default class TextFieldSuggestion {
                         }, 100);
                         if (vnode.state.dropSelected) return;
                         if (enforce && this.value !== '') {
-                            vnode.state.value = this.value = distanceSort(suggestions, this.value)[0];
+                            vnode.state.value = this.value = distanceSort(suggestions, this.value)[0][0];
                         }
                         vnode.state.selectIndex = 0;
                         (vnode.attrs.onblur || Function)(this.value);
@@ -79,7 +84,7 @@ export default class TextFieldSuggestion {
                                 vnode.state.selectIndex + 1);
                         }
                         if (e.key === 'Enter') {
-                            vnode.state.value = this.value = distanceSort(suggestions, this.value)[vnode.state.selectIndex];
+                            vnode.state.value = this.value = distanceSort(suggestions, this.value)[vnode.state.selectIndex][0];
                             vnode.state.selectIndex = 0;
                             e.target.blur()
                         }
@@ -90,7 +95,7 @@ export default class TextFieldSuggestion {
                     }
                 }, attrsAll)
             ),
-            m('ul.dropdown-menu', {
+            m('ul.dropdown-menu', mergeAttributes({
                     'aria-labelledby': id,
                     style: {
                         top: 'auto',
@@ -99,17 +104,17 @@ export default class TextFieldSuggestion {
                         'min-width': 0,
                         display: this.isDropped ? 'block' : 'none'
                     }
-                },
-                distanceSort(suggestions, this.value).slice(0, limit).map((item, i) =>
+                }, attrsDropped),
+                distanceSort(suggestions, this.value).slice(0, limit).map(([id, display], i) =>
                     m('li.dropdown-item', {
-                        value: item,
+                        value: id,
                         onmousedown: () => {
-                            this.value = item;
+                            this.value = id;
                             this.dropSelected = true;
-                            (vnode.attrs.onblur || Function)(item);
+                            (vnode.attrs.onblur || Function)(id);
                         },
                         style: {'padding-left': '10px', 'z-index': 200, 'font-weight': this.selectIndex === i ? 'bold' : 'normal'}
-                    }, item))
+                    }, display))
             )
         ];
     }
