@@ -7,23 +7,44 @@ export let heightHeader = '88px';
 export let heightFooter = '50px';
 
 export let theme = 'light';
-export let textColor = '#444';
-export let baseColor = '#f0f0f0';
-export let menuColor = '#f9f9f9';
-export let borderColor = '1px solid #bfbfbf';
-export let grayColor = '#c0c0c0';
-export let lightGrayColor = '#eee'
+export let colors = {
+    text: '#444',
+    base: '#f0f0f0',
+    menu: '#f9f9f9',
+    border: '1px solid #bfbfbf',
+    gray: '#c0c0c0',
+    lightGray: '#eee',
 
-export let taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
-export let varColor = '#f7f7f7'; // d3.rgb("aliceblue"); // #f0f8ff'
+    tagged: '#f5f5f5', // d3.rgb("whitesmoke");
+    varColor: '#f7f7f7', // d3.rgb("aliceblue"); // #f0f8ff
 
-export let d3Color = '#50a1db'; // d3's default blue
-export let steelBlue = '#1f77b4';
-export let selVarColor = '#fa8072'; // d3.rgb("salmon");
+    d3: '#50a1db', // d3's default blue
+    steelBlue: '#1f77b4',
+    selVar: '#fa8072', // d3.rgb("salmon");
 
-export let successColor = '#419641'; // should be similar to nominal
-export let warnColor = '#ffd442';
-export let errorColor = '#fa8072';
+    success: '#419641',
+    warn: '#ffd442',
+    error: '#fa8072',
+}
+
+export let themes = {
+    light: Object.assign({}, colors),
+    dark: {
+        text: '#f5f5f5',
+        base: 'dimgray',
+        menu: '#474747',
+        border: '1px solid #393939',
+
+        gray: '#c0c0c0',
+        lightGray: '#545454',
+
+        tagged: '#f5f5f5',
+        varColor: '#606366',
+        d3: '#50a1db',
+        steelBlue: '#1f77b4',
+        selVar: '#d26c60',
+    }
+}
 
 export let colorPalette = [
     "#3cb44b",
@@ -208,56 +229,29 @@ export let loaderSmall = id => m(`#loading${id}.loader-small`, {
 });
 
 export let setDarkTheme = () => {
-    textColor = '#f5f5f5';
-    baseColor = 'dimgray';
-    menuColor = '#474747';
-    borderColor = '1px solid #393939';
-
-    grayColor = '#c0c0c0';
-    lightGrayColor = '#545454'
-
-    taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
-    varColor = '#606366'; // d3.rgb("aliceblue");
-
-    d3Color = '#50a1db'; // d3's default blue
-    steelBlue = '#1f77b4';
-    selVarColor = '#d26c60'; // d3.rgb("salmon");
+    theme = 'dark';
+    Object.assign(colors, themes[theme])
 
     localStorage.setItem('plotTheme', 'dark');
-    document.documentElement.style.setProperty('--btn-background', lightGrayColor);
-    document.documentElement.style.setProperty('--text-color', textColor);
+    document.documentElement.style.setProperty('--btn-background', colors.lightGray);
+    document.documentElement.style.setProperty('--text-color', colors.text);
     document.documentElement.style.setProperty('--pre-color', '#d2d2d2');
-    document.documentElement.style.setProperty('--card-background-color', lightGrayColor);
+    document.documentElement.style.setProperty('--card-background-color', colors.lightGray);
     document.documentElement.style.setProperty('--btn-active-background', '#999');
     document.documentElement.style.setProperty('--btn-active-box-shadow', 'inset 0px 0px 8px #606060', 'important');
-    theme = 'dark';
 }
 if (localStorage.getItem('plotTheme') === 'dark')
     setDarkTheme()
 
 export let setLightTheme = () => {
-
-    textColor = '#444';
-    baseColor = '#f0f0f0';
-    menuColor = '#f9f9f9';
-    borderColor = '1px solid #bfbfbf';
-
-    grayColor = '#c0c0c0';
-    lightGrayColor = '#eee'
-
-    taggedColor = '#f5f5f5'; // d3.rgb("whitesmoke");
-    varColor = '#f7f7f7'; // d3.rgb("aliceblue");
-
-    d3Color = '#50a1db'; // d3's default blue
-    steelBlue = '#1f77b4';
-    selVarColor = '#fa8072'; // d3.rgb("salmon");
+    theme = 'light';
+    Object.assign(colors, themes[theme])
 
     localStorage.setItem('plotTheme', 'default');
     document.documentElement.style.setProperty('--btn-background', '#f6f6f6');
-    document.documentElement.style.setProperty('--text-color', textColor);
+    document.documentElement.style.setProperty('--text-color', colors.text);
     document.documentElement.style.setProperty('--pre-color', '#212121');
     document.documentElement.style.setProperty('--card-background-color', "#fff");
     document.documentElement.style.setProperty('--btn-active-background', '#e6e5e5');
     document.documentElement.style.setProperty('--btn-active-box-shadow', 'inset 0px 0px 8px #b0b0b0', 'important');
-    theme = 'light';
 }

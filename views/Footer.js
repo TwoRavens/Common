@@ -1,5 +1,6 @@
 import m from 'mithril';
-import {heightFooter, menuColor, borderColor, mergeAttributes} from '../common';
+import {heightFooter, mergeAttributes} from '../common';
+import * as common from "../common";
 
 // ```
 // m(Footer, {
@@ -11,8 +12,8 @@ export default class Footer {
     view(vnode) {
         return m('#footer', mergeAttributes({
             style: {
-                background: menuColor,
-                'border-top': borderColor,
+                background: common.colors.menu,
+                'border-top': common.colors.border,
                 bottom: 0,
                 height: heightFooter,
                 position: 'fixed',

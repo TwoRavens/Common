@@ -53,7 +53,7 @@ export default class PopperWrapper {
                     'transition': 'opacity 0.4s ease, margin-top 0.4s ease',
 
                     // popover styling
-                    'background-color': common.menuColor,
+                    'background-color': common.colors.menu,
                     padding: '.5em',
                     'border-radius': '.5em',
                     'box-shadow': '0 1px 4px rgba(0, 0, 0, 0.4)',

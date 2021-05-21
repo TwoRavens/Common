@@ -44,10 +44,10 @@ export default class ModalVanilla {
             onclick: () => this.setDisplay(false)
         }, m(`div#modalBox${id}`, {
             style: {
-                'background-color': common.menuColor,
+                'background-color': common.colors.menu,
                 margin: '5% auto 0 auto',
                 padding: '20px',
-                border: common.borderColor,
+                border: common.colors.border,
                 width: '80%',
                 'box-shadow': '0 5px 20px rgba(0,0,0,.4)'
             },

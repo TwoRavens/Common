@@ -25,7 +25,7 @@ export default class ListTags {
                     margin: '5px',
                     'border-radius': '5px',
                     padding: '4px 8px',
-                    background: common.grayColor
+                    background: common.colors.gray
                 }
             },
             onclick && {

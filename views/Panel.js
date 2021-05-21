@@ -3,8 +3,7 @@ import m from 'mithril';
 import {
     panelOpen,
     togglePanelOpen,
-    menuColor,
-    lightGrayColor,
+    colors,
     heightHeader,
     heightFooter,
     panelMargin,
@@ -43,7 +42,7 @@ export default class Panel {
             style: {
                 padding: '0',
                 ['padding-' + (side === 'left' ? 'right' : 'left')]: '16px',
-                background: menuColor,
+                background: colors.menu,
                 width: panelOpen[side] ? width : 0,
                 height: `calc(100% - 2*${panelMargin} - ${heightHeader} - ${heightFooter} - ${canvasScroll['horizontal'] ? scrollbarWidth : 0}px)`,
                 position: 'fixed',
@@ -54,7 +53,7 @@ export default class Panel {
         }, attrsAll), [
             // Panel handle
             m(`#toggle${side === 'left' ? 'L' : 'R'}panelicon.panelbar`, {
-                    style: {height: '100%', [side]: 'calc(100% - 16px)', background: lightGrayColor}
+                    style: {height: '100%', [side]: 'calc(100% - 16px)', background: colors.lightGray}
                 },
                 m('span', {onclick: () => togglePanelOpen(side)}, dot, dot, dot, dot)),
 

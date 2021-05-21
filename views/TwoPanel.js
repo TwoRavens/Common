@@ -1,5 +1,5 @@
 import m from 'mithril';
-import {mergeAttributes, borderColor} from "../common";
+import {mergeAttributes, colors} from "../common";
 
 // a menu with left and right components.
 // On desktop, the center is draggable
@@ -70,7 +70,7 @@ export default class TwoPanel {
                     'right': ['unfocused-left']
                 }[this.focus],
                 style: {
-                    'border-right': borderColor,
+                    'border-right': colors.border,
                     position: 'absolute',
                     left: 0,
                     top: 0,

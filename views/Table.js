@@ -1,6 +1,6 @@
 import m from 'mithril';
 
-import {lightGrayColor, mergeAttributes, selVarColor} from "../common";
+import {mergeAttributes, colors} from "../common";
 import Icon from "./Icon";
 
 // Interface specification
@@ -100,7 +100,7 @@ export default class Table {
 
         let valueHeader = header => m('th.table-header-sticky', {
             // sticky css applied on `th` for chrome compatibility https://bugs.chromium.org/p/chromium/issues/detail?id=702927
-            style: {'font-weight': 'bold', 'z-index': 5, background: lightGrayColor, padding: '0 .5em', 'border-top': '1px'},
+            style: {'font-weight': 'bold', 'z-index': 5, background: colors.lightGray, padding: '0 .5em', 'border-top': '1px'},
             onclick: () => {
                 if (!sortable) return;
                 if (header === this.sortHeader) {
@@ -168,7 +168,7 @@ export default class Table {
 
                     return m('tr', mergeAttributes(
                         i % 2 === 1 ? {style: {background: 'rgba(0,0,0,.02)'}} : {},
-                        isActive ? {style: {'background': selVarColor}} : {}, attrsRows,
+                        isActive ? {style: {'background': colors.selVar}} : {}, attrsRows,
                         (row[0] in viewClass) ? {class: viewClass[row[0]]} : {},
                         keyed ? {key: JSON.stringify(row[0])} : {}),
                         row.filter((item, j) => j !== 0 || showUID).map((item, j) =>

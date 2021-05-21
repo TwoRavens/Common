@@ -23,9 +23,10 @@ import distance from 'jaro-winkler'
 let distanceSort = (array, value) => {
     array = array.map(item => Array.isArray(item) ? item : [item, item]);
     if (value.length === 0) return array
+    value = value.toLowerCase();
     return array
         .map(item => Array.isArray(item) ? item : [item, item])
-        .map(([id, display]) => [[id, display], distance(id, value)])
+        .map(([id, display]) => [[id, display], distance(id.toLowerCase(), value)])
         .sort((a, b) => b[1] - a[1])
         .map(item => item[0]);
 }

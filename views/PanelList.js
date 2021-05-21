@@ -1,5 +1,5 @@
 import m from 'mithril';
-import {mergeAttributes, varColor} from '../common';
+import {mergeAttributes, colors} from '../common';
 import Popper from './Popper';
 
 // ```
@@ -7,7 +7,7 @@ import Popper from './Popper';
 //         id: 'id of container',
 //         items: ['Clickable 1', 'Clickable 2', 'Clickable 3'],
 //
-//         colors: { common.selVarColor: ['Clickable 1'] }, (optional)
+//         colors: { common.colors.selVar: ['Clickable 1'] }, (optional)
 //         classes: { 'item-lineout': ['Clickable 1', 'Clickable 3'] }, (optional)
 //
 //         callback: (item) => console.log(item + " clicked."),
@@ -46,7 +46,7 @@ export default class PanelList {
                     style: {
                         'margin-top': '5px',
                         'text-align': "center",
-                        'background-color': viewColor[item] || varColor,
+                        'background-color': viewColor[item] || colors.varColor,
                         'border-radius': '5px',
                         'box-shadow': '0px 1px 1px rgba(0, 0, 0, .1)'
                     },

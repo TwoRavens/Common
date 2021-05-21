@@ -53,8 +53,8 @@ export default class DropdownPopup {
                         style: {
                             display: this.visible ? 'block' : 'none',
                             width: '250px',
-                            background: common.menuColor,
-                            border: common.borderColor,
+                            background: common.colors.menu,
+                            border: common.colors.border,
                             'margin-top': '5px',
                             'box-shadow': '0px 4px 5px rgba(0,0,0,0.3)'
                         }

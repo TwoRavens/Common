@@ -1,5 +1,5 @@
 import m from 'mithril';
-import {heightHeader, menuColor, mergeAttributes, setDarkTheme, setLightTheme, theme} from '../common';
+import {heightHeader, mergeAttributes, setDarkTheme, setLightTheme, theme} from '../common';
 import Popper from './Popper.js'
 import * as common from "../common";
 
@@ -32,7 +32,7 @@ export default class Header {
                 'height': 'auto',
                 'margin-bottom': '0px',
                 padding: '0px 1rem',
-                'background': menuColor
+                'background': common.colors.menu
             }
         }, attrsInterface), [
 
