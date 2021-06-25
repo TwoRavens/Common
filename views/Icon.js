@@ -3,7 +3,7 @@ import * as octicons from 'octicons';
 import {mergeAttributes} from "../common";
 
 // icon names from here:
-// https://octicons.github.com/
+// https://primer.style/octicons/
 
 // m(Icon, {
 //     name: 'sync'
